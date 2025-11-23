@@ -4,12 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Molekülpolarität Explorer</title>
+    
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- React & DOM -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- Babel for JSX -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Confetti -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <!-- Favicon -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧲</text></svg>">
+    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; }
@@ -19,6 +30,22 @@
         ::-webkit-scrollbar-thumb:hover { background: #c2410c; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
+
+    <!-- Global Error Handler (Must be before main script) -->
+    <script>
+        window.onerror = function(message, source, lineno, colno, error) {
+            const root = document.getElementById('root');
+            if (root) {
+                root.innerHTML = `
+                    <div style="padding: 40px; text-align: center; color: #c2410c; background: rgba(255,255,255,0.9); margin: 20px; border-radius: 10px;">
+                        <h2 style="font-size: 24px; font-weight: bold; margin-bottom: 10px;">Upps! Ein Fehler ist aufgetreten.</h2>
+                        <p>Bitte lade die Seite neu oder prüfe die Konsole.</p>
+                        <pre style="margin-top: 20px; text-align: left; background: #eee; padding: 10px; overflow: auto; font-size: 12px;">${message}\nZeile: ${lineno}</pre>
+                    </div>`;
+            }
+            console.error("Global Error:", message, error);
+        };
+    </script>
 <script type="importmap">
 {
   "imports": {
@@ -38,6 +65,7 @@
 
         // --- TYPES & CONSTANTS ---
         
+        // Enum Simulation (Typescript enum is transpiled by Babel)
         enum AtomSymbol {
             H = 'H', C = 'C', N = 'N', O = 'O', F = 'F', S = 'S', Cl = 'Cl'
         }
@@ -79,7 +107,6 @@
                 { x: 0.8, y: 0.5, z: 0.4 }
             ],
             [GeometryType.Tetrahedral]: [
-                // Modified for better visibility in 2D (Back atom offset)
                 { x: 0, y: -1, z: 0 },           // Top
                 { x: 0.9, y: 0.45, z: 0.2 },     // Right Leg
                 { x: -0.9, y: 0.45, z: 0.2 },    // Left Leg
@@ -384,7 +411,6 @@
                 if (rawPull < -1) rawPull = -1;
                 pullPx = rawPull * 80;
             } else {
-                // Ionic: electron goes to winner
                 pullPx = en2 > en1 ? 130 : -130;
             }
             
@@ -501,7 +527,9 @@
                     const newScore = score + 10;
                     setScore(newScore);
                     localStorage.setItem('polarityQuizScore', newScore.toString());
-                    confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#ea580c', '#f59e0b', '#3b82f6'] });
+                    try {
+                        confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#ea580c', '#f59e0b', '#3b82f6'] });
+                    } catch(e) { console.warn("Confetti not loaded", e); }
                 }
             };
 
@@ -579,7 +607,7 @@
                             <h3 className="font-bold text-lg text-orange-800 mb-4">🔬 Baukasten</h3>
                             <div className="mb-4">
                                 <label className="block text-sm font-bold text-slate-600 mb-1">Geometrie</label>
-                                <select value={geometry} onChange={(e) => setGeometry(e.target.value)} className="w-full p-2 border rounded bg-white text-slate-900">
+                                <select value={geometry} onChange={(e) => setGeometry(e.target.value)} className="w-full p-2 border rounded bg-white text-slate-900" style={{backgroundColor: 'white'}}>
                                     {Object.values(GeometryType).map(g => <option key={g} value={g}>{g}</option>)}
                                 </select>
                             </div>
@@ -601,7 +629,7 @@
                                     {activePartners.map((p, idx) => (
                                         <div key={idx} className="flex items-center justify-between bg-slate-50 p-2 rounded">
                                             <span className="text-xs text-slate-500 font-mono">Position {idx + 1}</span>
-                                            <select value={p} onChange={(e) => updatePartner(idx, e.target.value)} className="ml-2 p-1 border rounded text-sm bg-white text-slate-900">
+                                            <select value={p} onChange={(e) => updatePartner(idx, e.target.value)} className="ml-2 p-1 border rounded text-sm bg-white text-slate-900" style={{backgroundColor: 'white'}}>
                                                 {Object.keys(ATOMS).map(s => <option key={s} value={s}>{s} (EN: {ATOMS[s].en})</option>)}
                                             </select>
                                         </div>
@@ -689,14 +717,6 @@
 
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
-
-        // Global Error Handler
-        window.onerror = function(message, source, lineno, colno, error) {
-            const root = document.getElementById('root');
-            if (root) {
-                root.innerHTML = `<div style="padding: 20px; text-align: center; color: #c2410c;"><h2>Upps! Ein Fehler ist aufgetreten.</h2><p>Bitte lade die Seite neu. (${message})</p></div>`;
-            }
-        };
     </script>
 </body>
 </html>
