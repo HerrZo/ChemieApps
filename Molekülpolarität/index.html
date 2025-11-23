@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Molekülpolarität Explorer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧲</text></svg>">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #fff7ed; }
+        ::-webkit-scrollbar-thumb { background: #ea580c; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #c2410c; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "canvas-confetti": "https://aistudiocdn.com/canvas-confetti@^1.9.4"
+  }
+}
+</script>
+</head>
+<body class="bg-gradient-to-br from-orange-50 to-amber-100 min-h-screen text-slate-800 overflow-x-hidden selection:bg-orange-200">
+    <div id="root"></div>
+
+    <script type="text/babel" data-presets="react,typescript">
+        const { useState, useEffect, useMemo } = React;
+
+        // --- TYPES & CONSTANTS ---
+        
+        enum AtomSymbol {
+            H = 'H', C = 'C', N = 'N', O = 'O', F = 'F', S = 'S', Cl = 'Cl'
+        }
+
+        enum GeometryType {
+            Linear2 = 'Linear (2 Atome)',
+            Linear3 = 'Linear (3 Atome)',
+            Bent = 'Gewinkelt',
+            TrigonalPlanar = 'Trigonal-planar',
+            Pyramidal = 'Pyramidal',
+            Tetrahedral = 'Tetraedrisch'
+        }
+
+        const ATOMS = {
+            [AtomSymbol.H]: { symbol: AtomSymbol.H, en: 2.20, color: '#e2e8f0', radius: 25 },
+            [AtomSymbol.C]: { symbol: AtomSymbol.C, en: 2.55, color: '#334155', radius: 35 },
+            [AtomSymbol.N]: { symbol: AtomSymbol.N, en: 3.04, color: '#3b82f6', radius: 33 },
+            [AtomSymbol.O]: { symbol: AtomSymbol.O, en: 3.44, color: '#ef4444', radius: 32 },
+            [AtomSymbol.F]: { symbol: AtomSymbol.F, en: 3.98, color: '#22c55e', radius: 30 },
+            [AtomSymbol.S]: { symbol: AtomSymbol.S, en: 2.58, color: '#fbbf24', radius: 38 },
+            [AtomSymbol.Cl]: { symbol: AtomSymbol.Cl, en: 3.16, color: '#10b981', radius: 37 },
+        };
+
+        const GEOMETRY_VECTORS = {
+            [GeometryType.Linear2]: [{ x: 1, y: 0, z: 0 }],
+            [GeometryType.Linear3]: [{ x: -1, y: 0, z: 0 }, { x: 1, y: 0, z: 0 }],
+            [GeometryType.Bent]: [
+                { x: Math.sin(-1.83), y: Math.cos(-1.83), z: 0 },
+                { x: Math.sin(1.83), y: Math.cos(1.83), z: 0 }
+            ],
+            [GeometryType.TrigonalPlanar]: [
+                { x: 0, y: -1, z: 0 },
+                { x: Math.sin(2.09), y: Math.cos(2.09), z: 0 },
+                { x: -Math.sin(2.09), y: Math.cos(2.09), z: 0 }
+            ],
+            [GeometryType.Pyramidal]: [
+                { x: 0, y: 0.3, z: -0.9 },
+                { x: -0.8, y: 0.5, z: 0.4 },
+                { x: 0.8, y: 0.5, z: 0.4 }
+            ],
+            [GeometryType.Tetrahedral]: [
+                // Modified for better visibility in 2D (Back atom offset)
+                { x: 0, y: -1, z: 0 },           // Top
+                { x: 0.9, y: 0.45, z: 0.2 },     // Right Leg
+                { x: -0.9, y: 0.45, z: 0.2 },    // Left Leg
+                { x: 0.4, y: -0.2, z: -0.9 }     // Back Right (Peeking out)
+            ]
+        };
+
+        const QUIZ_MOLECULES = [
+            {
+                name: 'Wasserstoff',
+                formula: 'H<sub>2</sub>',
+                geometry: GeometryType.Linear2,
+                centerAtom: AtomSymbol.H,
+                partners: [AtomSymbol.H],
+                isDipole: false,
+                explanation: 'Zwei gleiche Atome haben die gleiche Elektronegativität. ΔEN = 0.'
+            },
+            {
+                name: 'Chlorwasserstoff',
+                formula: 'HCl',
+                geometry: GeometryType.Linear2,
+                centerAtom: AtomSymbol.Cl,
+                partners: [AtomSymbol.H],
+                isDipole: true,
+                explanation: 'Chlor ist elektronegativer als Wasserstoff. Es entsteht ein permanenter Dipol.'
+            },
+            {
+                name: 'Kohlenstoffdioxid',
+                formula: 'CO<sub>2</sub>',
+                geometry: GeometryType.Linear3,
+                centerAtom: AtomSymbol.C,
+                partners: [AtomSymbol.O, AtomSymbol.O],
+                isDipole: false,
+                explanation: 'Die Bindungen sind polar, aber durch die lineare Symmetrie heben sich die Dipolmomente auf.'
+            },
+            {
+                name: 'Wasser',
+                formula: 'H<sub>2</sub>O',
+                geometry: GeometryType.Bent,
+                centerAtom: AtomSymbol.O,
+                partners: [AtomSymbol.H, AtomSymbol.H],
+                isDipole: true,
+                explanation: 'Durch die gewinkelte Struktur und die polaren O-H Bindungen entsteht ein Gesamtdipol.'
+            },
+            {
+                name: 'Ammoniak',
+                formula: 'NH<sub>3</sub>',
+                geometry: GeometryType.Pyramidal,
+                centerAtom: AtomSymbol.N,
+                partners: [AtomSymbol.H, AtomSymbol.H, AtomSymbol.H],
+                isDipole: true,
+                explanation: 'Die pyramidale Form sorgt dafür, dass sich die polaren Bindungen nicht aufheben.'
+            },
+            {
+                name: 'Methan',
+                formula: 'CH<sub>4</sub>',
+                geometry: GeometryType.Tetrahedral,
+                centerAtom: AtomSymbol.C,
+                partners: [AtomSymbol.H, AtomSymbol.H, AtomSymbol.H, AtomSymbol.H],
+                isDipole: false,
+                explanation: 'Die tetraedrische Symmetrie gleicht die schwach polaren C-H Bindungen perfekt aus.'
+            },
+            {
+                name: 'Tetrafluormethan',
+                formula: 'CF<sub>4</sub>',
+                geometry: GeometryType.Tetrahedral,
+                centerAtom: AtomSymbol.C,
+                partners: [AtomSymbol.F, AtomSymbol.F, AtomSymbol.F, AtomSymbol.F],
+                isDipole: false,
+                explanation: 'Trotz sehr polarer C-F Bindungen ist das Molekül aufgrund der Symmetrie unpolar.'
+            },
+            {
+                name: 'Fluormethan',
+                formula: 'CH<sub>3</sub>F',
+                geometry: GeometryType.Tetrahedral,
+                centerAtom: AtomSymbol.C,
+                partners: [AtomSymbol.H, AtomSymbol.H, AtomSymbol.H, AtomSymbol.F],
+                isDipole: true,
+                explanation: 'Die Symmetrie ist gestört. Das Fluoratom zieht die Elektronen stark zu sich -> Dipol.'
+            }
+        ];
+
+        // --- SERVICES ---
+
+        const getBondType = (deltaEN) => {
+            if (deltaEN < 0.4) return "Unpolare Atombindung";
+            if (deltaEN < 1.7) return "Polare Atombindung";
+            return "Ionenbindung";
+        };
+
+        const formatNumber = (num) => {
+            return num.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        };
+
+        const calculateNetDipole = (center, partners, geometry) => {
+            if (geometry === GeometryType.Linear2) {
+                const delta = ATOMS[partners[0]].en - ATOMS[center].en;
+                return { 
+                    magnitude: Math.abs(delta), 
+                    vector: { x: delta > 0 ? 1 : -1, y: 0, z: 0 } 
+                };
+            }
+
+            const vectors = GEOMETRY_VECTORS[geometry];
+            let netX = 0, netY = 0, netZ = 0;
+
+            partners.forEach((partner, index) => {
+                if (index < vectors.length) {
+                    const enDiff = ATOMS[partner].en - ATOMS[center].en;
+                    const v = vectors[index];
+                    netX += v.x * enDiff;
+                    netY += v.y * enDiff;
+                    netZ += v.z * enDiff;
+                }
+            });
+
+            const magnitude = Math.sqrt(netX*netX + netY*netY + netZ*netZ);
+            return { magnitude, vector: { x: netX, y: netY, z: netZ } };
+        };
+
+        // --- COMPONENTS ---
+
+        const MoleculeRenderer = ({ center, partners, geometry, showBondVectors = false, showNetDipole = false, netDipole }) => {
+            const width = 300;
+            const height = 300;
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const bondLength = 80;
+
+            const atomsToRender = [];
+            
+            if (geometry !== GeometryType.Linear2) {
+                atomsToRender.push({ x: 0, y: 0, z: 0, symbol: center, isCenter: true, id: 'center' });
+            } else {
+                atomsToRender.push({ x: -0.5, y: 0, z: 0, symbol: center, isCenter: true, id: 'left' });
+            }
+
+            const vectorDefs = GEOMETRY_VECTORS[geometry];
+            partners.forEach((p, i) => {
+                if (i < vectorDefs.length) {
+                    if (geometry === GeometryType.Linear2) {
+                        atomsToRender.push({ x: 0.5, y: 0, z: 0, symbol: p, isCenter: false, id: `p-${i}` });
+                    } else {
+                        atomsToRender.push({ 
+                            x: vectorDefs[i].x, y: vectorDefs[i].y, z: vectorDefs[i].z, 
+                            symbol: p, isCenter: false, id: `p-${i}`
+                        });
+                    }
+                }
+            });
+
+            const sortedAtoms = [...atomsToRender].sort((a, b) => a.z - b.z);
+
+            const getScreenCoords = (rx, ry) => ({
+                cx: centerX + rx * bondLength,
+                cy: centerY + ry * bondLength
+            });
+
+            return (
+                <div className="flex items-center justify-center bg-white/50 rounded-xl shadow-inner p-4">
+                    <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} className="overflow-visible">
+                        <defs>
+                            <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                                <polygon points="0 0, 10 3.5, 0 7" fill="#94a3b8" />
+                            </marker>
+                            <marker id="arrowhead-red" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                                <polygon points="0 0, 10 3.5, 0 7" fill="#ef4444" />
+                            </marker>
+                        </defs>
+
+                        {/* Bonds */}
+                        {sortedAtoms.map((atom) => {
+                            if (atom.isCenter && geometry !== GeometryType.Linear2) return null;
+                            let start = { x: 0, y: 0, z: 0 };
+                            if (geometry === GeometryType.Linear2 && !atom.isCenter) start = { x: -0.5, y: 0, z: 0 };
+
+                            const startPx = getScreenCoords(start.x, start.y);
+                            const endPx = getScreenCoords(atom.x, atom.y);
+                            const zThreshold = 0.2;
+
+                            if (atom.z < -zThreshold) {
+                                return <path key={`bond-${atom.id}`} d={`M${startPx.cx},${startPx.cy} L${endPx.cx - 5},${endPx.cy} L${endPx.cx + 5},${endPx.cy} Z`} fill="none" stroke="#94a3b8" strokeWidth="2" strokeDasharray="4,2"/>;
+                            } else if (atom.z > zThreshold) {
+                                return <path key={`bond-${atom.id}`} d={`M${startPx.cx},${startPx.cy} L${endPx.cx - 6},${endPx.cy} L${endPx.cx + 6},${endPx.cy} Z`} fill="#cbd5e1" stroke="#94a3b8" strokeWidth="1"/>;
+                            } else {
+                                return <line key={`bond-${atom.id}`} x1={startPx.cx} y1={startPx.cy} x2={endPx.cx} y2={endPx.cy} stroke="#94a3b8" strokeWidth="6" strokeLinecap="round"/>;
+                            }
+                        })}
+
+                        {/* Bond Vectors */}
+                        {showBondVectors && sortedAtoms.map((atom) => {
+                            if (atom.isCenter && geometry !== GeometryType.Linear2) return null;
+                            let centerSymbol = center;
+                            let atomSymbol = atom.symbol;
+                            let start = {x: 0, y: 0};
+                            if (geometry === GeometryType.Linear2) {
+                                start = {x: -0.5, y:0};
+                                if(atom.isCenter) return null;
+                            }
+                            
+                            const enDiff = ATOMS[atomSymbol].en - ATOMS[centerSymbol].en;
+                            if (Math.abs(enDiff) < 0.1) return null;
+
+                            const startPx = getScreenCoords(start.x, start.y);
+                            const endPx = getScreenCoords(atom.x, atom.y);
+                            const isPointsToAtom = enDiff > 0;
+                            const thickness = Math.min(Math.abs(enDiff) * 2, 6);
+
+                            return (
+                                <g key={`vec-${atom.id}`} opacity="0.6">
+                                    <line 
+                                        x1={isPointsToAtom ? startPx.cx : endPx.cx}
+                                        y1={isPointsToAtom ? startPx.cy : endPx.cy}
+                                        x2={isPointsToAtom ? endPx.cx : startPx.cx}
+                                        y2={isPointsToAtom ? endPx.cy : startPx.cy}
+                                        stroke="gray"
+                                        strokeWidth={thickness}
+                                        markerEnd="url(#arrowhead)"
+                                    />
+                                    <text x={isPointsToAtom ? startPx.cx : endPx.cx} y={isPointsToAtom ? startPx.cy - 10 : endPx.cy - 10} textAnchor="middle" fill="gray" fontSize="12" fontWeight="bold">+</text>
+                                </g>
+                            );
+                        })}
+
+                        {/* Atoms */}
+                        {sortedAtoms.map((atom) => {
+                            const data = ATOMS[atom.symbol];
+                            const pos = getScreenCoords(atom.x, atom.y);
+                            const radius = data.radius * (1 + atom.z * 0.2);
+                            const brightness = atom.z > 0 ? 100 : (atom.z < 0 ? 90 : 95);
+
+                            return (
+                                <g key={atom.id} transform={`translate(${pos.cx}, ${pos.cy})`}>
+                                    <circle r={radius} fill={data.color} stroke="#1e293b" strokeWidth="2" filter={`brightness(${brightness}%) drop-shadow(2px 4px 6px rgba(0,0,0,0.2))`}/>
+                                    <text y="0.3em" textAnchor="middle" fill={['H','C'].includes(atom.symbol) ? '#1e293b' : 'white'} fontWeight="bold" fontSize={radius} pointerEvents="none">{atom.symbol}</text>
+                                    {showBondVectors && (
+                                        <g transform={`translate(${radius * 0.8}, ${-radius * 0.8})`}>
+                                            <text fontSize="14" fill="#475569" fontWeight="bold">
+                                                { (atom.isCenter && geometry !== GeometryType.Linear2) 
+                                                    ? (netDipole && partners.some(p => ATOMS[p].en > ATOMS[center].en) ? 'δ+' : (partners.some(p => ATOMS[p].en < ATOMS[center].en) ? 'δ-' : ''))
+                                                    : (ATOMS[atom.symbol].en > ATOMS[center].en ? 'δ-' : (ATOMS[atom.symbol].en < ATOMS[center].en ? 'δ+' : ''))
+                                                }
+                                            </text>
+                                        </g>
+                                    )}
+                                </g>
+                            )
+                        })}
+
+                        {/* Net Dipole */}
+                        {showNetDipole && netDipole && netDipole.magnitude > 0.3 && (
+                            <g opacity="0.9">
+                                <line
+                                    x1={centerX - (netDipole.vector.x * 40)}
+                                    y1={centerY - (netDipole.vector.y * 40)}
+                                    x2={centerX + (netDipole.vector.x * 40)}
+                                    y2={centerY + (netDipole.vector.y * 40)}
+                                    stroke="#ef4444"
+                                    strokeWidth={8}
+                                    markerEnd="url(#arrowhead-red)"
+                                />
+                                <g>
+                                    <text 
+                                        x={centerX + (netDipole.vector.x * 45)} 
+                                        y={centerY + (netDipole.vector.y * 45)} 
+                                        stroke="white" strokeWidth="6" strokeLinejoin="round" 
+                                        fontWeight="bold" fontSize="16" fill="white"
+                                    >
+                                        Gesamtdipol
+                                    </text>
+                                    <text 
+                                        x={centerX + (netDipole.vector.x * 45)} 
+                                        y={centerY + (netDipole.vector.y * 45)} 
+                                        fill="#ef4444" fontWeight="bold" fontSize="16"
+                                    >
+                                        Gesamtdipol
+                                    </text>
+                                </g>
+                            </g>
+                        )}
+                    </svg>
+                </div>
+            );
+        };
+
+        const TugOfWar = () => {
+            const [atom1, setAtom1] = useState(AtomSymbol.H);
+            const [atom2, setAtom2] = useState(AtomSymbol.Cl);
+
+            const en1 = ATOMS[atom1].en;
+            const en2 = ATOMS[atom2].en;
+            const deltaEN = Math.abs(en1 - en2);
+            const bondType = getBondType(deltaEN);
+            const isIonic = deltaEN >= 1.7;
+
+            const maxPull = 2.0; 
+            let rawPull = (en2 - en1) / maxPull;
+            let pullPx = 0;
+
+            if (!isIonic) {
+                if (rawPull > 1) rawPull = 1;
+                if (rawPull < -1) rawPull = -1;
+                pullPx = rawPull * 80;
+            } else {
+                // Ionic: electron goes to winner
+                pullPx = en2 > en1 ? 130 : -130;
+            }
+            
+            const isAtom1Loser = isIonic && en1 < en2;
+            const isAtom2Loser = isIonic && en2 < en1;
+
+            const ropeStyle = isIonic ? {
+                width: '33%', 
+                left: en2 > en1 ? '50%' : '17%', 
+                transform: 'translateY(-50%)',
+                opacity: 1
+            } : {
+                width: '66%',
+                left: '17%',
+                transform: 'translateY(-50%)'
+            };
+
+            return (
+                <div className="space-y-8">
+                    <div className="bg-white p-6 rounded-xl shadow-lg border border-orange-100">
+                        <h2 className="text-2xl font-bold text-orange-800 mb-4">⚡ Das Elektronen-Tauziehen</h2>
+                        <p className="text-slate-600 mb-6">Wähle zwei Atome und beobachte, wer stärker an den Bindungselektronen zieht.</p>
+
+                        <div className="grid grid-cols-2 gap-4 mb-8">
+                            <div className="flex flex-col items-center bg-orange-50 p-4 rounded-lg">
+                                <label className="font-bold text-orange-700 mb-2">Atom Links</label>
+                                <select value={atom1} onChange={(e) => setAtom1(e.target.value)} className="p-2 border border-orange-300 rounded w-full bg-white">
+                                    {Object.keys(ATOMS).map(sym => <option key={sym} value={sym}>{sym} (EN: {ATOMS[sym].en})</option>)}
+                                </select>
+                            </div>
+                            <div className="flex flex-col items-center bg-amber-50 p-4 rounded-lg">
+                                <label className="font-bold text-amber-700 mb-2">Atom Rechts</label>
+                                <select value={atom2} onChange={(e) => setAtom2(e.target.value)} className="p-2 border border-amber-300 rounded w-full bg-white">
+                                    {Object.keys(ATOMS).map(sym => <option key={sym} value={sym}>{sym} (EN: {ATOMS[sym].en})</option>)}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div className="relative h-48 bg-gradient-to-b from-sky-50 to-white rounded-xl border border-slate-200 overflow-hidden flex items-center justify-center">
+                            {/* Rope */}
+                            <div className="absolute h-2 bg-amber-700 rounded shadow-sm transition-all duration-500 ease-out" style={{ top: '50%', ...ropeStyle }}></div>
+                            {/* Electron */}
+                            <div 
+                                className="absolute w-8 h-8 bg-yellow-400 rounded-full border-2 border-yellow-600 shadow-[0_0_15px_rgba(250,204,21,0.6)] z-10 flex items-center justify-center font-bold text-xs transition-all duration-500 ease-out"
+                                style={{ transform: `translate(${pullPx}px, -50%)`, top: '50%' }}
+                            >e⁻</div>
+
+                            {/* Left Stickman */}
+                            <div className="absolute left-4 bottom-4 transition-transform duration-500" style={{ transform: `scale(${1 + en1/10})` }}>
+                                <svg width="60" height="100" viewBox="0 0 60 100">
+                                    <circle cx="30" cy="20" r="15" fill={ATOMS[atom1].color} stroke="black" strokeWidth="2"/>
+                                    <line x1="30" y1="35" x2="30" y2="70" stroke="black" strokeWidth="3"/>
+                                    <line x1="30" y1="70" x2="10" y2="100" stroke="black" strokeWidth="3"/>
+                                    <line x1="30" y1="70" x2="50" y2="100" stroke="black" strokeWidth="3"/>
+                                    {isAtom1Loser ? 
+                                        <path d="M30 45 L 10 25 M30 45 L 50 25" stroke="black" strokeWidth="3" fill="none" /> : 
+                                        (isIonic ? <path d="M30 45 L 50 50 M30 45 L 50 50" stroke="black" strokeWidth="3" fill="none" /> : <path d="M30 45 Q 10 45, 60 50" stroke="black" strokeWidth="3" fill="none" />)
+                                    }
+                                    <text x="30" y="25" textAnchor="middle" fontSize="12" fontWeight="bold">{atom1}</text>
+                                </svg>
+                                {isIonic ? (
+                                    en1 < en2 ? <div className="absolute -top-2 left-0 font-serif text-3xl text-blue-600 font-bold drop-shadow-md">+</div> : <div className="absolute -top-2 right-0 font-serif text-3xl text-red-600 font-bold drop-shadow-md">-</div>
+                                ) : (deltaEN > 0.4 && (
+                                    en1 < en2 ? <div className="absolute -top-2 left-0 font-serif text-xl text-blue-600 font-bold">δ+</div> : <div className="absolute -top-2 right-0 font-serif text-xl text-red-600 font-bold">δ-</div>
+                                ))}
+                            </div>
+
+                            {/* Right Stickman */}
+                            <div className="absolute right-4 bottom-4 transition-transform duration-500" style={{ transform: `scale(${1 + en2/10})` }}>
+                                <svg width="60" height="100" viewBox="0 0 60 100">
+                                    <circle cx="30" cy="20" r="15" fill={ATOMS[atom2].color} stroke="black" strokeWidth="2"/>
+                                    <line x1="30" y1="35" x2="30" y2="70" stroke="black" strokeWidth="3"/>
+                                    <line x1="30" y1="70" x2="10" y2="100" stroke="black" strokeWidth="3"/>
+                                    <line x1="30" y1="70" x2="50" y2="100" stroke="black" strokeWidth="3"/>
+                                    {isAtom2Loser ? 
+                                        <path d="M30 45 L 10 25 M30 45 L 50 25" stroke="black" strokeWidth="3" fill="none" /> : 
+                                        (isIonic ? <path d="M30 45 L 10 50 M30 45 L 10 50" stroke="black" strokeWidth="3" fill="none" /> : <path d="M30 45 Q 50 45, 0 50" stroke="black" strokeWidth="3" fill="none" />)
+                                    }
+                                    <text x="30" y="25" textAnchor="middle" fontSize="12" fontWeight="bold">{atom2}</text>
+                                </svg>
+                                {isIonic ? (
+                                    en2 < en1 ? <div className="absolute -top-2 left-0 font-serif text-3xl text-blue-600 font-bold drop-shadow-md">+</div> : <div className="absolute -top-2 right-0 font-serif text-3xl text-red-600 font-bold drop-shadow-md">-</div>
+                                ) : (deltaEN > 0.4 && (
+                                    en2 < en1 ? <div className="absolute -top-2 left-0 font-serif text-xl text-blue-600 font-bold">δ+</div> : <div className="absolute -top-2 right-0 font-serif text-xl text-red-600 font-bold">δ-</div>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="mt-4 text-center p-4 bg-white rounded border border-slate-200">
+                            <p className="text-lg">ΔEN = <span className="font-mono font-bold">{formatNumber(deltaEN)}</span></p>
+                            <p className={`font-bold text-xl mt-2 ${deltaEN < 0.4 ? 'text-green-600' : (deltaEN < 1.7 ? 'text-orange-600' : 'text-red-600')}`}>
+                                {bondType}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const DipoleQuiz = () => {
+            const [currentIndex, setCurrentIndex] = useState(0);
+            const [score, setScore] = useState(() => parseInt(localStorage.getItem('polarityQuizScore') || '0'));
+            const [hasAnswered, setHasAnswered] = useState(false);
+            const [isCorrect, setIsCorrect] = useState(false);
+
+            const molecule = QUIZ_MOLECULES[currentIndex];
+
+            const handleAnswer = (userSaysDipole) => {
+                if (hasAnswered) return;
+                const correct = userSaysDipole === molecule.isDipole;
+                setHasAnswered(true);
+                setIsCorrect(correct);
+                if (correct) {
+                    const newScore = score + 10;
+                    setScore(newScore);
+                    localStorage.setItem('polarityQuizScore', newScore.toString());
+                    confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#ea580c', '#f59e0b', '#3b82f6'] });
+                }
+            };
+
+            const nextQuestion = () => {
+                setCurrentIndex((prev) => (prev + 1) % QUIZ_MOLECULES.length);
+                setHasAnswered(false);
+                setIsCorrect(false);
+            };
+
+            return (
+                <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden border border-orange-100">
+                    <div className="bg-orange-600 p-4 text-white flex justify-between items-center">
+                        <h2 className="font-bold text-xl">🎓 Der Dipol-Check</h2>
+                        <span className="bg-white/20 px-3 py-1 rounded-full text-sm font-mono">Score: {score}</span>
+                    </div>
+
+                    <div className="p-6">
+                        <div className="text-center mb-6">
+                            <h3 className="text-2xl font-bold text-slate-800 mb-1">{molecule.name}</h3>
+                            <p className="text-xl text-slate-500 font-serif" dangerouslySetInnerHTML={{ __html: molecule.formula }}></p>
+                        </div>
+
+                        <div className="flex justify-center mb-8">
+                             <MoleculeRenderer 
+                                center={molecule.centerAtom || AtomSymbol.H}
+                                partners={molecule.partners}
+                                geometry={molecule.geometry}
+                                showBondVectors={hasAnswered} 
+                                showNetDipole={false} 
+                             />
+                        </div>
+
+                        {!hasAnswered ? (
+                            <div className="grid grid-cols-2 gap-4">
+                                <button onClick={() => handleAnswer(true)} className="bg-red-100 hover:bg-red-200 text-red-700 font-bold py-4 px-6 rounded-xl border border-red-200 transition flex flex-col items-center">
+                                    DIPOL
+                                </button>
+                                <button onClick={() => handleAnswer(false)} className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-4 px-6 rounded-xl border border-slate-200 transition flex flex-col items-center">
+                                    KEIN DIPOL
+                                </button>
+                            </div>
+                        ) : (
+                            <div className={`text-center p-6 rounded-xl border ${isCorrect ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
+                                <h4 className={`text-xl font-bold mb-2 ${isCorrect ? 'text-green-700' : 'text-red-700'}`}>{isCorrect ? '🎉 Richtig!' : '❌ Leider falsch.'}</h4>
+                                <p className="text-slate-700 mb-4">{molecule.explanation}</p>
+                                <button onClick={nextQuestion} className="bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 px-8 rounded shadow transition">Nächstes Molekül &rarr;</button>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        const GeometryLab = () => {
+            const [geometry, setGeometry] = useState(GeometryType.Linear3);
+            const [center, setCenter] = useState(AtomSymbol.C);
+            const [partners, setPartners] = useState([AtomSymbol.O, AtomSymbol.O, AtomSymbol.H, AtomSymbol.H]);
+
+            const currentVectors = GEOMETRY_VECTORS[geometry];
+            const activePartners = partners.slice(0, currentVectors.length);
+
+            const updatePartner = (index, sym) => {
+                const newP = [...partners];
+                newP[index] = sym;
+                setPartners(newP);
+            };
+
+            const net = useMemo(() => calculateNetDipole(center, activePartners, geometry), [center, activePartners, geometry]);
+            const isDipole = net.magnitude > 0.3;
+
+            return (
+                <div className="grid lg:grid-cols-3 gap-8">
+                    <div className="lg:col-span-1 space-y-6">
+                        <div className="bg-white p-6 rounded-xl shadow border border-orange-100">
+                            <h3 className="font-bold text-lg text-orange-800 mb-4">🔬 Baukasten</h3>
+                            <div className="mb-4">
+                                <label className="block text-sm font-bold text-slate-600 mb-1">Geometrie</label>
+                                <select value={geometry} onChange={(e) => setGeometry(e.target.value)} className="w-full p-2 border rounded bg-white text-slate-900">
+                                    {Object.values(GeometryType).map(g => <option key={g} value={g}>{g}</option>)}
+                                </select>
+                            </div>
+
+                            {geometry !== GeometryType.Linear2 && (
+                                <div className="mb-4">
+                                    <label className="block text-sm font-bold text-slate-600 mb-1">Zentralatom</label>
+                                    <div className="flex flex-wrap gap-2">
+                                        {[AtomSymbol.C, AtomSymbol.N, AtomSymbol.O, AtomSymbol.S].map(sym => (
+                                            <button key={sym} onClick={() => setCenter(sym)} className={`w-10 h-10 rounded-full font-bold border-2 transition ${center === sym ? 'border-orange-500 scale-110 shadow' : 'border-slate-200 hover:border-orange-300'}`} style={{ backgroundColor: ATOMS[sym].color, color: sym === 'O' ? 'white' : (sym === 'S' ? 'black' : 'white') }}>{sym}</button>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            <div className="mb-4">
+                                <label className="block text-sm font-bold text-slate-600 mb-2">Bindungspartner</label>
+                                <div className="space-y-2">
+                                    {activePartners.map((p, idx) => (
+                                        <div key={idx} className="flex items-center justify-between bg-slate-50 p-2 rounded">
+                                            <span className="text-xs text-slate-500 font-mono">Position {idx + 1}</span>
+                                            <select value={p} onChange={(e) => updatePartner(idx, e.target.value)} className="ml-2 p-1 border rounded text-sm bg-white text-slate-900">
+                                                {Object.keys(ATOMS).map(s => <option key={s} value={s}>{s} (EN: {ATOMS[s].en})</option>)}
+                                            </select>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="lg:col-span-2 bg-gradient-to-br from-white to-orange-50 rounded-xl shadow-inner border border-orange-100 p-8 flex flex-col items-center justify-center min-h-[400px]">
+                         <MoleculeRenderer center={center} partners={activePartners} geometry={geometry} showBondVectors={true} showNetDipole={true} netDipole={net} />
+                         <div className="mt-8 text-center bg-white/80 backdrop-blur p-4 rounded-xl shadow-sm border border-white w-full max-w-md">
+                            <p className="text-slate-500 text-sm uppercase tracking-wider font-bold mb-1">Ergebnis</p>
+                            <h2 className={`text-2xl font-bold ${isDipole ? 'text-red-600' : 'text-slate-400'}`}>{isDipole ? 'DIPOL MOLEKÜL' : 'UNPOLAR'}</h2>
+                         </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const GlossaryModal = ({ isOpen, onClose }) => {
+            if (!isOpen) return null;
+            return (
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+                    <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[80vh] overflow-y-auto animate-[fadeIn_0.2s_ease-out]">
+                        <div className="p-6 border-b border-orange-100 flex justify-between items-center sticky top-0 bg-white z-10">
+                            <h2 className="text-2xl font-bold text-orange-800">Glossar</h2>
+                            <button onClick={onClose} className="text-slate-400 hover:text-slate-600">✕</button>
+                        </div>
+                        <div className="p-6 space-y-6 text-slate-700">
+                            <div><h3 className="font-bold text-orange-600 mb-1">Elektronegativität (EN)</h3><p className="text-sm">Maß für die Anziehungskraft auf Bindungselektronen.</p></div>
+                            <div><h3 className="font-bold text-orange-600 mb-1">Dipol</h3><p className="text-sm">Molekül mit getrennten Ladungsschwerpunkten.</p></div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const Header = ({ onOpenGlossary }) => {
+            return (
+                <header className="bg-orange-700 text-white shadow-md sticky top-0 z-50">
+                    <div className="container mx-auto px-4 py-3 flex justify-between items-center">
+                        <div className="flex items-center gap-3">
+                            <div className="bg-white/10 p-2 rounded-lg backdrop-blur-sm">
+                                <svg className="w-8 h-8 text-amber-300" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><circle cx="12" cy="12" r="3"/><circle cx="16" cy="8" r="1.5"/></svg>
+                            </div>
+                            <div>
+                                <h1 className="text-xl md:text-2xl font-bold leading-none">Molekülpolarität</h1>
+                                <p className="text-orange-200 text-xs md:text-sm">Bindung, Struktur & Dipol</p>
+                            </div>
+                        </div>
+                        <div className="flex gap-2">
+                             <a href="https://herrzo.github.io/ChemieApps/" target="_blank" className="hidden md:flex items-center gap-1 bg-orange-800 hover:bg-orange-900 px-3 py-2 rounded-lg text-sm transition">Sammlung</a>
+                             <button onClick={onOpenGlossary} className="flex items-center gap-1 bg-amber-500 hover:bg-amber-600 text-white px-3 py-2 rounded-lg text-sm font-bold transition shadow-sm">Glossar</button>
+                        </div>
+                    </div>
+                </header>
+            );
+        };
+
+        const App = () => {
+            const [activeTab, setActiveTab] = useState('basics');
+            const [isGlossaryOpen, setGlossaryOpen] = useState(false);
+
+            return (
+                <div className="min-h-screen flex flex-col pb-12">
+                    <Header onOpenGlossary={() => setGlossaryOpen(true)} />
+                    <main className="flex-grow container mx-auto px-4 pt-6 max-w-5xl">
+                        <div className="flex flex-wrap justify-center gap-2 md:gap-4 mb-8">
+                            <button onClick={() => setActiveTab('basics')} className={`px-6 py-3 rounded-full font-bold transition-all shadow-sm flex items-center gap-2 ${activeTab === 'basics' ? 'bg-orange-600 text-white scale-105 shadow-orange-200' : 'bg-white text-slate-600 hover:bg-orange-50'}`}><span>1.</span> Das Tauziehen</button>
+                            <button onClick={() => setActiveTab('training')} className={`px-6 py-3 rounded-full font-bold transition-all shadow-sm flex items-center gap-2 ${activeTab === 'training' ? 'bg-orange-600 text-white scale-105 shadow-orange-200' : 'bg-white text-slate-600 hover:bg-orange-50'}`}><span>2.</span> Dipol-Check</button>
+                            <button onClick={() => setActiveTab('lab')} className={`px-6 py-3 rounded-full font-bold transition-all shadow-sm flex items-center gap-2 ${activeTab === 'lab' ? 'bg-orange-600 text-white scale-105 shadow-orange-200' : 'bg-white text-slate-600 hover:bg-orange-50'}`}><span>3.</span> Geometrie-Labor</button>
+                        </div>
+                        <div className="animate-[fadeIn_0.3s_ease-out]">
+                            {activeTab === 'basics' && <TugOfWar />}
+                            {activeTab === 'training' && <DipoleQuiz />}
+                            {activeTab === 'lab' && <GeometryLab />}
+                        </div>
+                    </main>
+                    <GlossaryModal isOpen={isGlossaryOpen} onClose={() => setGlossaryOpen(false)} />
+                    <footer className="text-center text-orange-300 text-sm py-6"><p>&copy; 2024 Chemie Digital Learning Tool</p></footer>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+
+        // Global Error Handler
+        window.onerror = function(message, source, lineno, colno, error) {
+            const root = document.getElementById('root');
+            if (root) {
+                root.innerHTML = `<div style="padding: 20px; text-align: center; color: #c2410c;"><h2>Upps! Ein Fehler ist aufgetreten.</h2><p>Bitte lade die Seite neu. (${message})</p></div>`;
+            }
+        };
+    </script>
+</body>
+</html>
