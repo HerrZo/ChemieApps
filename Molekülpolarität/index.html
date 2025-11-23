@@ -31,16 +31,19 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 
-    <!-- Global Error Handler (Must be before main script) -->
+    <!-- Global Error Handler -->
     <script>
         window.onerror = function(message, source, lineno, colno, error) {
             const root = document.getElementById('root');
             if (root) {
                 root.innerHTML = `
-                    <div style="padding: 40px; text-align: center; color: #c2410c; background: rgba(255,255,255,0.9); margin: 20px; border-radius: 10px;">
-                        <h2 style="font-size: 24px; font-weight: bold; margin-bottom: 10px;">Upps! Ein Fehler ist aufgetreten.</h2>
-                        <p>Bitte lade die Seite neu oder prüfe die Konsole.</p>
-                        <pre style="margin-top: 20px; text-align: left; background: #eee; padding: 10px; overflow: auto; font-size: 12px;">${message}\nZeile: ${lineno}</pre>
+                    <div style="padding: 40px; text-align: center; color: #c2410c; background: rgba(255,255,255,0.9); margin: 20px; border-radius: 10px; border: 1px solid #fdba74;">
+                        <h2 style="font-size: 24px; font-weight: bold; margin-bottom: 10px;">Ein Fehler ist aufgetreten</h2>
+                        <p style="margin-bottom:20px;">Das Programm konnte nicht gestartet werden.</p>
+                        <div style="text-align: left; background: #fff; padding: 15px; border-radius: 6px; font-family: monospace; font-size: 12px; border: 1px solid #eee;">
+                            <strong>Fehler:</strong> ${message}<br/>
+                            <strong>Zeile:</strong> ${lineno}
+                        </div>
                     </div>`;
             }
             console.error("Global Error:", message, error);
@@ -60,24 +63,23 @@
 <body class="bg-gradient-to-br from-orange-50 to-amber-100 min-h-screen text-slate-800 overflow-x-hidden selection:bg-orange-200">
     <div id="root"></div>
 
-    <script type="text/babel" data-presets="react,typescript">
+    <script type="text/babel" data-presets="env,react">
         const { useState, useEffect, useMemo } = React;
 
-        // --- TYPES & CONSTANTS ---
+        // --- CONSTANTS & DATA ---
         
-        // Enum Simulation (Typescript enum is transpiled by Babel)
-        enum AtomSymbol {
-            H = 'H', C = 'C', N = 'N', O = 'O', F = 'F', S = 'S', Cl = 'Cl'
-        }
+        const AtomSymbol = {
+            H: 'H', C: 'C', N: 'N', O: 'O', F: 'F', S: 'S', Cl: 'Cl'
+        };
 
-        enum GeometryType {
-            Linear2 = 'Linear (2 Atome)',
-            Linear3 = 'Linear (3 Atome)',
-            Bent = 'Gewinkelt',
-            TrigonalPlanar = 'Trigonal-planar',
-            Pyramidal = 'Pyramidal',
-            Tetrahedral = 'Tetraedrisch'
-        }
+        const GeometryType = {
+            Linear2: 'Linear (2 Atome)',
+            Linear3: 'Linear (3 Atome)',
+            Bent: 'Gewinkelt',
+            TrigonalPlanar: 'Trigonal-planar',
+            Pyramidal: 'Pyramidal',
+            Tetrahedral: 'Tetraedrisch'
+        };
 
         const ATOMS = {
             [AtomSymbol.H]: { symbol: AtomSymbol.H, en: 2.20, color: '#e2e8f0', radius: 25 },
@@ -106,6 +108,7 @@
                 { x: -0.8, y: 0.5, z: 0.4 },
                 { x: 0.8, y: 0.5, z: 0.4 }
             ],
+            // Adjusted tetrahedral vectors so no atom is hidden behind the center
             [GeometryType.Tetrahedral]: [
                 { x: 0, y: -1, z: 0 },           // Top
                 { x: 0.9, y: 0.45, z: 0.2 },     // Right Leg
