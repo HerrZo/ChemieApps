@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Molekülpolarität</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧲</text></svg>">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        /* Custom scrollbar for nicer UI */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #fff7ed; }
+        ::-webkit-scrollbar-thumb { background: #ea580c; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #c2410c; }
+    </style>
+<script type="importmap">
+{
+  "imports": {
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "canvas-confetti": "https://aistudiocdn.com/canvas-confetti@^1.9.4"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+<body class="bg-gradient-to-br from-orange-50 to-amber-100 min-h-screen text-slate-800 overflow-x-hidden selection:bg-orange-200">
+    <div id="root"></div>
+    <script>
+        // Global error handler for resilience
+        window.onerror = function(message, source, lineno, colno, error) {
+            const root = document.getElementById('root');
+            if (root) {
+                root.innerHTML = `<div style="padding: 20px; text-align: center; color: #c2410c;">
+                    <h2>Upps! Ein Fehler ist aufgetreten.</h2>
+                    <p>Bitte lade die Seite neu. (${message})</p>
+                </div>`;
+            }
+        };
+    </script>
+<script type="module" src="/index.tsx"></script>
+</body>
+</html>
