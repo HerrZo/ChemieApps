@@ -3,260 +3,256 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Intermolekulare Wechselwirkungen - Chemie 10</title>
+    <title>Wechselwirkungen - Chemie 10 (Safe Mode)</title>
     
+    <script>
+        window.onerror = function(msg, url, line, col, error) {
+            document.getElementById('debug-error').style.display = 'block';
+            document.getElementById('debug-msg').innerText = "Fehler: " + msg + "\nZeile: " + line;
+            return false;
+        };
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.development.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.development.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
     <style>
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes popIn { 0% { transform: scale(0.9); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
-        
-        .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
-        .animate-pop-in { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
-        
-        .glass-panel { 
-            background: rgba(255, 255, 255, 0.95); 
-            backdrop-filter: blur(10px); 
-            border: 1px solid rgba(249, 115, 22, 0.1);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        }
-        
-        /* Custom Scrollbar for sleek look */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #fff7ed; }
-        ::-webkit-scrollbar-thumb { background: #fdba74; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #f97316; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .glass { background: rgba(255,255,255,0.9); backdrop-filter: blur(5px); border: 1px solid rgba(255,165,0,0.2); }
+        .btn-hover:hover { transform: translateY(-2px); box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        /* Animationen */
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .animate-in { animation: fadeIn 0.5s ease-out; }
     </style>
 </head>
-<body class="bg-orange-50 text-gray-800 min-h-screen font-sans selection:bg-orange-200 selection:text-orange-900">
+<body class="bg-orange-50 text-gray-800 min-h-screen">
+
+    <div id="debug-error" style="display:none; background: #fee2e2; color: #991b1b; padding: 20px; border: 2px solid red; margin: 20px;">
+        <h3 style="font-weight:bold">Es ist ein Fehler aufgetreten:</h3>
+        <pre id="debug-msg" style="white-space: pre-wrap;"></pre>
+        <p>Bitte stelle sicher, dass du mit dem Internet verbunden bist (für React/Tailwind).</p>
+    </div>
+
+    <div id="loading" style="text-align: center; margin-top: 100px; color: #ea580c;">
+        <h2 style="font-size: 24px; font-weight: bold;">Lade Chemie-App...</h2>
+        <p>Bitte warten. Internetverbindung erforderlich.</p>
+    </div>
+
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect, useMemo } = React;
+        // Globals sicherstellen
+        const { useState, useEffect } = React;
 
-        // --- ICONS ---
-        const IconInfo = () => <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>;
-        const IconCheck = () => <svg className="w-5 h-5 text-green-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>;
-        const IconX = () => <svg className="w-5 h-5 text-red-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>;
-        const IconFlask = () => <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10 2v7.31"/><path d="M14 2v7.31"/><path d="M8.5 2h7"/><path d="M14 9.3a6.5 6.5 0 1 1-9 0c0-3.042 1.135-5.824 3-7.93V2.01"/><path d="M8.5 15h7"/></svg>;
-        const IconThermometer = () => <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"/><path d="M12 12v.01"/></svg>;
-        const IconTrophy = () => <svg className="w-6 h-6 text-yellow-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>;
-
-        // --- DATA ---
-        
-        // Typen: london, dipol, hbond, iondipol
+        // --- DATEN ---
         const forces = {
-            london: { label: "London-Kräfte", color: "bg-gray-100 border-gray-300 text-gray-700", detail: "Temporäre Dipole. Tritt bei ALLEN Molekülen auf, ist aber bei unpolaren Molekülen (Alkanen, Edelgasen) die einzig wirksame Kraft. Je größer die Oberfläche/Elektronenzahl, desto stärker." },
-            dipol: { label: "Dipol-Dipol", color: "bg-blue-50 border-blue-200 text-blue-800", detail: "Zwischen permanenten Dipolen. Voraussetzung: Polare Atombindung (EN-Differenz) & asymmetrischer Bau." },
-            hbond: { label: "Wasserstoffbrücken", color: "bg-green-50 border-green-200 text-green-800", detail: "Spezialfall & besonders stark. H-Atom muss an F, O oder N gebunden sein (positiv polarisiert) und wechselwirkt mit freiem Elektronenpaar eines F, O, N." },
-            iondipol: { label: "Ion-Dipol", color: "bg-purple-50 border-purple-200 text-purple-800", detail: "Zwischen Ionen (Ladung) und Dipol-Molekülen (z.B. Salz in Wasser). Sehr stark." }
+            london: { label: "London-Kräfte", color: "bg-gray-100 text-gray-700", desc: "Unpolare Moleküle / Temporäre Dipole" },
+            dipol: { label: "Dipol-Dipol", color: "bg-blue-100 text-blue-800", desc: "Permanente Dipole (Polar)" },
+            hbond: { label: "H-Brücken", color: "bg-green-100 text-green-800", desc: "H an F, O, N" },
+            iondipol: { label: "Ion-Dipol", color: "bg-purple-100 text-purple-800", desc: "Salz in Wasser" }
         };
 
         const quizData = [
-            { name: "Methan (CH₄)", formula: "CH₄", type: "london", hint: "Symmetrisches Molekül, unpolar." },
-            { name: "Wasser (H₂O)", formula: "H₂O", type: "hbond", hint: "H hängt direkt am stark elektronegativen O." },
-            { name: "Chlorwasserstoff (HCl)", formula: "HCl", type: "dipol", hint: "Permanenter Dipol, aber kein H an F,O,N." },
-            { name: "Kochsalz in Suppe", formula: "Na⁺(aq)", type: "iondipol", hint: "Geladene Teilchen im Lösungsmittel Wasser." },
-            { name: "Helium (He)", formula: "He", type: "london", hint: "Edelgasatom, völlig unpolar." },
-            { name: "Ammoniak (NH₃)", formula: "NH₃", type: "hbond", hint: "Stickstoff besitzt ein freies Elektronenpaar und H-Atome." },
-            { name: "Pentan (C₅H₁₂)", formula: "C₅H₁₂", type: "london", hint: "Längerkettiges Alkan, unpolar." },
-            { name: "Propanon (Aceton)", formula: "C₃H₆O", type: "dipol", hint: "C=O Doppelbindung erzeugt Dipol, aber H hängt nur an C." },
-            { name: "Ethanol (C₂H₅OH)", formula: "C₂H₅OH", type: "hbond", hint: "Besitzt eine OH-Gruppe." },
-            { name: "Sauerstoff (O₂)", formula: "O₂", type: "london", hint: "Elementmolekül, unpolar." }
+            { name: "Methan (CH₄)", formula: "CH₄", type: "london", hint: "Symmetrisch, unpolar." },
+            { name: "Wasser (H₂O)", formula: "H₂O", type: "hbond", hint: "H direkt an O gebunden." },
+            { name: "Salzsäure (HCl)", formula: "HCl", type: "dipol", hint: "Permanenter Dipol, kein H an F,O,N." },
+            { name: "Kochsalz (Na⁺ in H₂O)", formula: "Na⁺ (aq)", type: "iondipol", hint: "Ladung + Wasser." },
+            { name: "Helium (He)", formula: "He", type: "london", hint: "Edelgas, unpolar." }
         ];
 
-        // Ranking Sets: 3 Moleküle, sortiert nach Siedepunkt (Low -> High)
-        // Logik: London < Dipol < H-Brücke (bei ähnlicher Masse)
         const rankingSets = [
-            {
-                id: 1,
-                items: [
-                    { name: "Propan", formula: "C₃H₈", type: "london", mass: "~44 u" },
-                    { name: "Ethanal", formula: "C₂H₄O", type: "dipol", mass: "~44 u" },
-                    { name: "Ethanol", formula: "C₂H₅OH", type: "hbond", mass: "~46 u" }
-                ]
-            },
-            {
-                id: 2,
-                items: [
-                    { name: "Ethan", formula: "C₂H₆", type: "london", mass: "~30 u" },
-                    { name: "Fluormethan", formula: "CH₃F", type: "dipol", mass: "~34 u" },
-                    { name: "Methanol", formula: "CH₃OH", type: "hbond", mass: "~32 u" }
-                ]
-            },
-             {
-                id: 3,
-                items: [
-                    { name: "Butan", formula: "C₄H₁₀", type: "london", mass: "~58 u" },
-                    { name: "Propanon", formula: "C₃H₆O", type: "dipol", mass: "~58 u" },
-                    { name: "1-Propanol", formula: "C₃H₈O", type: "hbond", mass: "~60 u" }
-                ]
-            }
+            { items: [{ name: "Propan", t: "london" }, { name: "Ethanal", t: "dipol" }, { name: "Ethanol", t: "hbond" }] },
+            { items: [{ name: "Ethan", t: "london" }, { name: "Fluormethan", t: "dipol" }, { name: "Methanol", t: "hbond" }] }
         ];
 
-        // --- COMPONENTS ---
+        // --- ICONS (Vereinfachtes SVG um Fehler zu vermeiden) ---
+        const IconCheck = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="text-green-600"><polyline points="20 6 9 17 4 12"/></svg>;
+        const IconInfo = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>;
 
-        const NavButton = ({ active, onClick, label, icon: Icon }) => (
-            <button 
-                onClick={onClick}
-                className={`flex items-center gap-2 px-4 py-3 rounded-lg font-medium transition-all duration-200 ${
-                    active 
-                    ? "bg-orange-600 text-white shadow-md transform scale-105" 
-                    : "bg-white text-gray-600 hover:bg-orange-100 hover:text-orange-700"
-                }`}
-            >
-                <Icon />
-                <span>{label}</span>
-            </button>
-        );
+        // --- HAUPT-KOMPONENTE ---
+        const App = () => {
+            const [tab, setTab] = useState('wissen'); // wissen, quiz, ranking
 
-        // 1. WISSENS-EXPLORER
-        const KnowledgeView = () => {
+            // Entferne Ladebildschirm beim Start
+            useEffect(() => {
+                const loader = document.getElementById('loading');
+                if(loader) loader.style.display = 'none';
+            }, []);
+
             return (
-                <div className="space-y-6 animate-fade-in">
-                    <div className="bg-orange-100 p-4 rounded-xl border border-orange-200">
-                        <h3 className="font-bold text-orange-900 mb-2 flex items-center gap-2">
-                            <IconInfo /> Überbegriff: Van-der-Waals-Wechselwirkungen
-                        </h3>
-                        <p className="text-sm text-orange-800">
-                            Im weiteren Sinne umfasst dieser Begriff oft alle Wechselwirkungen zwischen Dipolen (permanent oder temporär).
-                            Im engeren (Schul-)Sinne unterscheiden wir meist zwischen London-Kräften und Dipol-Dipol.
-                        </p>
+                <div className="max-w-3xl mx-auto p-4 animate-in">
+                    {/* Header */}
+                    <header className="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm mb-6 border-b-4 border-orange-500">
+                        <div>
+                            <h1 className="text-2xl font-bold text-gray-900">Chemie 10</h1>
+                            <p className="text-orange-600 text-sm font-semibold">Wechselwirkungen Trainer</p>
+                        </div>
+                        <div className="text-right">
+                             <a href="https://herrzo.github.io/ChemieApps/" className="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded hover:bg-orange-200">Sammlung</a>
+                        </div>
+                    </header>
+
+                    {/* Tabs */}
+                    <div className="flex gap-2 mb-6 overflow-x-auto">
+                        <button onClick={() => setTab('wissen')} className={`px-4 py-2 rounded-lg font-bold transition ${tab==='wissen' ? 'bg-orange-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-100'}`}>Wissen</button>
+                        <button onClick={() => setTab('quiz')} className={`px-4 py-2 rounded-lg font-bold transition ${tab==='quiz' ? 'bg-orange-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-100'}`}>Quiz</button>
+                        <button onClick={() => setTab('ranking')} className={`px-4 py-2 rounded-lg font-bold transition ${tab==='ranking' ? 'bg-orange-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-100'}`}>Siedepunkt</button>
                     </div>
 
-                    <div className="grid md:grid-cols-2 gap-4">
-                        {/* London */}
-                        <div className="glass-panel p-5 rounded-xl border-l-4 border-gray-400">
-                            <h4 className="font-bold text-gray-800 text-lg mb-1">1. London-Kräfte</h4>
-                            <span className="text-xs font-mono bg-gray-100 px-2 py-1 rounded text-gray-600">Unpolare Moleküle</span>
-                            <p className="mt-3 text-sm text-gray-600">
-                                Entstehen durch kurzzeitige Elektronenverschiebungen (temporäre Dipole), die Nachbarmoleküle induzieren.
-                            </p>
-                            <div className="mt-4 text-xs text-gray-500 font-medium">
-                                Beispiel: Alkane, O₂, N₂, Edelgase
+                    {/* CONTENT: WISSEN */}
+                    {tab === 'wissen' && (
+                        <div className="space-y-4">
+                            <div className="bg-orange-100 p-4 rounded-lg border-l-4 border-orange-500">
+                                <h3 className="font-bold flex items-center gap-2"><IconInfo/> Die Hierarchie</h3>
+                                <p className="text-sm mt-1">Stärke bei ähnlicher Masse: London &lt; Dipol &lt; H-Brücke &lt; Ion-Dipol</p>
+                            </div>
+                            <div className="grid gap-3 md:grid-cols-2">
+                                {Object.entries(forces).map(([k, v]) => (
+                                    <div key={k} className={`p-4 rounded-lg border ${v.color} bg-opacity-50 glass`}>
+                                        <h4 className="font-bold text-lg">{v.label}</h4>
+                                        <p className="text-sm mt-2">{v.desc}</p>
+                                    </div>
+                                ))}
                             </div>
                         </div>
+                    )}
 
-                        {/* Dipol-Dipol */}
-                        <div className="glass-panel p-5 rounded-xl border-l-4 border-blue-500">
-                            <h4 className="font-bold text-gray-800 text-lg mb-1">2. Dipol-Dipol</h4>
-                            <span className="text-xs font-mono bg-blue-50 px-2 py-1 rounded text-blue-600">Permanente Dipole</span>
-                            <p className="mt-3 text-sm text-gray-600">
-                                Positive und negative Pole benachbarter Moleküle ziehen sich an. Stärker als London-Kräfte (bei gleicher Masse).
-                            </p>
-                            <div className="mt-4 text-xs text-gray-500 font-medium">
-                                Beispiel: HCl, CHCl₃, Aceton
+                    {/* CONTENT: QUIZ */}
+                    {tab === 'quiz' && <QuizComponent />}
+
+                    {/* CONTENT: RANKING */}
+                    {tab === 'ranking' && <RankingComponent />}
+
+                </div>
+            );
+        };
+
+        // --- SUB-KOMPONENTEN ---
+        const QuizComponent = () => {
+            const [idx, setIdx] = useState(0);
+            const [feedback, setFeedback] = useState(null);
+            
+            const q = quizData[idx % quizData.length];
+
+            const check = (type) => {
+                if (type === q.type) setFeedback({ ok: true, msg: "Richtig! " + q.hint });
+                else setFeedback({ ok: false, msg: "Falsch. Es ist " + forces[q.type].label });
+            };
+
+            const next = () => {
+                setFeedback(null);
+                setIdx(idx + 1);
+            };
+
+            return (
+                <div className="glass p-6 rounded-xl text-center shadow-lg">
+                    <h2 className="text-xl font-bold text-gray-500 mb-1">Was dominiert hier?</h2>
+                    <div className="text-4xl font-bold mb-2 text-gray-800">{q.name}</div>
+                    <div className="font-mono text-orange-600 mb-6">{q.formula}</div>
+
+                    {!feedback ? (
+                        <div className="grid grid-cols-2 gap-3">
+                            {Object.entries(forces).map(([k, v]) => (
+                                <button key={k} onClick={() => check(k)} className="p-3 bg-white border rounded hover:border-orange-500 hover:bg-orange-50 font-semibold shadow-sm transition">
+                                    {v.label}
+                                </button>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="animate-in">
+                            <div className={`p-3 rounded mb-4 font-bold ${feedback.ok ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                                {feedback.msg}
                             </div>
+                            <button onClick={next} className="bg-orange-600 text-white px-6 py-2 rounded-lg font-bold shadow hover:bg-orange-700">Weiter</button>
                         </div>
+                    )}
+                </div>
+            );
+        };
 
-                        {/* H-Brücken */}
-                        <div className="glass-panel p-5 rounded-xl border-l-4 border-green-500 md:col-span-2">
-                            <h4 className="font-bold text-gray-800 text-lg mb-1">3. Wasserstoffbrücken</h4>
-                            <span className="text-xs font-mono bg-green-50 px-2 py-1 rounded text-green-600">Extrem Starker Dipol</span>
-                            <p className="mt-3 text-sm text-gray-600">
-                                Die "Königsdisziplin" der zwischenmolekularen Kräfte. Ein stark positiv polarisiertes H-Atom (an F, O, N) wechselwirkt mit einem freien Elektronenpaar (an F, O, N).
-                            </p>
-                            <div className="mt-4 flex gap-2">
-                                <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded font-bold">Wasser (H₂O)</span>
-                                <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded font-bold">Ethanol</span>
-                                <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded font-bold">Ammoniak</span>
+        const RankingComponent = () => {
+            const [setIdx, setSetIdx] = useState(0);
+            const [slots, setSlots] = useState([null, null, null]);
+            const [done, setDone] = useState(false);
+            
+            const currentSet = rankingSets[setIdx % rankingSets.length];
+            const items = currentSet.items; // Hier einfachheitshalber nicht shuffeln im Safe Mode, oder simpel:
+            const [pool, setPool] = useState([]);
+
+            useEffect(() => {
+                // Simpler Shuffle beim Laden des Sets
+                const shuffled = [...items].sort(() => Math.random() - 0.5);
+                setPool(shuffled);
+                setSlots([null, null, null]);
+                setDone(false);
+            }, [setIdx]);
+
+            const fillSlot = (item) => {
+                const empty = slots.indexOf(null);
+                if (empty === -1) return;
+                const newSlots = [...slots];
+                newSlots[empty] = item;
+                setSlots(newSlots);
+                setPool(pool.filter(x => x !== item));
+            };
+
+            const reset = () => {
+                setSetIdx(setIdx); // Trigger reload
+            };
+
+            const check = () => {
+                // Korrekte Reihenfolge ist im Original Array (London -> Dipol -> H)
+                const isCorrect = 
+                    slots[0]?.t === 'london' && 
+                    slots[1]?.t === 'dipol' && 
+                    slots[2]?.t === 'hbond';
+                
+                if (isCorrect) alert("Perfekt! Richtig sortiert.");
+                else alert("Noch nicht ganz. Erinnere dich: London < Dipol < H-Brücke");
+                
+                if (isCorrect) setSetIdx(setIdx + 1);
+                else reset();
+            };
+
+            return (
+                <div className="glass p-6 rounded-xl">
+                    <div className="mb-4 text-sm text-blue-800 bg-blue-50 p-3 rounded">
+                        Ordne nach <strong>steigendem Siedepunkt</strong> (Niedrig &rarr; Hoch).
+                    </div>
+                    
+                    <div className="flex justify-between text-xs font-bold text-gray-400 mb-2 uppercase">
+                        <span>Niedrig</span><span>Hoch</span>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-2 mb-6">
+                        {slots.map((s, i) => (
+                            <div key={i} className="h-24 border-2 border-dashed border-gray-300 rounded flex items-center justify-center bg-gray-50 text-center text-xs p-1">
+                                {s ? <span className="font-bold text-sm text-gray-800">{s.name}</span> : "Platz "+(i+1)}
                             </div>
-                        </div>
+                        ))}
+                    </div>
 
-                         {/* Ion-Dipol */}
-                         <div className="glass-panel p-5 rounded-xl border-l-4 border-purple-500 md:col-span-2">
-                            <h4 className="font-bold text-gray-800 text-lg mb-1">4. Ion-Dipol</h4>
-                            <span className="text-xs font-mono bg-purple-50 px-2 py-1 rounded text-purple-600">Ladung + Dipol</span>
-                            <p className="mt-3 text-sm text-gray-600">
-                                Tritt auf, wenn Salze in polaren Lösungsmitteln (wie Wasser) gelöst werden. Die Wassermoleküle lagern sich um die Ionen an (Hydrathülle).
-                            </p>
-                        </div>
+                    <div className="flex gap-2 justify-center mb-6">
+                        {pool.map((item, i) => (
+                            <button key={i} onClick={() => fillSlot(item)} className="px-3 py-2 bg-white border shadow rounded hover:bg-orange-50 font-bold text-sm">
+                                {item.name}
+                            </button>
+                        ))}
+                    </div>
+
+                    <div className="text-center">
+                        <button onClick={check} disabled={slots.includes(null)} className="bg-orange-600 disabled:opacity-50 text-white px-8 py-2 rounded font-bold">Prüfen</button>
+                        <button onClick={reset} className="ml-4 text-gray-500 underline text-sm">Reset</button>
                     </div>
                 </div>
             );
         };
 
-        // 2. QUIZ
-        const QuizView = () => {
-            const [currentQ, setCurrentQ] = useState(null);
-            const [score, setScore] = useState(0);
-            const [feedback, setFeedback] = useState(null); // { type: 'success' | 'error', msg: '' }
-
-            const nextQuestion = () => {
-                const random = quizData[Math.floor(Math.random() * quizData.length)];
-                setCurrentQ(random);
-                setFeedback(null);
-            };
-
-            useEffect(() => { nextQuestion(); }, []);
-
-            const handleAnswer = (typeKey) => {
-                if(feedback) return; // Prevent double click
-
-                if (typeKey === currentQ.type) {
-                    setScore(s => s + 100);
-                    setFeedback({ type: 'success', msg: 'Richtig! ' + currentQ.hint });
-                } else {
-                    setFeedback({ 
-                        type: 'error', 
-                        msg: `Leider falsch. Richtig wäre: ${forces[currentQ.type].label}. Info: ${currentQ.hint}` 
-                    });
-                }
-            };
-
-            if (!currentQ) return <div>Lade...</div>;
-
-            return (
-                <div className="max-w-2xl mx-auto animate-fade-in">
-                    <div className="flex justify-between items-center mb-6">
-                        <div className="bg-orange-200 text-orange-900 px-4 py-1 rounded-full text-sm font-bold">
-                            Punkte: {score}
-                        </div>
-                        <button onClick={nextQuestion} className="text-sm text-gray-500 hover:text-orange-600 underline">
-                            Überspringen
-                        </button>
-                    </div>
-
-                    <div className="glass-panel p-8 rounded-2xl text-center mb-6">
-                        <div className="text-sm text-gray-500 uppercase tracking-wide mb-2">Welche Kraft dominiert?</div>
-                        <h2 className="text-3xl font-bold text-gray-900 mb-2">{currentQ.name}</h2>
-                        <div className="font-mono text-xl text-orange-600 mb-6">{currentQ.formula}</div>
-
-                        {feedback && (
-                            <div className={`mb-6 p-4 rounded-lg text-sm animate-pop-in ${
-                                feedback.type === 'success' ? 'bg-green-100 text-green-800 border border-green-200' : 'bg-red-100 text-red-800 border border-red-200'
-                            }`}>
-                                <div className="flex items-center justify-center gap-2 font-bold mb-1">
-                                    {feedback.type === 'success' ? <IconCheck /> : <IconX />}
-                                    {feedback.type === 'success' ? 'Stark!' : 'Nicht ganz...'}
-                                </div>
-                                {feedback.msg}
-                            </div>
-                        )}
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            {Object.entries(forces).map(([key, data]) => (
-                                <button
-                                    key={key}
-                                    onClick={() => handleAnswer(key)}
-                                    disabled={!!feedback}
-                                    className={`p-4 rounded-xl border text-left transition-all ${
-                                        feedback 
-                                            ? (key === currentQ.type ? 'bg-green-100 border-green-400 ring-2 ring-green-400' : 'opacity-50 grayscale')
-                                            : 'bg-white hover:border-orange-400 hover:shadow-md active:scale-95'
-                                    }`}
-                                >
-                                    <div className="font-bold text-gray-800">{data.label}</div>
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-
-                    {feedback && (
-                        <div className="text-center">
-                            <button 
-                                onClick={nextQuestion}
-                                className="bg-orange-6
+        // --- RENDER START ---
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
