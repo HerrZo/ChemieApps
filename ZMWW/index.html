@@ -92,7 +92,7 @@
                 {
                     id: "ddww",
                     title: "Dipol-Dipol",
-                    subtitle: "Der Dauermagnet",
+                    subtitle: "Konstanter Dipol",
                     icon: "🧲",
                     content: "Moleküle mit einer positiven und einer negativen Seite (permanente Dipole) ziehen sich gegenseitig an. Das ist stärker als London-Kräfte (bei vergleichbarer Masse).",
                     example: "Vergleich: Propanon (56°C) vs. Butan (-0.5°C). Etwa gleiche Masse, aber Propanon ist polar.",
@@ -101,7 +101,7 @@
                 {
                     id: "wb",
                     title: "H-Brücken",
-                    subtitle: "Die Superkraft",
+                    subtitle: "Die Kräftigen",
                     icon: "💧",
                     content: "Der Spezialfall! Ein Wasserstoff-Atom (H) hängt direkt an F, O oder N (den 'FON'-Elementen). Das H ist so stark positiv polarisiert, dass es freie Elektronenpaare eines Nachbarn extrem stark anzieht.",
                     example: "Wasser (H2O): Trotz winziger Masse flüssig und kocht erst bei 100°C!",
@@ -222,14 +222,14 @@
                 <div className="animate-fade-in max-w-3xl mx-auto">
                     <div className="glass-panel p-6 rounded-2xl shadow-xl mb-6 text-center">
                         <h2 className="text-2xl font-bold text-orange-800 mb-2">Das Siedepunkt-Labor</h2>
-                        <p className="text-gray-600 mb-6">Ordne die Stoffe nach <span className="font-bold text-orange-600">steigender Siedetemperatur</span>.<br/>(Niedrigster links ➔ Höchster rechts)</p>
+                        <p className="text-gray-600 mb-6"> Achtung, hier werden die wirklichen Siedetemperaturen verwendet. Ordne die Stoffe nach <span className="font-bold text-orange-600">steigender Siedetemperatur</span>.<br/>(Niedrigster links ➔ Höchster rechts)</p>
 
                         {/* Slots Area */}
                         <div className="flex justify-between gap-2 mb-8 relative">
                             {/* Achse */}
                             <div className="absolute top-1/2 left-0 w-full h-1 bg-gradient-to-r from-blue-200 to-red-200 -z-10 rounded"></div>
-                            <div className="absolute -bottom-6 left-0 text-xs text-blue-500 font-bold">Kalt (Niedriger Tb)</div>
-                            <div className="absolute -bottom-6 right-0 text-xs text-red-500 font-bold">Heiß (Hoher Tb)</div>
+                            <div className="absolute -bottom-6 left-0 text-xs text-blue-500 font-bold">Kalt </div>
+                            <div className="absolute -bottom-6 right-0 text-xs text-red-500 font-bold">Heiß </div>
 
                             {slots.map((mol, idx) => (
                                 <div 
