@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZMW Master - Chemie Lern-App</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        .glass-panel { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.5); }
+        /* Custom Scrollbar for better aesthetics */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #fff7ed; }
+        ::-webkit-scrollbar-thumb { background: #ea580c; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #c2410c; }
+    </style>
+<link rel="stylesheet" href="/index.css">
+</head>
+<body class="bg-orange-50 text-gray-800 min-h-screen font-sans selection:bg-orange-200">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        // --- 1. GLOBALS & UTILS ---
+        const { useState, useEffect, useRef, useMemo } = React;
+
+        // Hilfsfunktion für chemische Formeln (Zahlen tiefgestellt)
+        const Formula = ({ text }) => {
+            const parts = text.split(/(\d+)/);
+            return (
+                <span className="font-mono font-bold">
+                    {parts.map((part, i) => 
+                        /\d+/.test(part) ? <sub key={i} className="text-xs">{part}</sub> : <span key={i}>{part}</span>
+                    )}
+                </span>
+            );
+        };
+        
+        // --- 2. ICONS ---
+        const IconFlask = ({className}) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 2v7.31"/><path d="M14 2v7.31"/><path d="M8.5 2h7"/><path d="M14 9.3a6.5 6.5 0 1 1-4 0"/></svg>;
+        const IconCheck = ({className}) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>;
+        const IconX = ({className}) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>;
+        const IconArrowUp = ({className}) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>;
+        const IconMenu = ({className}) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>;
+        const IconFlame = ({className}) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.1.243-2.143.5-3"/></svg>;
+        const IconInfo = ({className}) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>;
+        const IconHome = ({className}) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>;
+
+        // --- 3. DATEN ---
+        const MOLECULES = [
+            { id: 1, name: "Methan", formula: "CH4", bp: -162, type: "LDWW", desc: "Klein, unpolar, gasförmig." },
+            { id: 2, name: "Butan", formula: "C4H10", bp: -0.5, type: "LDWW", desc: "Feuerzeuggas. Größer als Methan -> stärkere LDWW." },
+            { id: 3, name: "Pentan", formula: "C5H12", bp: 36, type: "LDWW", desc: "Flüssig bei Raumtemperatur." },
+            { id: 4, name: "Octan", formula: "C8H18", bp: 126, type: "LDWW", desc: "Hauptbestandteil von Benzin. Lange Kette." },
+            { id: 5, name: "Chlorwasserstoff", formula: "HCl", bp: -85, type: "DDWW", desc: "Polar, aber keine H-Brücken." },
+            { id: 6, name: "Propanon", formula: "C3H6O", bp: 56, type: "DDWW", desc: "Aceton. Starker Dipol durch O-Doppelbindung." },
+            { id: 7, name: "Ammoniak", formula: "NH3", bp: -33, type: "WB", desc: "H-Brücken möglich (N-H)." },
+            { id: 8, name: "Ethanol", formula: "C2H5OH", bp: 78, type: "WB", desc: "Alkohol. H-Brücken + VdW-Kräfte." },
+            { id: 9, name: "Wasser", formula: "H2O", bp: 100, type: "WB", desc: "Der Meister der H-Brücken (2 pro Molekül möglich)." },
+            { id: 10, name: "Heptan", formula: "C7H16", bp: 98, type: "LDWW", desc: "Unpolar, aber hohe Masse." },
+            { id: 11, name: "Schwefelwasserstoff", formula: "H2S", bp: -60, type: "DDWW", desc: "Schwerer als Wasser, aber nur Dipol (S zu groß für starke WB)." },
+            { id: 12, name: "Helium", formula: "He", bp: -269, type: "LDWW", desc: "Kleinstmögliche Oberfläche, extrem schwache Kräfte." }
+        ];
+
+        const FORCE_TYPES = {
+            "LDWW": "London-Kräfte (Van-der-Waals)",
+            "DDWW": "Dipol-Dipol-Kräfte",
+            "WB": "Wasserstoffbrücken"
+        };
+
+        // --- 4. KOMPONENTEN ---
+
+        // 4.1 Theorie Komponente
+        const TheorySection = () => {
+            const [activeCard, setActiveCard] = useState(null);
+
+            const cards = [
+                {
+                    id: "ldww",
+                    title: "London-Kräfte (VdW)",
+                    subtitle: "Der Zufalls-Moment",
+                    icon: "💨",
+                    content: "Auch bei unpolaren Teilchen bewegen sich Elektronen. Kurzzeitig sind mehr Elektronen auf einer Seite -> ein 'spontaner Dipol' entsteht. Dieser induziert beim Nachbarn auch einen Dipol. Schwach, aber wichtig bei großen Molekülen!",
+                    example: "Vergleich: Butan (Gas) vs. Pentan (Flüssig). Pentan ist größer = größere Oberfläche = stärkere Kräfte.",
+                    rule: "Regel: Je größer die Masse/Oberfläche, desto stärker die London-Kräfte."
+                },
+                {
+                    id: "ddww",
+                    title: "Dipol-Dipol",
+                    subtitle: "Der Dauermagnet",
+                    icon: "🧲",
+                    content: "Moleküle mit einer positiven und einer negativen Seite (permanente Dipole) ziehen sich gegenseitig an. Das ist stärker als London-Kräfte (bei vergleichbarer Masse).",
+                    example: "Vergleich: Propanon (56°C) vs. Butan (-0.5°C). Etwa gleiche Masse, aber Propanon ist polar.",
+                    rule: "Regel: Polare Moleküle sieden höher als unpolare gleicher Masse."
+                },
+                {
+                    id: "wb",
+                    title: "H-Brücken",
+                    subtitle: "Die Superkraft",
+                    icon: "💧",
+                    content: "Der Spezialfall! Ein Wasserstoff-Atom (H) hängt direkt an F, O oder N (den 'FON'-Elementen). Das H ist so stark positiv polarisiert, dass es freie Elektronenpaare eines Nachbarn extrem stark anzieht.",
+                    example: "Wasser (H2O): Trotz winziger Masse flüssig und kocht erst bei 100°C!",
+                    rule: "Regel: Die stärkste der drei Zwischenmolekularen Kräfte."
+                }
+            ];
+
+            return (
+                <div className="space-y-6 animate-fade-in">
+                    <h2 className="text-2xl font-bold text-orange-800 text-center mb-6">Wähle eine Kraft zur Wiederholung</h2>
+                    <div className="grid md:grid-cols-3 gap-4">
+                        {cards.map(card => (
+                            <div 
+                                key={card.id}
+                                onClick={() => setActiveCard(activeCard === card.id ? null : card.id)}
+                                className={`cursor-pointer transition-all duration-300 rounded-xl p-6 border-2 relative overflow-hidden ${
+                                    activeCard === card.id 
+                                    ? 'bg-orange-600 text-white border-orange-600 shadow-xl scale-105 z-10' 
+                                    : 'bg-white text-gray-700 border-orange-200 hover:border-orange-400 shadow-md'
+                                }`}
+                            >
+                                <div className="text-4xl mb-4 text-center">{card.icon}</div>
+                                <h3 className="text-xl font-bold text-center mb-2">{card.title}</h3>
+                                <p className={`text-center text-sm font-medium ${activeCard === card.id ? 'text-orange-200' : 'text-orange-600'}`}>{card.subtitle}</p>
+                                
+                                {activeCard === card.id && (
+                                    <div className="mt-4 pt-4 border-t border-orange-500 animate-fade-in text-sm leading-relaxed">
+                                        <p className="mb-3">{card.content}</p>
+                                        <div className="bg-orange-700/50 p-2 rounded mb-2">
+                                            <span className="font-bold block text-xs uppercase opacity-75">Beispiel:</span>
+                                            {card.example}
+                                        </div>
+                                        <p className="font-bold italic mt-2">👉 {card.rule}</p>
+                                    </div>
+                                )}
+                                {activeCard !== card.id && (
+                                    <div className="mt-4 text-center text-xs text-gray-400 uppercase tracking-wide">Klicken für Details</div>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        };
+
+        // 4.2 Ranking Lab
+        const RankingSection = () => {
+            // Zustand für das Spiel
+            const [pool, setPool] = useState([]);
+            const [slots, setSlots] = useState([null, null, null, null]);
+            const [status, setStatus] = useState("playing"); // playing, correct, wrong
+            const [feedback, setFeedback] = useState("");
+
+            // Initialisierung
+            const initGame = () => {
+                // Mische alle Moleküle und nimm 4 zufällige
+                const shuffled = [...MOLECULES].sort(() => 0.5 - Math.random());
+                const selected = shuffled.slice(0, 4);
+                setPool(selected);
+                setSlots([null, null, null, null]);
+                setStatus("playing");
+                setFeedback("");
+            };
+
+            useEffect(() => {
+                initGame();
+            }, []);
+
+            // Interaktionen
+            const handlePoolClick = (molecule) => {
+                if (status !== "playing") return;
+                // Finde ersten freien Slot
+                const firstEmptyIndex = slots.indexOf(null);
+                if (firstEmptyIndex !== -1) {
+                    const newSlots = [...slots];
+                    newSlots[firstEmptyIndex] = molecule;
+                    setSlots(newSlots);
+                    setPool(pool.filter(m => m.id !== molecule.id));
+                }
+            };
+
+            const handleSlotClick = (index) => {
+                if (status !== "playing") return;
+                const molecule = slots[index];
+                if (molecule) {
+                    const newSlots = [...slots];
+                    newSlots[index] = null;
+                    setSlots(newSlots);
+                    setPool([...pool, molecule]);
+                }
+            };
+
+            const checkOrder = () => {
+                if (slots.some(s => s === null)) {
+                    setFeedback("Bitte fülle erst alle 4 Plätze aus!");
+                    return;
+                }
+
+                // Prüfen ob aufsteigend sortiert (Siedepunkt)
+                let correct = true;
+                for (let i = 0; i < slots.length - 1; i++) {
+                    if (slots[i].bp > slots[i+1].bp) {
+                        correct = false;
+                        break;
+                    }
+                }
+
+                if (correct) {
+                    setStatus("correct");
+                    setFeedback("Perfekt! Die Siedepunkte steigen korrekt an.");
+                } else {
+                    setStatus("wrong");
+                    setFeedback("Nicht ganz. Überlege: Welche Kräfte wirken? Masse? H-Brücken?");
+                }
+            };
+
+            return (
+                <div className="animate-fade-in max-w-3xl mx-auto">
+                    <div className="glass-panel p-6 rounded-2xl shadow-xl mb-6 text-center">
+                        <h2 className="text-2xl font-bold text-orange-800 mb-2">Das Siedepunkt-Labor</h2>
+                        <p className="text-gray-600 mb-6">Ordne die Stoffe nach <span className="font-bold text-orange-600">steigender Siedetemperatur</span>.<br/>(Niedrigster links ➔ Höchster rechts)</p>
+
+                        {/* Slots Area */}
+                        <div className="flex justify-between gap-2 mb-8 relative">
+                            {/* Achse */}
+                            <div className="absolute top-1/2 left-0 w-full h-1 bg-gradient-to-r from-blue-200 to-red-200 -z-10 rounded"></div>
+                            <div className="absolute -bottom-6 left-0 text-xs text-blue-500 font-bold">Kalt (Niedriger Tb)</div>
+                            <div className="absolute -bottom-6 right-0 text-xs text-red-500 font-bold">Heiß (Hoher Tb)</div>
+
+                            {slots.map((mol, idx) => (
+                                <div 
+                                    key={idx} 
+                                    onClick={() => handleSlotClick(idx)}
+                                    className={`w-1/4 aspect-[4/5] rounded-xl border-2 border-dashed flex flex-col items-center justify-center p-2 cursor-pointer transition-all bg-white relative
+                                        ${mol ? 'border-orange-500 border-solid shadow-md bg-orange-50' : 'border-gray-300 hover:border-gray-400'}
+                                        ${status === 'correct' ? 'border-green-500 bg-green-50' : ''}
+                                        ${status === 'wrong' ? 'border-red-500 bg-red-50' : ''}
+                                    `}
+                                >
+                                    {!mol && <span className="text-gray-300 font-bold text-2xl">{idx + 1}</span>}
+                                    {mol && (
+                                        <>
+                                            <span className="text-3xl mb-1">{mol.type === 'WB' ? '💧' : mol.type === 'DDWW' ? '🧲' : '☁️'}</span>
+                                            <div className="text-sm font-bold truncate w-full text-center">{mol.name}</div>
+                                            <div className="text-gray-500 text-xs"><Formula text={mol.formula} /></div>
+                                            {status !== 'playing' && (
+                                                <div className={`mt-2 text-xs font-bold px-2 py-1 rounded text-white ${status === 'correct' ? 'bg-green-600' : 'bg-red-500'}`}>
+                                                    {mol.bp}°C
+                                                </div>
+                                            )}
+                                        </>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Feedback & Actions */}
+                        <div className="h-16 flex items-center justify-center mb-6">
+                            {status === 'playing' ? (
+                                <button 
+                                    onClick={checkOrder}
+                                    disabled={slots.some(s => s === null)}
+                                    className="bg-orange-600 hover:bg-orange-700 disabled:bg-gray-300 text-white font-bold py-2 px-8 rounded-full shadow-lg transition transform active:scale-95 flex items-center gap-2"
+                                >
+                                    <IconFlame className="w-5 h-5" /> Prüfen
+                                </button>
+                            ) : (
+                                <div className="flex flex-col items-center gap-2">
+                                    <div className={`text-lg font-bold flex items-center gap-2 ${status === 'correct' ? 'text-green-700' : 'text-red-700'}`}>
+                                        {status === 'correct' ? <IconCheck className="w-6 h-6" /> : <IconX className="w-6 h-6" />}
+                                        {feedback}
+                                    </div>
+                                    <button onClick={initGame} className="text-sm underline text-gray-500 hover:text-gray-800">Neue Runde</button>
+                                </div>
+                            )}
+                            {feedback && status === 'playing' && <div className="text-red-500 font-bold ml-4">{feedback}</div>}
+                        </div>
+
+                        {/* Pool Area */}
+                        <div className="bg-orange-100/50 p-4 rounded-xl border border-orange-200 min-h-[100px]">
+                            <h3 className="text-xs uppercase font-bold text-orange-400 mb-2 tracking-wide text-left">Molekül-Vorrat (Anklicken zum Einsetzen)</h3>
+                            <div className="flex flex-wrap gap-2 justify-center">
+                                {pool.length === 0 && slots.every(s => s !== null) && <div className="text-sm text-gray-400 italic">Alle Moleküle platziert.</div>}
+                                {pool.map(mol => (
+                                    <button 
+                                        key={mol.id}
+                                        onClick={() => handlePoolClick(mol)}
+                                        className="bg-white hover:bg-orange-50 border border-gray-200 hover:border-orange-300 text-gray-800 px-4 py-2 rounded-lg shadow-sm transition flex flex-col items-center"
+                                    >
+                                        <span className="font-bold text-sm">{mol.name}</span>
+                                        <span className="text-xs text-gray-500"><Formula text={mol.formula} /></span>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // 4.3 Quiz Komponente
+        const QuizSection = () => {
+            const [currentMol, setCurrentMol] = useState(null);
+            const [status, setStatus] = useState("question"); // question, answered
+            const [selectedType, setSelectedType] = useState(null);
+            const [score, setScore] = useState(0);
+
+            const nextQuestion = () => {
+                const random = MOLECULES[Math.floor(Math.random() * MOLECULES.length)];
+                setCurrentMol(random);
+                setStatus("question");
+                setSelectedType(null);
+            };
+
+            useEffect(() => {
+                nextQuestion();
+            }, []);
+
+            const handleAnswer = (typeKey) => {
+                if (status === "answered") return;
+                setSelectedType(typeKey);
+                setStatus("answered");
+                if (typeKey === currentMol.type) {
+                    setScore(s => s + 1);
+                }
+            };
+
+            if (!currentMol) return <div>Lade...</div>;
+
+            const isCorrect = selectedType === currentMol.type;
+
+            return (
+                <div className="animate-fade-in max-w-2xl mx-auto">
+                    <div className="glass-panel p-8 rounded-2xl shadow-xl text-center">
+                        <div className="absolute top-4 right-4 bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-xs font-bold">
+                            Punkte: {score}
+                        </div>
+                        
+                        <h2 className="text-gray-500 uppercase text-xs font-bold tracking-widest mb-4">Welche Kraft dominiert?</h2>
+                        
+                        <div className="mb-8">
+                            <h3 className="text-4xl font-bold text-gray-800 mb-2">{currentMol.name}</h3>
+                            <div className="text-xl text-gray-600 mb-4"><Formula text={currentMol.formula} /></div>
+                            {status === "answered" && (
+                                <div className="bg-orange-50 p-3 rounded-lg border border-orange-100 text-sm text-gray-600 italic inline-block">
+                                    "{currentMol.desc}"
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="grid grid-cols-1 gap-3">
+                            {Object.entries(FORCE_TYPES).map(([key, label]) => {
+                                let btnClass = "bg-white border-2 border-gray-100 hover:border-orange-300 text-gray-700";
+                                if (status === "answered") {
+                                    if (key === currentMol.type) btnClass = "bg-green-100 border-green-500 text-green-800 font-bold";
+                                    else if (key === selectedType && key !== currentMol.type) btnClass = "bg-red-100 border-red-500 text-red-800 opacity-60";
+                                    else btnClass = "bg-gray-50 border-gray-100 text-gray-400 opacity-50";
+                                }
+
+                                return (
+                                    <button
+                                        key={key}
+                                        onClick={() => handleAnswer(key)}
+                                        disabled={status === "answered"}
+                                        className={`p-4 rounded-xl transition-all duration-200 text-left flex items-center justify-between ${btnClass}`}
+                                    >
+                                        <span>{label}</span>
+                                        {status === "answered" && key === currentMol.type && <IconCheck className="w-5 h-5"/>}
+                                        {status === "answered" && key === selectedType && key !== currentMol.type && <IconX className="w-5 h-5"/>}
+                                    </button>
+                                );
+                            })}
+                        </div>
+
+                        {status === "answered" && (
+                            <div className="mt-8 animate-fade-in">
+                                <p className={`text-lg font-bold mb-4 ${isCorrect ? 'text-green-600' : 'text-red-500'}`}>
+                                    {isCorrect ? "Korrekt!" : "Leider falsch."}
+                                </p>
+                                <button 
+                                    onClick={nextQuestion}
+                                    className="bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 px-6 rounded-full shadow-lg transition"
+                                >
+                                    Nächstes Molekül <span className="ml-2">→</span>
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        // --- 5. HAUPTKOMPONENTE ---
+        const App = () => {
+            const [section, setSection] = useState("home"); // home, theory, ranking, quiz
+
+            const renderContent = () => {
+                switch(section) {
+                    case "theory": return <TheorySection />;
+                    case "ranking": return <RankingSection />;
+                    case "quiz": return <QuizSection />;
+                    default: return (
+                        <div className="grid md:grid-cols-3 gap-6 animate-fade-in">
+                            <div onClick={() => setSection("theory")} className="bg-white p-6 rounded-xl shadow-lg border-b-4 border-blue-500 hover:-translate-y-1 transition cursor-pointer group">
+                                <div className="text-4xl mb-4 group-hover:scale-110 transition-transform">📚</div>
+                                <h3 className="text-xl font-bold mb-2">Grundlagen</h3>
+                                <p className="text-gray-500 text-sm">Lerne alles über LDWW, Dipole und Wasserstoffbrücken.</p>
+                            </div>
+                            <div onClick={() => setSection("ranking")} className="bg-white p-6 rounded-xl shadow-lg border-b-4 border-orange-500 hover:-translate-y-1 transition cursor-pointer group">
+                                <div className="text-4xl mb-4 group-hover:scale-110 transition-transform">🌡️</div>
+                                <h3 className="text-xl font-bold mb-2">Ranking Labor</h3>
+                                <p className="text-gray-500 text-sm">Ordne Moleküle nach ihrem Siedepunkt. Die Hauptübung!</p>
+                            </div>
+                            <div onClick={() => setSection("quiz")} className="bg-white p-6 rounded-xl shadow-lg border-b-4 border-purple-500 hover:-translate-y-1 transition cursor-pointer group">
+                                <div className="text-4xl mb-4 group-hover:scale-110 transition-transform">❓</div>
+                                <h3 className="text-xl font-bold mb-2">Zuordnungs-Quiz</h3>
+                                <p className="text-gray-500 text-sm">Welche Kraft ist die stärkste? Teste dein Wissen.</p>
+                            </div>
+                        </div>
+                    );
+                }
+            };
+
+            return (
+                 <div className="max-w-4xl mx-auto min-h-screen flex flex-col pb-8">
+                    {/* Header */}
+                    <header className="bg-orange-600 text-white p-4 shadow-lg flex justify-between items-center rounded-b-2xl mb-8 z-50 relative">
+                        <div className="flex items-center gap-3 cursor-pointer" onClick={() => setSection("home")}>
+                            <div className="bg-white/20 p-2 rounded-lg backdrop-blur-sm">
+                                <IconFlask className="w-6 h-6" />
+                            </div>
+                            <div>
+                                <h1 className="text-xl font-bold tracking-tight leading-none">ZMW Master</h1>
+                                <p className="text-xs text-orange-200 opacity-90">Chemie Klasse 10</p>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-4">
+                            {section !== 'home' && (
+                                <button 
+                                    onClick={() => setSection("home")}
+                                    className="hidden md:flex text-sm bg-orange-700 hover:bg-orange-800 px-3 py-1.5 rounded-lg transition items-center gap-2"
+                                >
+                                    <IconHome className="w-4 h-4" /> Hauptmenü
+                                </button>
+                            )}
+                            <a href="https://herrzo.github.io/ChemieApps/" target="_blank" className="text-sm bg-orange-800/50 hover:bg-orange-800 px-3 py-1.5 rounded-lg transition border border-orange-500/30">
+                                Sammlung
+                            </a>
+                        </div>
+                    </header>
+
+                    {/* Navigation Breadcrumb (Mobile/Desktop) if not home */}
+                    {section !== "home" && (
+                        <div className="px-4 mb-4 flex items-center text-sm text-gray-500">
+                            <span onClick={() => setSection("home")} className="cursor-pointer hover:text-orange-600">Home</span>
+                            <span className="mx-2">/</span>
+                            <span className="font-bold text-orange-600 capitalize">
+                                {section === "theory" ? "Grundlagen" : section === "ranking" ? "Labor" : "Quiz"}
+                            </span>
+                        </div>
+                    )}
+
+                    {/* Main Content Area */}
+                    <main className="flex-grow px-4">
+                        {renderContent()}
+                    </main>
+
+                    {/* Simple Footer */}
+                    <footer className="mt-12 text-center text-gray-400 text-xs">
+                        <p>Entwickelt für den Chemieunterricht (Sprachliches Gymnasium).</p>
+                        <p>© 2023 ZMW Master • React Standalone App</p>
+                    </footer>
+                 </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+<script type="module" src="/index.tsx"></script>
+</body>
+</html>
