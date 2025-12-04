@@ -5,20 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Molekülpolarität Explorer</title>
     
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- React & DOM -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     
-    <!-- Babel for JSX -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     
-    <!-- Confetti -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     
-    <!-- Favicon -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧲</text></svg>">
     
     <style>
@@ -31,7 +26,6 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 
-    <!-- Global Error Handler -->
     <script>
         window.onerror = function(message, source, lineno, colno, error) {
             const root = document.getElementById('root');
@@ -455,11 +449,15 @@
                         <div className="relative h-48 bg-gradient-to-b from-sky-50 to-white rounded-xl border border-slate-200 overflow-hidden flex items-center justify-center">
                             {/* Rope */}
                             <div className="absolute h-2 bg-amber-700 rounded shadow-sm transition-all duration-500 ease-out" style={{ top: '50%', ...ropeStyle }}></div>
-                            {/* Electron */}
+                            
+                            {/* Electron Pair */}
                             <div 
-                                className="absolute w-8 h-8 bg-yellow-400 rounded-full border-2 border-yellow-600 shadow-[0_0_15px_rgba(250,204,21,0.6)] z-10 flex items-center justify-center font-bold text-xs transition-all duration-500 ease-out"
-                                style={{ transform: `translate(${pullPx}px, -50%)`, top: '50%' }}
-                            >e⁻</div>
+                                className="absolute z-10 flex items-center justify-center gap-1 transition-all duration-500 ease-out"
+                                style={{ transform: `translate(calc(-50% + ${pullPx}px), -50%)`, top: '50%', left: '50%' }}
+                            >
+                                <div className="w-8 h-8 bg-yellow-400 rounded-full border-2 border-yellow-600 shadow-[0_0_15px_rgba(250,204,21,0.6)] flex items-center justify-center font-bold text-xs">e⁻</div>
+                                <div className="w-8 h-8 bg-yellow-400 rounded-full border-2 border-yellow-600 shadow-[0_0_15px_rgba(250,204,21,0.6)] flex items-center justify-center font-bold text-xs">e⁻</div>
+                            </div>
 
                             {/* Left Stickman */}
                             <div className="absolute left-4 bottom-4 transition-transform duration-500" style={{ transform: `scale(${1 + en1/10})` }}>
