@@ -142,6 +142,14 @@
                 tag: "Chemie 10",
                 iconType: 'atom'
             },
+            {
+                id: 'c9-gasgesetze',
+                title: "Gasreaktionen: Verhältnisse",
+                description: "Prüfe dein Wissen zum Verhältnis von Gasvolumina",
+                link: "Gasreaktionen/index.html",
+                tag: "Chemie 10",
+                iconType: 'atom'
+            },
             
             // Chemie 10 (Organik Basics, Alkane)
             {
@@ -230,6 +238,8 @@
                     return `<svg class="${className}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>`;
                 case 'graph':
                     return `<svg class="${className}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" /></svg>`;
+                case 'balloon':
+                    return `<svg class="${className}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 16.5C15.8 16.5 19 13.2 19 9.5C19 5.8 15.8 2.5 12 2.5C8.2 2.5 5 5.8 5 9.5C5 13.2 8.2 16.5 12 16.5Z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 16.5C12 18.5 11 19.5 11 21.5C11 22.5 12 23.5 12 23.5" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.5 7.5C8.5 7.5 9.5 5.5 11.5 5.5" /></svg>`;
                 default:
                     return `<svg class="${className}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>`;
             }
@@ -343,6 +353,7 @@
     </script>
 </body>
 </html>
+
 
 
 
