@@ -1,0 +1,267 @@
+// Fix: Import React and hooks explicitly to avoid UMD global error
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+// Fix: Import ReactDOM from client for React 18 createRoot
+import ReactDOM from 'react-dom/client';
+
+// --- ICONS ---
+const FlameIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.5 3.5 6.5 1.5 2 2 4.5 2 6.5a7 7 0 1 1-14 0c0-3 2.5-5.5 5-7.5l.5 2.5Z" />
+    </svg>
+);
+
+const CheckIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="20 6 9 17 4 12" />
+    </svg>
+);
+
+const ArrowRightIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M5 12h14M12 5l7 7-7 7" />
+    </svg>
+);
+
+// --- CHEMICAL UTILITIES ---
+const ALKANE_NAMES = [
+    "", "Methan", "Ethan", "Propan", "Butan", "Pentan", "Hexan", 
+    "Heptan", "Oktan", "Nonan", "Decan", "Undecan", "Dodecan"
+];
+
+const getAlkaneFormula = (n) => ({
+    c: n,
+    h: 2 * n + 2
+});
+
+const FormulaRenderer = ({ c, h, name }) => (
+    <span className="font-mono font-bold tracking-tight">
+        C<span className="sub">{c}</span>H<span className="sub">{h}</span>
+        {name && <span className="ml-2 font-sans font-normal text-sm text-slate-500">({name})</span>}
+    </span>
+);
+
+// --- COMPONENTS ---
+
+const GuideComponent = ({ n, setN }) => {
+    const [step, setStep] = useState(0); 
+    const [isDoubling, setIsDoubling] = useState(false);
+
+    const alkan = getAlkaneFormula(n);
+    const co2_coeff = n;
+    const h2o_coeff = n + 1;
+    const o_total = (2 * co2_coeff) + h2o_coeff;
+    const o2_coeff = o_total / 2;
+    const isFraction = o_total % 2 !== 0;
+
+    const nextStep = () => setStep(prev => Math.min(prev + 1, 5));
+    const prevStep = () => setStep(prev => Math.max(prev - 1, 0));
+    
+    useEffect(() => {
+        setStep(0); 
+    }, [n]);
+
+    const handleDouble = () => {
+        setIsDoubling(true);
+        setTimeout(() => {
+            setIsDoubling(false);
+            setStep(5);
+        }, 800);
+    };
+
+    return (
+        <div className="space-y-8">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4 p-4 bg-orange-50 rounded-xl border border-orange-100">
+                <div className="flex items-center gap-4">
+                    <label className="text-sm font-semibold uppercase text-orange-800">Alkan wählen:</label>
+                    <select 
+                        value={n} 
+                        onChange={(e) => setN(parseInt(e.target.value))}
+                        className="p-2 bg-white border border-orange-200 rounded-lg shadow-sm focus:ring-2 focus:ring-orange-400 outline-none"
+                    >
+                        {ALKANE_NAMES.slice(1).map((name, i) => (
+                            <option key={name} value={i + 1}>{name} (C{i+1})</option>
+                        ))}
+                    </select>
+                </div>
+                <div className="text-lg font-bold text-orange-600">
+                    {n} C-Atome: {n % 2 === 0 ? "Gerade C-Zahl" : "Ungerade C-Zahl"}
+                </div>
+            </div>
+
+            <div className={`relative flex flex-wrap items-center justify-center gap-2 md:gap-4 p-6 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200 transition-all duration-500 ${isDoubling ? 'scale-110' : ''}`}>
+                <div className="flex flex-col items-center gap-1">
+                    <div className={`coefficient-box ${(step >= 4 && isFraction && !isDoubling) ? 'active-step' : ''} ${isDoubling ? 'animate-pop' : ''}`}>
+                        {step >= 5 ? 2 : 1}
+                    </div>
+                    {/* Fix: Pass missing required 'name' prop */}
+                    <FormulaRenderer c={alkan.c} h={alkan.h} name={ALKANE_NAMES[n]} />
+                </div>
+                <span className="text-2xl text-slate-400 font-bold">+</span>
+                <div className="flex flex-col items-center gap-1">
+                    <div className={`coefficient-box ${step === 3 || (step === 4 && isFraction) ? 'active-step' : ''} ${isDoubling ? 'animate-pop' : ''}`}>
+                        {step < 3 ? '?' : (step === 3 || step === 4 ? o2_coeff : o_total)}
+                    </div>
+                    <span className="font-mono font-bold">O<span className="sub">2</span></span>
+                </div>
+                <div className="flex flex-col items-center"><ArrowRightIcon /></div>
+                <div className="flex flex-col items-center gap-1">
+                    <div className={`coefficient-box ${step === 1 ? 'active-step' : ''} ${isDoubling ? 'animate-pop' : ''}`}>
+                        {step < 1 ? '?' : (step >= 5 ? co2_coeff * 2 : co2_coeff)}
+                    </div>
+                    <span className="font-mono font-bold">CO<span className="sub">2</span></span>
+                </div>
+                <span className="text-2xl text-slate-400 font-bold">+</span>
+                <div className="flex flex-col items-center gap-1">
+                    <div className={`coefficient-box ${step === 2 ? 'active-step' : ''} ${isDoubling ? 'animate-pop' : ''}`}>
+                        {step < 2 ? '?' : (step >= 5 ? h2o_coeff * 2 : h2o_coeff)}
+                    </div>
+                    <span className="font-mono font-bold">H<span className="sub">2</span>O</span>
+                </div>
+            </div>
+
+            <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-inner min-h-[160px] flex flex-col justify-between">
+                <div>
+                    <h3 className="text-orange-600 font-bold mb-2 flex items-center gap-2">
+                        Schritt {step + 1}: {
+                            step === 0 ? "Grundgerüst" : 
+                            step === 1 ? "C-Atome ausgleichen" : 
+                            step === 2 ? "H-Atome ausgleichen" : 
+                            step === 3 ? "Sauerstoff zählen" : 
+                            step === 4 ? "Sauerstoff anpassen" : "Fertig!"
+                        }
+                    </h3>
+                    <p className="text-slate-600">
+                        {step === 0 && `Verbrennung von ${ALKANE_NAMES[n]}. Produkte: Kohlendioxid (CO2) und Wasser (H2O).`}
+                        {step === 1 && `Links sind ${n} C-Atome. Wir benötigen also ${n} Moleküle CO2.`}
+                        {step === 2 && `Links sind ${alkan.h} H-Atome. Da Wasser 2 H hat, brauchen wir ${h2o_coeff} Moleküle H2O.`}
+                        {step === 3 && `Rechts haben wir nun insgesamt ${o_total} O-Atome (${2 * co2_coeff} aus CO2 + ${h2o_coeff} aus H2O).`}
+                        {step === 4 && (
+                            isFraction ? 
+                            `Das ergibt ${o2_coeff} O2-Moleküle. Da es keine "halben" Moleküle gibt, müssen wir jetzt alles verdoppeln!` :
+                            `Das ergibt genau ${o2_coeff} O2-Moleküle. Die Gleichung geht auf.`
+                        )}
+                        {step === 5 && `Die Gleichung ist nun stöchiometrisch korrekt ausgeglichen!`}
+                    </p>
+                </div>
+                <div className="flex justify-between items-center mt-6">
+                    <button onClick={prevStep} disabled={step === 0} className="px-4 py-2 text-slate-500 disabled:opacity-30 hover:bg-slate-100 rounded-lg">Zurück</button>
+                    {step === 4 && isFraction ? (
+                        <button onClick={handleDouble} className="bg-red-500 hover:bg-red-600 text-white px-8 py-2 rounded-lg font-bold animate-pulse shadow-lg flex items-center gap-2">
+                            <FlameIcon /> Alles verdoppeln! (x2)
+                        </button>
+                    ) : (
+                        step < 5 && <button onClick={nextStep} className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-2 rounded-lg font-bold shadow-md">Weiter</button>
+                    )}
+                    {step === 5 && <button onClick={() => setStep(0)} className="text-orange-500 font-medium hover:underline">Neu starten</button>}
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const TrainerComponent = () => {
+    const [currentProblem, setCurrentProblem] = useState(null);
+    const [inputs, setInputs] = useState({ a: '', b: '', c: '', d: '' });
+    const [feedback, setFeedback] = useState(null);
+    const [stats, setStats] = useState({ solved: 0, total: 0 });
+
+    const generateTask = useCallback(() => {
+        const n = Math.floor(Math.random() * 12) + 1;
+        const alkan = getAlkaneFormula(n);
+        const co2 = n;
+        const h2o = n + 1;
+        const o_total = (2 * co2) + h2o;
+        let solution = o_total % 2 === 0 ? { a: 1, b: o_total / 2, c: co2, d: h2o } : { a: 2, b: o_total, c: co2 * 2, d: h2o * 2 };
+        setCurrentProblem({ n, alkan, solution });
+        setInputs({ a: '', b: '', c: '', d: '' });
+        setFeedback(null);
+    }, []);
+
+    useEffect(() => { generateTask(); }, [generateTask]);
+
+    const checkSolution = () => {
+        if (!currentProblem) return;
+        const isCorrect = 
+            (parseInt(inputs.a) || 1) === currentProblem.solution.a &&
+            (parseFloat(inputs.b) || 0) === currentProblem.solution.b &&
+            (parseInt(inputs.c) || 0) === currentProblem.solution.c &&
+            (parseInt(inputs.d) || 0) === currentProblem.solution.d;
+
+        if (isCorrect) {
+            setFeedback('correct');
+            setStats(prev => ({ solved: prev.solved + 1, total: prev.total + 1 }));
+        } else {
+            setFeedback('wrong');
+            setStats(prev => ({ ...prev, total: prev.total + 1 }));
+        }
+    };
+
+    if (!currentProblem) return null;
+
+    const leftC = (parseInt(inputs.a) || 1) * currentProblem.alkan.c;
+    const rightC = parseInt(inputs.c) || 0;
+    const leftH = (parseInt(inputs.a) || 1) * currentProblem.alkan.h;
+    const rightH = (parseInt(inputs.d) || 0) * 2;
+    const leftO = (parseFloat(inputs.b) || 0) * 2;
+    const rightO = ((parseInt(inputs.c) || 0) * 2) + (parseInt(inputs.d) || 0);
+
+    return (
+        <div className="space-y-8">
+            <div className="flex justify-between items-center"><h2 className="text-xl font-bold text-slate-700">Setze die Koeffizienten:</h2><div className="px-3 py-1 bg-slate-100 rounded-full text-sm font-medium">Score: {stats.solved}/{stats.total}</div></div>
+            <div className="flex flex-wrap items-center justify-center gap-2 md:gap-4 p-8 bg-slate-900 text-white rounded-3xl shadow-xl">
+                {/* Fix: Pass missing required 'name' prop */}
+                <div className="flex items-center gap-2"><input type="number" value={inputs.a} onChange={e => setInputs({...inputs, a: e.target.value})} placeholder="1" className="w-12 h-12 bg-slate-800 border-2 border-slate-600 rounded-lg text-center text-xl font-bold focus:border-orange-400 outline-none" /><FormulaRenderer c={currentProblem.alkan.c} h={currentProblem.alkan.h} name={ALKANE_NAMES[currentProblem.n]} /></div>
+                <span className="text-xl">+</span>
+                <div className="flex items-center gap-2"><input type="text" value={inputs.b} onChange={e => setInputs({...inputs, b: e.target.value})} placeholder="?" className="w-16 h-12 bg-slate-800 border-2 border-slate-600 rounded-lg text-center text-xl font-bold focus:border-orange-400 outline-none" /><span className="font-mono font-bold">O<span className="sub">2</span></span></div>
+                <ArrowRightIcon />
+                <div className="flex items-center gap-2"><input type="number" value={inputs.c} onChange={e => setInputs({...inputs, c: e.target.value})} placeholder="?" className="w-12 h-12 bg-slate-800 border-2 border-slate-600 rounded-lg text-center text-xl font-bold focus:border-orange-400 outline-none" /><span className="font-mono font-bold">CO<span className="sub">2</span></span></div>
+                <span className="text-xl">+</span>
+                <div className="flex items-center gap-2"><input type="number" value={inputs.d} onChange={e => setInputs({...inputs, d: e.target.value})} placeholder="?" className="w-12 h-12 bg-slate-800 border-2 border-slate-600 rounded-lg text-center text-xl font-bold focus:border-orange-400 outline-none" /><span className="font-mono font-bold">H<span className="sub">2</span>O</span></div>
+            </div>
+            <div className="grid grid-cols-3 gap-4 max-w-sm mx-auto">
+                <div className="text-center text-xs font-bold text-slate-400 uppercase">Atom</div><div className="text-center text-xs font-bold text-slate-400 uppercase">Links</div><div className="text-center text-xs font-bold text-slate-400 uppercase">Rechts</div>
+                <div className="flex justify-center"><div className="w-6 h-6 rounded-full bg-slate-700 text-white flex items-center justify-center text-xs font-bold">C</div></div>
+                <div className={`text-center font-mono ${leftC === rightC && leftC > 0 ? 'text-green-500' : 'text-slate-400'}`}>{leftC}</div><div className={`text-center font-mono ${leftC === rightC && leftC > 0 ? 'text-green-500' : 'text-slate-400'}`}>{rightC}</div>
+                <div className="flex justify-center"><div className="w-6 h-6 rounded-full bg-blue-500 text-white flex items-center justify-center text-xs font-bold">H</div></div>
+                <div className={`text-center font-mono ${leftH === rightH && leftH > 0 ? 'text-green-500' : 'text-slate-400'}`}>{leftH}</div><div className={`text-center font-mono ${leftH === rightH && leftH > 0 ? 'text-green-500' : 'text-slate-400'}`}>{rightH}</div>
+                <div className="flex justify-center"><div className="w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center text-xs font-bold">O</div></div>
+                <div className={`text-center font-mono ${leftO === rightO && leftO > 0 ? 'text-green-500' : 'text-slate-400'}`}>{leftO}</div><div className={`text-center font-mono ${leftO === rightO && leftO > 0 ? 'text-green-500' : 'text-slate-400'}`}>{rightO}</div>
+            </div>
+            <div className="flex flex-col items-center gap-4">
+                {feedback === 'correct' && <div className="p-3 bg-green-100 text-green-700 rounded-xl border border-green-200 flex items-center gap-2 animate-bounce"><CheckIcon /> Super!</div>}
+                {feedback === 'wrong' && <div className="p-3 bg-red-50 text-red-600 rounded-xl border border-red-100 text-sm">Prüfe die Atombilanz.</div>}
+                <div className="flex gap-4">
+                    <button onClick={checkSolution} className="bg-orange-500 hover:bg-orange-600 text-white px-10 py-3 rounded-xl font-bold shadow-lg">Prüfen</button>
+                    <button onClick={generateTask} className="bg-slate-200 hover:bg-slate-300 text-slate-700 px-6 py-3 rounded-xl font-bold">Nächste</button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const App = () => {
+    const [mode, setMode] = useState('guide');
+    const [carbonCount, setCarbonCount] = useState(3);
+    return (
+        <div className="max-w-4xl mx-auto p-4 md:p-8">
+            <header className="mb-8 text-center">
+                <h1 className="text-3xl font-extrabold text-slate-800 flex items-center justify-center gap-2">🔥 ChemTrain <span className="text-orange-500">Alkan-Verbrennung</span></h1>
+                <div className="inline-flex mt-6 p-1 bg-slate-200 rounded-2xl shadow-inner">
+                    <button onClick={() => setMode('guide')} className={`px-6 py-2 rounded-xl font-bold transition-all ${mode === 'guide' ? 'bg-white text-orange-600 shadow' : 'text-slate-500'}`}>Guide</button>
+                    <button onClick={() => setMode('trainer')} className={`px-6 py-2 rounded-xl font-bold transition-all ${mode === 'trainer' ? 'bg-white text-orange-600 shadow' : 'text-slate-500'}`}>Trainer</button>
+                </div>
+            </header>
+            <main className="bg-white rounded-[2rem] shadow-2xl p-6 md:p-10 border border-slate-100">
+                {mode === 'guide' ? <GuideComponent n={carbonCount} setN={setCarbonCount} /> : <TrainerComponent />}
+            </main>
+            <footer className="mt-12 text-center text-slate-400 text-sm">Didaktische App zur Stöchiometrie</footer>
+        </div>
+    );
+};
+
+// Fix: Use createRoot from react-dom/client for React 18 and add safety null check
+const rootElement = document.getElementById('root');
+if (rootElement) {
+    const root = ReactDOM.createRoot(rootElement);
+    root.render(<App />);
+}

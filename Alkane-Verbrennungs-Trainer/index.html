@@ -1,0 +1,45 @@
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chemie Trainer: Verbrennung von Alkanen</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        @keyframes pulse-highlight {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); background-color: #fef3c7; }
+        }
+        .animate-pop { animation: pulse-highlight 0.6s ease-in-out; }
+        
+        .sub { vertical-align: sub; font-size: 0.75em; line-height: 0; }
+        
+        .coefficient-box {
+            @apply flex items-center justify-center w-12 h-12 rounded-lg border-2 border-orange-200 bg-orange-50 text-xl font-bold text-orange-700 transition-all duration-300;
+        }
+        
+        .active-step {
+            @apply border-orange-500 bg-orange-100 ring-2 ring-orange-200 scale-105 shadow-md;
+        }
+    </style>
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@^19.2.3",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "react/": "https://esm.sh/react@^19.2.3/"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen font-sans">
+    <div id="root"></div>
+    <script type="text/babel" src="index.tsx"></script>
+<script type="module" src="/index.tsx"></script>
+</body>
+</html>
