@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chemie Lern-Apps</title>
+    <meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:;">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
@@ -12,10 +13,9 @@
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
                     },
                     colors: {
-                        // Orange Palette für Chemie
                         chem: {
                             50: '#fff7ed',
                             100: '#ffedd5',
@@ -28,288 +28,229 @@
                             800: '#9a3412',
                             900: '#7c2d12',
                         }
-                    },
-                    keyframes: {
-                        fadeIn: {
-                            '0%': { opacity: '0', transform: 'translateY(10px)' },
-                            '100%': { opacity: '1', transform: 'translateY(0)' },
-                        }
-                    },
-                    animation: {
-                        fadeIn: 'fadeIn 0.5s ease-out forwards',
                     }
                 }
             }
         }
     </script>
     <style>
+        * { box-sizing: border-box; }
         body {
-            background-color: #FAFAFA;
-        }
-        /* Orangener Gradient statt Grün */
-        .bg-gradient-mesh {
-            background-image: radial-gradient(at 0% 0%, hsla(32, 98%, 93%, 1) 0, transparent 50%), 
-                              radial-gradient(at 100% 0%, hsla(45, 90%, 94%, 1) 0, transparent 50%);
-            background-attachment: fixed;
+            font-family: 'Inter', system-ui, sans-serif;
+            background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 50%, #fed7aa 100%);
+            min-height: 100vh;
         }
         .card-hover {
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .card-hover:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px -10px rgba(234, 88, 12, 0.15); /* Leichter oranger Schatten */
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px -15px rgba(234, 88, 12, 0.25);
         }
-        /* Versteckt Scrollbar für sauberen Look im Filter */
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
+        .filter-btn {
+            transition: all 0.2s ease;
         }
-        .no-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
+        .filter-btn.active {
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            color: white;
+            box-shadow: 0 4px 12px rgba(249, 115, 22, 0.4);
+        }
+        .app-card {
+            animation: fadeInUp 0.5s ease forwards;
+            opacity: 0;
+        }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .app-card:nth-child(1) { animation-delay: 0.1s; }
+        .app-card:nth-child(2) { animation-delay: 0.15s; }
+        .app-card:nth-child(3) { animation-delay: 0.2s; }
+        .app-card:nth-child(4) { animation-delay: 0.25s; }
+        .app-card:nth-child(5) { animation-delay: 0.3s; }
+        .app-card:nth-child(6) { animation-delay: 0.35s; }
+        .badge {
+            background: linear-gradient(135deg, #f97316, #ea580c);
+        }
+        .search-input:focus {
+            box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.3);
         }
     </style>
 </head>
-<body class="text-slate-800 antialiased min-h-screen flex flex-col bg-gradient-mesh">
+<body class="text-slate-800 antialiased">
+    <div class="min-h-screen flex flex-col">
+        <!-- Header -->
+        <header class="pt-12 pb-8 px-4 sm:px-6 text-center">
+            <div class="max-w-4xl mx-auto">
+                <span class="inline-block py-1.5 px-4 rounded-full bg-chem-100 text-chem-900 text-xs font-semibold tracking-wide uppercase mb-4 shadow-sm border border-chem-200">
+                    Johannes-Scharrer-Gymnasium
+                </span>
+                <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-slate-900 mb-4">
+                    Chemie Lern-Apps
+                </h1>
+                <p class="text-base sm:text-lg text-slate-600 max-w-2xl mx-auto font-light leading-relaxed">
+                    Interaktive Werkzeuge und Visualisierungen zum Verständnis chemischer Prozesse.
+                </p>
+            </div>
+        </header>
 
-    <header class="w-full pt-20 pb-8 px-6 text-center">
-        <div class="max-w-4xl mx-auto">
-            <span class="inline-block py-1 px-3 rounded-full bg-chem-100 text-chem-900 text-xs font-semibold tracking-wide uppercase mb-4 shadow-sm">
-                Johannes-Scharrer-Gymnasium
-            </span>
-            <h1 class="text-4xl md:text-5xl font-bold tracking-tight text-slate-900 mb-4">
-                Chemie Lern-Apps
-            </h1>
-            <p class="text-lg text-slate-600 max-w-2xl mx-auto font-light leading-relaxed">
-                Herr Zollfranks Sammlung interaktiver Werkzeuge und Visualisierungen zum Verständnis chemischer Prozesse.
-            </p>
-        </div>
-    </header>
-
-    <div class="sticky top-4 z-50 px-4 mb-8">
-        <div class="max-w-max mx-auto bg-white/90 backdrop-blur-md rounded-2xl shadow-lg border border-slate-200/50 p-2 overflow-x-auto no-scrollbar">
-            <div class="flex space-x-1 min-w-max" id="filter-container">
+        <!-- Search & Filter -->
+        <div class="sticky top-0 z-50 px-4 sm:px-6 mb-8 bg-gradient-to-b from-chem-50 via-chem-50 to-transparent pb-4 pt-2">
+            <div class="max-w-4xl mx-auto space-y-4">
+                <!-- Search -->
+                <div class="relative">
+                    <input 
+                        type="text" 
+                        id="search-input"
+                        placeholder="Apps durchsuchen..."
+                        class="search-input w-full px-4 py-3 pl-12 bg-white/90 backdrop-blur-md rounded-2xl shadow-lg border border-slate-200/50 outline-none text-slate-700 placeholder-slate-400 transition-all"
+                    >
+                    <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
                 </div>
+                
+                <!-- Filter -->
+                <div class="bg-white/90 backdrop-blur-md rounded-2xl shadow-lg border border-slate-200/50 p-2 overflow-x-auto">
+                    <div class="flex space-x-2 min-w-max" id="filter-container"></div>
+                </div>
+            </div>
         </div>
+
+        <!-- Main Content -->
+        <main class="flex-grow px-4 sm:px-6 pb-16">
+            <div class="max-w-6xl mx-auto" id="app-grid-container"></div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="w-full py-6 border-t border-slate-200 bg-white/70 backdrop-blur-sm mt-auto">
+            <div class="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div class="text-sm text-slate-500 text-center sm:text-left">
+                    <span class="font-medium">Johannes-Scharrer-Gymnasium</span> · Zollfrank
+                </div>
+                <div class="text-sm text-slate-400">
+                    © <span id="year"></span> Chemie Lern-Apps
+                </div>
+            </div>
+        </footer>
     </div>
 
-    <main class="flex-grow px-6 pb-20">
-        <div class="max-w-6xl mx-auto min-h-[300px]" id="app-grid-container">
-            </div>
-    </main>
-
-    <footer class="w-full py-8 border-t border-slate-200 bg-white/50 backdrop-blur-sm mt-auto">
-        <div class="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4">
-            <div class="text-sm text-slate-500">
-                &copy; <span id="year"></span> Chemie Lern-Apps.
-            </div>
-            <a href="https://github.com/HerrZo" target="_blank" rel="noopener noreferrer" 
-               class="flex items-center gap-2 text-slate-600 hover:text-slate-900 transition-colors">
-                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd"></path>
-                </svg>
-                <span class="font-medium">GitHub Profil</span>
-            </a>
-        </div>
-    </footer>
-
     <script>
-        // 1. KONFIGURATION & DATEN
-        // ---------------------------------------------------------
-        
-        const categories = [
-            'Alle',
-            'Chemie 9',
-            'Chemie 10',
-            'Chemie 12',
-            'Chemie 13'
-        ];
+        // Configuration
+        const categories = ['Alle', 'Chemie 9', 'Chemie 10', 'Chemie 12', 'Chemie 13'];
 
         const projects = [
-            // Chemie 9 (Grundlagen, Salze, Bindungen)
             {
                 id: 'c9-Molpol',
                 title: "Molekülpolarität",
-                description: "Lerne die Molekülpolarität kennen",
+                description: "Interaktiver Explorer für Bindungstypen, Dipole und Molekülgeometrien",
                 link: "Molekülpolarität/index.html",
                 tag: "Chemie 9",
-                iconType: 'magnet'
+                icon: 'magnet',
+                keywords: ['polarität', 'dipol', 'bindung', 'elektronegativität']
             },
             {
                 id: 'c10-zmww',
                 title: "Zwischenmolekulare Wechselwirkungen",
-                description: "Übe die zwischenmolekularen Wechselwirkungen.",
+                description: "Lerne London-Kräfte, Dipol-Dipol und Wasserstoffbrücken kennen",
                 link: "ZMWW/index.html",
                 tag: "Chemie 10",
-                iconType: 'atom'
+                icon: 'atom',
+                keywords: ['zmww', 'london', 'wasserstoffbrücken', 'siedepunkt']
             },
             {
                 id: 'c9-gasgesetze',
-                title: "Gasreaktionen: Verhältnisse",
-                description: "Prüfe dein Wissen zum Verhältnis von Gasvolumina",
+                title: "Gasreaktionen",
+                description: "Verstehe das Gesetz von Avogadro und Volumenverhältnisse",
                 link: "Gasreaktionen/index.html",
                 tag: "Chemie 9",
-                iconType: 'balloon'
+                icon: 'flask',
+                keywords: ['gas', 'avogadro', 'volumen', 'reaktion']
             },
             {
                 id: 'c9-AlkVerbr',
-                title: "Alkane-Verbrennungs-Trainer",
-                description: "Prüfe dein Wissen zum Verhältnis von Gasvolumina",
+                title: "Alkane-Verbrennung",
+                description: "Übe das Ausgleichen von Verbrennungsreaktionen schrittweise",
                 link: "Alkane-Verbrennungs-Trainer/index.html",
                 tag: "Chemie 9",
-                iconType: 'balloon' 
+                icon: 'fire',
+                keywords: ['alkane', 'verbrennung', 'stöchiometrie', 'ausgleichen']
             },
-            
-            // Chemie 10 (Organik Basics, Alkane)
             {
                 id: 'c10-alkanes',
                 title: "Wechselwirkungen",
-                description: "Erkunden von Wechselwirkungen.",
+                description: "Erkunde intermolekulare Kräfte und ihre Auswirkungen",
                 link: "Wechselwirkungen/index.html",
                 tag: "Chemie 10",
-                iconType: 'molecule'
-            },
-            {
-                id: 'c10-redox',
-                title: "Platzhalter",
-                description: "Bestimme Oxidationszahlen interaktiv und gleiche Redox-Gleichungen aus.",
-                link: "#",
-                tag: "Chemie 10",
-                iconType: 'flask'
-            },
-
-            // Chemie 12 (Gleichgewichte, Thermodynamik, Elektrochemie)
-            {
-                id: 'c12-mwg',
-                title: "Platzhalter",
-                description: "Das Massenwirkungsgesetz und das Prinzip von Le Chatelier interaktiv erkunden.",
-                link: "#",
-                tag: "Chemie 12",
-                iconType: 'graph'
-            },
-            {
-                id: 'c12-galvani',
-                title: "Platzhalter",
-                description: "Baue Batterien aus verschiedenen Halbzellen und berechne die Spannung.",
-                link: "#",
-                tag: "Chemie 12",
-                iconType: 'battery'
-            },
-            {
-                id: 'c12-ph',
-                title: "Platzhalter",
-                description: "Simuliere Säure-Base-Titrationen und analysiere die Titrationskurven.",
-                link: "#",
-                tag: "Chemie 12",
-                iconType: 'flask'
-            },
-
-            // Chemie 13 (Makromoleküle, Kunststoffe, Farbstoffe)
-            {
-                id: 'c13-polymer',
-                title: "Platzhalter",
-                description: "Unterscheide zwischen Polymerisation, Polykondensation und Polyaddition.",
-                link: "#",
-                tag: "Chemie 13",
-                iconType: 'structure'
-            },
-            {
-                id: 'c13-dyes',
-                title: "Platzhalter",
-                description: "Verstehe das Mesomerie-Modell und wie Lichtabsorption Farbe erzeugt.",
-                link: "#",
-                tag: "Chemie 13",
-                iconType: 'eye'
+                icon: 'molecule',
+                keywords: ['wechselwirkungen', 'kräfte', 'moleküle']
             }
         ];
 
-        // Status der App
         let currentCategory = 'Alle';
+        let searchQuery = '';
 
-        // 2. HILFSFUNKTIONEN (Icons)
-        // ---------------------------------------------------------
+        // Icons
         function getIconSvg(type) {
-            const className = "w-6 h-6";
-            switch (type) {
-                case 'atom':
-                    return `<svg class="${className}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>`; // Flask/Atom Mix
-                case 'molecule':
-                    return `<svg class="${className}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>`; // Cube structure
-                case 'flask':
-                     return `<svg class="${className}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>`;
-                case 'battery':
-                    return `<svg class="${className}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>`; // Bolt
-                case 'table':
-                    return `<svg class="${className}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h12a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm4 0v12m8-12v12M4 12h16M4 16h16M4 8h16"/></svg>`;
-                case 'structure':
-                    return `<svg class="${className}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>`;
-                case 'eye':
-                    return `<svg class="${className}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>`;
-                case 'graph':
-                    return `<svg class="${className}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" /></svg>`;
-                case 'balloon':
-                    return `<svg class="${className}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 16.5C15.8 16.5 19 13.2 19 9.5C19 5.8 15.8 2.5 12 2.5C8.2 2.5 5 5.8 5 9.5C5 13.2 8.2 16.5 12 16.5Z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 16.5C12 18.5 11 19.5 11 21.5C11 22.5 12 23.5 12 23.5" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.5 7.5C8.5 7.5 9.5 5.5 11.5 5.5" /></svg>`;
-                default:
-                    return `<svg class="${className}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>`;
-            }
+            const icons = {
+                atom: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2a10 10 0 0 1 10 10"/><path d="M12 2a10 10 0 0 0-10 10"/><ellipse cx="12" cy="12" rx="10" ry="4"/></svg>`,
+                molecule: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="6" cy="6" r="3"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="18" r="3"/><line x1="8.5" y1="7.5" x2="15.5" y2="7.5"/><line x1="8.5" y1="16.5" x2="15.5" y2="16.5"/><line x1="7.5" y1="8.5" x2="7.5" y2="15.5"/><line x1="16.5" y1="8.5" x2="16.5" y2="15.5"/></svg>`,
+                flask: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 3h6v4.5l4 8.5a2 2 0 0 1-1.8 3H6.8a2 2 0 0 1-1.8-3l4-8.5V3z"/><line x1="9" y1="3" x2="15" y2="3"/></svg>`,
+                fire: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 2c0 4-4 6-4 10a4 4 0 0 0 8 0c0-4-4-6-4-10z"/><path d="M12 12c0 2-1.5 3-1.5 4.5a1.5 1.5 0 0 0 3 0c0-1.5-1.5-2.5-1.5-4.5z"/></svg>`,
+                magnet: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 3a3 3 0 0 1 0 6h-3"/><path d="M5 3a3 3 0 0 0 0 6h3"/><path d="M16 9v6a4 4 0 0 1-8 0V9"/></svg>`
+            };
+            return icons[type] || icons.flask;
         }
 
-        // 3. RENDERING LOGIK
-        // ---------------------------------------------------------
-
-        // Rendert die Filter-Leiste
+        // Render filter bar
         function renderFilterBar() {
             const container = document.getElementById('filter-container');
-            container.innerHTML = '';
-
-            categories.forEach(category => {
-                const isActive = currentCategory === category;
-                const button = document.createElement('button');
-                
-                // Tailwind Klassen basierend auf Aktiv-Status (Nutze CHEM Farben)
-                let classes = "px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300 ease-out whitespace-nowrap ";
-                if (isActive) {
-                    classes += "bg-chem-600 text-white shadow-md transform scale-105";
-                } else {
-                    classes += "text-slate-600 hover:bg-chem-100 hover:text-chem-700";
-                }
-                
-                button.className = classes;
-                button.textContent = category;
-                
-                // Klick Event
-                button.onclick = () => {
-                    currentCategory = category;
-                    renderFilterBar(); // Buttons neu zeichnen (um aktiven Status zu ändern)
-                    renderGrid();      // Grid neu zeichnen (Filtern)
-                };
-
-                container.appendChild(button);
-            });
+            container.innerHTML = categories.map(cat => `
+                <button 
+                    onclick="filterByCategory('${cat}')"
+                    class="filter-btn px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap ${currentCategory === cat ? 'active' : 'text-slate-600 hover:bg-chem-50'}"
+                >
+                    ${cat}
+                </button>
+            `).join('');
         }
 
-        // Erstellt das HTML für eine einzelne Karte
+        // Filter by category
+        function filterByCategory(category) {
+            currentCategory = category;
+            renderFilterBar();
+            renderGrid();
+        }
+
+        // Create card HTML
         function createCardHTML(project) {
             return `
-                <div class="bg-white rounded-2xl p-6 border border-slate-100 card-hover flex flex-col h-full hover:border-chem-200 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl animate-fadeIn">
+                <div class="app-card bg-white rounded-2xl p-5 sm:p-6 border border-slate-100 card-hover flex flex-col h-full">
                     <div class="flex items-center justify-between mb-4">
                         <div class="p-3 bg-chem-50 rounded-xl text-chem-600">
-                            ${getIconSvg(project.iconType)}
+                            ${getIconSvg(project.icon)}
                         </div>
-                        <span class="text-xs font-semibold text-slate-500 bg-slate-50 px-2 py-1 rounded-md border border-slate-100">
+                        <span class="text-xs font-semibold text-chem-700 bg-chem-100 px-3 py-1 rounded-full">
                             ${project.tag}
                         </span>
                     </div>
                     
-                    <h3 class="text-xl font-bold text-slate-800 mb-2">
+                    <h3 class="text-lg sm:text-xl font-bold text-slate-800 mb-2">
                         ${project.title}
                     </h3>
                     
-                    <p class="text-slate-500 mb-6 flex-grow leading-relaxed">
+                    <p class="text-slate-500 text-sm sm:text-base mb-6 flex-grow leading-relaxed">
                         ${project.description}
                     </p>
                     
                     <a href="${project.link}" 
-                       class="inline-flex items-center justify-center w-full px-4 py-3 text-sm font-semibold text-white transition-all bg-slate-900 rounded-xl hover:bg-chem-600 group shadow-sm hover:shadow-chem-500/30">
+                       class="inline-flex items-center justify-center w-full px-4 py-3 text-sm font-semibold text-white bg-gradient-to-r from-chem-600 to-chem-700 rounded-xl hover:from-chem-700 hover:to-chem-800 transition-all shadow-md hover:shadow-lg group">
                         App öffnen
                         <svg class="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
@@ -319,56 +260,61 @@
             `;
         }
 
-        // Rendert das Grid der Apps basierend auf dem aktuellen Filter
+        // Render grid
         function renderGrid() {
             const container = document.getElementById('app-grid-container');
             
-            // Filtern
-            const filteredProjects = currentCategory === 'Alle' 
-                ? projects 
-                : projects.filter(p => p.tag === currentCategory);
+            let filtered = projects;
+            
+            // Filter by category
+            if (currentCategory !== 'Alle') {
+                filtered = filtered.filter(p => p.tag === currentCategory);
+            }
+            
+            // Filter by search
+            if (searchQuery) {
+                const query = searchQuery.toLowerCase();
+                filtered = filtered.filter(p => 
+                    p.title.toLowerCase().includes(query) ||
+                    p.description.toLowerCase().includes(query) ||
+                    p.keywords.some(k => k.includes(query))
+                );
+            }
 
-            if (filteredProjects.length === 0) {
+            if (filtered.length === 0) {
                 container.innerHTML = `
-                    <div class="text-center py-20 text-slate-400 animate-fadeIn">
-                        <p>Keine Apps für diese Kategorie gefunden.</p>
+                    <div class="text-center py-16 text-slate-400">
+                        <svg class="w-16 h-16 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <p class="text-lg font-medium">Keine Apps gefunden</p>
+                        <p class="text-sm mt-1">Versuche eine andere Suche oder Kategorie</p>
                     </div>
                 `;
                 return;
             }
 
-            // Grid Container aufbauen
-            let gridHTML = '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">';
-            filteredProjects.forEach(project => {
-                gridHTML += createCardHTML(project);
-            });
-            gridHTML += '</div>';
-
-            container.innerHTML = gridHTML;
+            container.innerHTML = `
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                    ${filtered.map(project => createCardHTML(project)).join('')}
+                </div>
+            `;
         }
 
-        // 4. INITIALISIERUNG
-        // ---------------------------------------------------------
+        // Initialize
         document.addEventListener('DOMContentLoaded', () => {
-            // Jahr im Footer setzen
             document.getElementById('year').textContent = new Date().getFullYear();
             
-            // App starten
+            // Search functionality
+            const searchInput = document.getElementById('search-input');
+            searchInput.addEventListener('input', (e) => {
+                searchQuery = e.target.value;
+                renderGrid();
+            });
+            
             renderFilterBar();
             renderGrid();
         });
-
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
