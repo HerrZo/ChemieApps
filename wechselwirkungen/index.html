@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wechselwirkungen - Chemie 10 (Safe Mode)</title>
+    
+    <script>
+        window.onerror = function(msg, url, line, col, error) {
+            document.getElementById('debug-error').style.display = 'block';
+            document.getElementById('debug-msg').innerText = "Fehler: " + msg + "\nZeile: " + line;
+            return false;
+        };
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.development.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.development.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .glass { background: rgba(255,255,255,0.9); backdrop-filter: blur(5px); border: 1px solid rgba(255,165,0,0.2); }
+        .btn-hover:hover { transform: translateY(-2px); box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        /* Animationen */
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .animate-in { animation: fadeIn 0.5s ease-out; }
+    </style>
+</head>
+<body class="bg-orange-50 text-gray-800 min-h-screen">
+
+    <div id="debug-error" style="display:none; background: #fee2e2; color: #991b1b; padding: 20px; border: 2px solid red; margin: 20px;">
+        <h3 style="font-weight:bold">Es ist ein Fehler aufgetreten:</h3>
+        <pre id="debug-msg" style="white-space: pre-wrap;"></pre>
+        <p>Bitte stelle sicher, dass du mit dem Internet verbunden bist (für React/Tailwind).</p>
+    </div>
+
+    <div id="loading" style="text-align: center; margin-top: 100px; color: #ea580c;">
+        <h2 style="font-size: 24px; font-weight: bold;">Lade Chemie-App...</h2>
+        <p>Bitte warten. Internetverbindung erforderlich.</p>
+    </div>
+
+    <div id="root"></div>
+
+    <script type="text/babel">
+        // Globals sicherstellen
+        const { useState, useEffect } = React;
+
+        // --- DATEN ---
+        const forces = {
+            london: { label: "London-Kräfte", color: "bg-gray-100 text-gray-700", desc: "Unpolare Moleküle / Temporäre Dipole" },
+            dipol: { label: "Dipol-Dipol", color: "bg-blue-100 text-blue-800", desc: "Permanente Dipole (Polar)" },
+            hbond: { label: "H-Brücken", color: "bg-green-100 text-green-800", desc: "H an F, O, N" },
+            iondipol: { label: "Ion-Dipol", color: "bg-purple-100 text-purple-800", desc: "Salz in Wasser" }
+        };
+
+        const quizData = [
+            { name: "Methan (CH₄)", formula: "CH₄", type: "london", hint: "Symmetrisch, unpolar." },
+            { name: "Wasser (H₂O)", formula: "H₂O", type: "hbond", hint: "H direkt an O gebunden." },
+            { name: "Salzsäure (HCl)", formula: "HCl", type: "dipol", hint: "Permanenter Dipol, kein H an F,O,N." },
+            { name: "Kochsalz (Na⁺ in H₂O)", formula: "Na⁺ (aq)", type: "iondipol", hint: "Ladung + Wasser." },
+            { name: "Helium (He)", formula: "He", type: "london", hint: "Edelgas, unpolar." }
+        ];
+
+        const rankingSets = [
+            { items: [{ name: "Propan", t: "london" }, { name: "Ethanal", t: "dipol" }, { name: "Ethanol", t: "hbond" }] },
+            { items: [{ name: "Ethan", t: "london" }, { name: "Fluormethan", t: "dipol" }, { name: "Methanol", t: "hbond" }] }
+        ];
+
+        // --- ICONS (Vereinfachtes SVG um Fehler zu vermeiden) ---
+        const IconCheck = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="text-green-600"><polyline points="20 6 9 17 4 12"/></svg>;
+        const IconInfo = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>;
+
+        // --- HAUPT-KOMPONENTE ---
+        const App = () => {
+            const [tab, setTab] = useState('wissen'); // wissen, quiz, ranking
+
+            // Entferne Ladebildschirm beim Start
+            useEffect(() => {
+                const loader = document.getElementById('loading');
+                if(loader) loader.style.display = 'none';
+            }, []);
+
+            return (
+                <div className="max-w-3xl mx-auto p-4 animate-in">
+                    {/* Header */}
+                    <header className="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm mb-6 border-b-4 border-orange-500">
+                        <div>
+                            <h1 className="text-2xl font-bold text-gray-900">Chemie 10</h1>
+                            <p className="text-orange-600 text-sm font-semibold">Wechselwirkungen Trainer</p>
+                        </div>
+                        <div className="text-right">
+                             <a href="https://herrzo.github.io/ChemieApps/" className="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded hover:bg-orange-200">Sammlung</a>
+                        </div>
+                    </header>
+
+                    {/* Tabs */}
+                    <div className="flex gap-2 mb-6 overflow-x-auto">
+                        <button onClick={() => setTab('wissen')} className={`px-4 py-2 rounded-lg font-bold transition ${tab==='wissen' ? 'bg-orange-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-100'}`}>Wissen</button>
+                        <button onClick={() => setTab('quiz')} className={`px-4 py-2 rounded-lg font-bold transition ${tab==='quiz' ? 'bg-orange-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-100'}`}>Quiz</button>
+                        <button onClick={() => setTab('ranking')} className={`px-4 py-2 rounded-lg font-bold transition ${tab==='ranking' ? 'bg-orange-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-100'}`}>Siedepunkt</button>
+                    </div>
+
+                    {/* CONTENT: WISSEN */}
+                    {tab === 'wissen' && (
+                        <div className="space-y-4">
+                            <div className="bg-orange-100 p-4 rounded-lg border-l-4 border-orange-500">
+                                <h3 className="font-bold flex items-center gap-2"><IconInfo/> Die Hierarchie</h3>
+                                <p className="text-sm mt-1">Stärke bei ähnlicher Masse: London &lt; Dipol &lt; H-Brücke &lt; Ion-Dipol</p>
+                            </div>
+                            <div className="grid gap-3 md:grid-cols-2">
+                                {Object.entries(forces).map(([k, v]) => (
+                                    <div key={k} className={`p-4 rounded-lg border ${v.color} bg-opacity-50 glass`}>
+                                        <h4 className="font-bold text-lg">{v.label}</h4>
+                                        <p className="text-sm mt-2">{v.desc}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* CONTENT: QUIZ */}
+                    {tab === 'quiz' && <QuizComponent />}
+
+                    {/* CONTENT: RANKING */}
+                    {tab === 'ranking' && <RankingComponent />}
+
+                </div>
+            );
+        };
+
+        // --- SUB-KOMPONENTEN ---
+        const QuizComponent = () => {
+            const [idx, setIdx] = useState(0);
+            const [feedback, setFeedback] = useState(null);
+            
+            const q = quizData[idx % quizData.length];
+
+            const check = (type) => {
+                if (type === q.type) setFeedback({ ok: true, msg: "Richtig! " + q.hint });
+                else setFeedback({ ok: false, msg: "Falsch. Es ist " + forces[q.type].label });
+            };
+
+            const next = () => {
+                setFeedback(null);
+                setIdx(idx + 1);
+            };
+
+            return (
+                <div className="glass p-6 rounded-xl text-center shadow-lg">
+                    <h2 className="text-xl font-bold text-gray-500 mb-1">Was dominiert hier?</h2>
+                    <div className="text-4xl font-bold mb-2 text-gray-800">{q.name}</div>
+                    <div className="font-mono text-orange-600 mb-6">{q.formula}</div>
+
+                    {!feedback ? (
+                        <div className="grid grid-cols-2 gap-3">
+                            {Object.entries(forces).map(([k, v]) => (
+                                <button key={k} onClick={() => check(k)} className="p-3 bg-white border rounded hover:border-orange-500 hover:bg-orange-50 font-semibold shadow-sm transition">
+                                    {v.label}
+                                </button>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="animate-in">
+                            <div className={`p-3 rounded mb-4 font-bold ${feedback.ok ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                                {feedback.msg}
+                            </div>
+                            <button onClick={next} className="bg-orange-600 text-white px-6 py-2 rounded-lg font-bold shadow hover:bg-orange-700">Weiter</button>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        const RankingComponent = () => {
+            const [setIdx, setSetIdx] = useState(0);
+            const [slots, setSlots] = useState([null, null, null]);
+            const [done, setDone] = useState(false);
+            
+            const currentSet = rankingSets[setIdx % rankingSets.length];
+            const items = currentSet.items; // Hier einfachheitshalber nicht shuffeln im Safe Mode, oder simpel:
+            const [pool, setPool] = useState([]);
+
+            useEffect(() => {
+                // Simpler Shuffle beim Laden des Sets
+                const shuffled = [...items].sort(() => Math.random() - 0.5);
+                setPool(shuffled);
+                setSlots([null, null, null]);
+                setDone(false);
+            }, [setIdx]);
+
+            const fillSlot = (item) => {
+                const empty = slots.indexOf(null);
+                if (empty === -1) return;
+                const newSlots = [...slots];
+                newSlots[empty] = item;
+                setSlots(newSlots);
+                setPool(pool.filter(x => x !== item));
+            };
+
+            const reset = () => {
+                setSetIdx(setIdx); // Trigger reload
+            };
+
+            const check = () => {
+                // Korrekte Reihenfolge ist im Original Array (London -> Dipol -> H)
+                const isCorrect = 
+                    slots[0]?.t === 'london' && 
+                    slots[1]?.t === 'dipol' && 
+                    slots[2]?.t === 'hbond';
+                
+                if (isCorrect) alert("Perfekt! Richtig sortiert.");
+                else alert("Noch nicht ganz. Erinnere dich: London < Dipol < H-Brücke");
+                
+                if (isCorrect) setSetIdx(setIdx + 1);
+                else reset();
+            };
+
+            return (
+                <div className="glass p-6 rounded-xl">
+                    <div className="mb-4 text-sm text-blue-800 bg-blue-50 p-3 rounded">
+                        Ordne nach <strong>steigendem Siedepunkt</strong> (Niedrig &rarr; Hoch).
+                    </div>
+                    
+                    <div className="flex justify-between text-xs font-bold text-gray-400 mb-2 uppercase">
+                        <span>Niedrig</span><span>Hoch</span>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-2 mb-6">
+                        {slots.map((s, i) => (
+                            <div key={i} className="h-24 border-2 border-dashed border-gray-300 rounded flex items-center justify-center bg-gray-50 text-center text-xs p-1">
+                                {s ? <span className="font-bold text-sm text-gray-800">{s.name}</span> : "Platz "+(i+1)}
+                            </div>
+                        ))}
+                    </div>
+
+                    <div className="flex gap-2 justify-center mb-6">
+                        {pool.map((item, i) => (
+                            <button key={i} onClick={() => fillSlot(item)} className="px-3 py-2 bg-white border shadow rounded hover:bg-orange-50 font-bold text-sm">
+                                {item.name}
+                            </button>
+                        ))}
+                    </div>
+
+                    <div className="text-center">
+                        <button onClick={check} disabled={slots.includes(null)} className="bg-orange-600 disabled:opacity-50 text-white px-8 py-2 rounded font-bold">Prüfen</button>
+                        <button onClick={reset} className="ml-4 text-gray-500 underline text-sm">Reset</button>
+                    </div>
+                </div>
+            );
+        };
+
+        // --- RENDER START ---
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
