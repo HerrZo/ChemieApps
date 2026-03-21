@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Säure-Base-Trainer (Brønsted) | ChemieApps</title>
+    <meta name="description" content="Interaktive Lern-App für die 10. Klasse am Gymnasium: Säure-Base-Theorie nach Brønsted, Protolyse, Ampholyte und Neutralisation.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app-container">
+        <!-- Header -->
+        <header class="app-header glass-effect">
+            <div class="header-content">
+                <a href="../index.html" class="back-link">
+                    <svg viewBox="0 0 24 24" fill="none" class="icon" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+                    Zurück
+                </a>
+                <h1>Säure-Base-Theorie (Brønsted)</h1>
+                <div class="stats-container">
+                    <div class="stat-badge" title="Aktueller Punktestand">
+                        <span class="stat-icon">⭐</span>
+                        <span id="score-display">0</span>
+                    </div>
+                </div>
+            </div>
+            <!-- Progress Bar -->
+            <div class="progress-bar-container">
+                <div class="progress-bar" id="app-progress"></div>
+            </div>
+        </header>
+
+        <!-- Main Layout -->
+        <main class="main-layout">
+            <!-- Sidebar Navigation -->
+            <aside class="sidebar glass-effect">
+                <nav id="topic-nav" class="nav-menu">
+                    <!-- Nav items generated via JS -->
+                </nav>
+            </aside>
+
+            <!-- Content Area -->
+            <section class="content-area" id="content-area">
+                <!-- Content will be injected here -->
+            </section>
+        </main>
+    </div>
+
+    <!-- Feedback Toast -->
+    <div id="toast-container" class="toast-container hidden">
+        <div id="toast-message" class="toast"></div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
