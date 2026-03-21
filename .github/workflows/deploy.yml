@@ -17,7 +17,7 @@ jobs:
       - name: Build all apps
         run: |
           for app in ZMWW Wechselwirkungen Gasreaktionen Alkane-Verbrennungs-Trainer "Molekülpolarität"; do
-            (cd "$app" && npm ci && npm run build)
+            (cd "$app" && npm install && npm run build)
           done
       - name: Assemble dist
         run: |
