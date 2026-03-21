@@ -46,7 +46,7 @@ const TOPICS_DATA = [
             </div>
 
             <h3>Warum sind Ionen wichtig?</h3>
-            <p>Ionen sind <strong>bewegliche Ladungsträger</strong>. Eine Substanz leitet den elektrischen Strom, wenn bewegliche Ladungsträger vorhanden sind – das ist bei gelösten oder geschmolzenen Ionen der Fall!</p>
+            <p>Ionen sind <strong>bewegliche Ladungsträger</strong>. Eine Substanz leitet den elektrischen Strom, wenn bewegliche Ladungsträger vorhanden sind – das ist bei gelösten oder geschmolzenen Salzen der Fall!</p>
         `,
         quiz: {
             question: "Was unterscheidet ein Ion von einem Atom?",
@@ -148,36 +148,19 @@ const TOPICS_DATA = [
             <p>Es gibt zwei wichtige Modelle, um ein Ionengitter darzustellen:</p>
 
             <h3>1. Kugelpackungsmodell (Raumfüllend)</h3>
-            <p>Die Ionen werden als dichte Kugeln dargestellt, die sich berühren. Dieses Modell zeigt die <strong>tatsächlichen Größenverhältnisse</strong>.</p>
+            <p>Die Ionen werden als dichte Kugeln dargestellt, die sich berühren. Dieses Modell zeigt die <strong>tatsächlichen Größenverhältnisse</strong>. Beachte: Na⁺ ist <strong>kleiner</strong> als Cl⁻!</p>
             <div class="ion-vis-container">
-                <div class="packing-container">
-                    <div class="packing-row">
-                        <div class="packing-sphere cat-pack"></div>
-                        <div class="packing-sphere an-pack"></div>
-                        <div class="packing-sphere cat-pack"></div>
-                        <div class="packing-sphere an-pack"></div>
-                    </div>
-                    <div class="packing-row offset">
-                        <div class="packing-sphere an-pack"></div>
-                        <div class="packing-sphere cat-pack"></div>
-                        <div class="packing-sphere an-pack"></div>
-                        <div class="packing-sphere cat-pack"></div>
-                    </div>
-                    <div class="packing-row">
-                        <div class="packing-sphere cat-pack"></div>
-                        <div class="packing-sphere an-pack"></div>
-                        <div class="packing-sphere cat-pack"></div>
-                        <div class="packing-sphere an-pack"></div>
-                    </div>
+                <div class="packing-container" id="packing-nacl">
+                    <!-- JS fills with different sized spheres -->
                 </div>
-                <p style="font-size:0.85rem;opacity:0.7;margin-top:8px;">🔴 Kation &nbsp; 🔵 Anion — dicht gepackt</p>
+                <p style="font-size:0.85rem;opacity:0.7;margin-top:8px;">🔴 Na⁺ (klein) &nbsp; 🔵 Cl⁻ (groß) — dicht gepackt, unterschiedliche Ionenradien</p>
             </div>
 
             <h3>2. Gittermodell (Kugel-Stab-Modell)</h3>
-            <p>Die Ionen werden als kleine Kugeln dargestellt, verbunden durch Stäbe. Dieses Modell zeigt die <strong>Struktur und Anordnung</strong> besonders übersichtlich.</p>
+            <p>Die Ionen werden als kleine Kugeln dargestellt, verbunden durch <strong>Stäbe</strong> (die die Bindungen symbolisieren). Dieses Modell zeigt die <strong>Struktur und Anordnung</strong> besonders übersichtlich.</p>
             <div class="ion-vis-container">
-                <div class="lattice-grid" id="lattice-model-view">
-                    <!-- JS fills this -->
+                <div class="ball-stick-model" id="ball-stick-model">
+                    <!-- JS fills with SVG ball-and-stick model -->
                 </div>
                 <p style="font-size:0.85rem;opacity:0.7;margin-top:8px;">Kugel-Stab: Struktur gut sichtbar, Größen nicht maßstabsgetreu</p>
             </div>
@@ -192,8 +175,14 @@ const TOPICS_DATA = [
                     <tr><td>Struktur erkennbar</td><td>❌ Schwer erkennbar</td><td>✅ Sehr übersichtlich</td></tr>
                     <tr><td>Koordinationszahl</td><td>❌ Schwer abzuzählen</td><td>✅ Leicht abzuzählen</td></tr>
                     <tr><td>Raumfüllung</td><td>✅ Zeigt Raumfüllung</td><td>❌ Zeigt Zwischenräume</td></tr>
+                    <tr><td><strong>Ionenbindung</strong></td><td>✅ Ungerichtet dargestellt (korrekt)</td><td>❌ Gerichtet dargestellt (falsch!)</td></tr>
                 </tbody>
             </table>
+
+            <div class="callout error">
+                <div class="callout-title">⚠️ Achtung beim Gittermodell</div>
+                Die Stäbe im Gittermodell suggerieren eine <strong>gerichtete</strong> Bindung. Die Ionenbindung ist aber <strong>ungerichtet</strong>! Das Kugelpackungsmodell stellt dies korrekter dar.
+            </div>
         `,
         quiz: {
             question: "Welches Modell eignet sich am besten, um die Koordinationszahl (Anzahl direkter Nachbarn) eines Ions zu bestimmen?",
@@ -224,26 +213,21 @@ const TOPICS_DATA = [
             <ol>
                 <li>Schreibe Kation und Anion mit ihren Ladungen auf.</li>
                 <li><strong>Kreuze die Beträge der Ladungen</strong> als Indizes über.</li>
-                <li>Kürze, wenn möglich.</li>
+                <li><strong>Kürze</strong>, wenn möglich! (Z. B. 2:2 → 1:1)</li>
             </ol>
 
             <div class="ion-vis-container">
                 <p style="font-weight:600;margin-bottom:8px;">Beispiel: Aluminium + Sauerstoff</p>
-                <div class="cross-rule-box">
-                    <div class="cr-element">
-                        <span class="cr-charge">3+</span>
-                        <span style="font-size:2rem;">Al</span>
-                        <span class="cr-index" style="visibility:hidden;">2</span>
-                    </div>
-                    <div class="cr-element">
-                        <span class="cr-charge">2−</span>
-                        <span style="font-size:2rem;">O</span>
-                        <span class="cr-index" style="visibility:hidden;">3</span>
-                    </div>
-                    <span style="font-size:2rem;margin-left:24px;color:var(--success);font-weight:700;">→</span>
-                    <span style="font-size:2rem;font-weight:700;color:var(--primary);">Al₂O₃</span>
+                <div class="cross-rule-animated" id="cross-rule-anim">
+                    <!-- JS builds animated cross-rule -->
                 </div>
                 <p style="font-size:0.9rem;margin-top:8px;">Die 3 von Al³⁺ wird zum Index von O, die 2 von O²⁻ zum Index von Al.</p>
+            </div>
+
+            <div class="callout error">
+                <div class="callout-title">⚠️ Kürzen nicht vergessen!</div>
+                Beispiel: Mg<sup>2+</sup> + O<sup>2−</sup> → Überkreuzregel ergibt Mg₂O₂ → <strong>Kürzen</strong> zu <strong>MgO</strong>!<br>
+                Immer prüfen, ob die Indizes einen gemeinsamen Teiler haben.
             </div>
 
             <p><strong>Weitere Beispiele:</strong></p>
@@ -251,6 +235,7 @@ const TOPICS_DATA = [
                 <li>Na⁺ + Cl⁻ → <strong>NaCl</strong> (1:1 → Indizes weggelassen)</li>
                 <li>Ca²⁺ + Cl⁻ → <strong>CaCl₂</strong> (1:2)</li>
                 <li>Mg²⁺ + O²⁻ → <strong>MgO</strong> (2:2 → kürzen zu 1:1)</li>
+                <li>Fe³⁺ + O²⁻ → <strong>Fe₂O₃</strong> (nicht kürzbar)</li>
             </ul>
         `,
         quiz: {
@@ -266,9 +251,9 @@ const TOPICS_DATA = [
     /* ───────── Topic 5: Molekülionen ───────── */
     {
         id: "molekuelionen",
-        title: "6. Molekülionen",
+        title: "6. Molekülanionen",
         content: `
-            <p>Manche Ionen bestehen nicht aus einem einzelnen Atom, sondern aus <strong>mehreren kovalent gebundenen Atomen</strong>, die zusammen eine Ladung tragen. Man nennt sie <strong>Molekülionen</strong> (oder mehratomige Ionen).</p>
+            <p>Manche Ionen bestehen nicht aus einem einzelnen Atom, sondern aus <strong>mehreren kovalent gebundenen Atomen</strong>, die zusammen eine Ladung tragen. Negativ geladene Molekülionen nennt man <strong>Molekülanionen</strong> (mehratomige Anionen). Das Ammonium-Ion ist ein positiv geladenes Molekülion (Molekülkation).</p>
 
             <div class="mol-ion-display">
                 <div class="mol-ion-card">
@@ -285,16 +270,16 @@ const TOPICS_DATA = [
                 </div>
             </div>
 
-            <h3>Besondere Molekülionen im Detail</h3>
+            <h3>Besondere Molekülanionen und das Ammonium-Ion</h3>
             <ul>
                 <li><strong>Sulfat-Ion (SO₄²⁻):</strong> Zentrales Schwefelatom umgeben von 4 Sauerstoffatomen. Ladung: 2−. Beispiel: CaSO₄ (Gips).</li>
-                <li><strong>Ammonium-Ion (NH₄⁺):</strong> Stickstoff mit 4 Wasserstoffen. Einziges häufiges <em>positiv</em> geladenes Molekülion! Beispiel: NH₄Cl (Salmiak).</li>
+                <li><strong>Ammonium-Ion (NH₄⁺):</strong> Stickstoff mit 4 Wasserstoffen. Einziges häufiges <em>positiv</em> geladenes Molekülion (Molekülkation)! Beispiel: NH₄Cl (Salmiak).</li>
                 <li><strong>Hydroxid-Ion (OH⁻):</strong> Sauerstoff gebunden an Wasserstoff. Ladung: 1−. Beispiel: NaOH (Natronlauge).</li>
             </ul>
 
             <div class="callout">
                 <div class="callout-title">⚠️ Bei Verhältnisformeln</div>
-                Wenn ein Molekülion mehrfach vorkommt, wird es in <strong>Klammern</strong> gesetzt:<br>
+                Wenn ein Molekülanion (oder das Ammonium-Ion) mehrfach vorkommt, wird es in <strong>Klammern</strong> gesetzt:<br>
                 Ca²⁺ + OH⁻ → <strong>Ca(OH)₂</strong> — nicht CaOH₂ und nicht CaO₂H₂!
             </div>
 
@@ -330,8 +315,8 @@ const TOPICS_DATA = [
         content: `
             <p>Der Name eines Salzes setzt sich zusammen aus:</p>
             <ol>
-                <li><strong>Kation</strong> (Metall oder Ammonium) → Name des Metalls</li>
-                <li><strong>Anion</strong> (Nichtmetall-Ion oder Molekülion) → Endung <strong>-id</strong> (einatomig) oder spezieller Name (Molekülion)</li>
+                <li><strong>Kation</strong> (Metall oder Ammonium-Ion) → Name des Metalls (bzw. "Ammonium")</li>
+                <li><strong>Anion</strong> (Nichtmetall-Ion oder Molekülanion) → Endung <strong>-id</strong> (einatomig) oder spezieller Name (Molekülanion)</li>
             </ol>
 
             <h3>Einatomige Anionen: Endung -id</h3>
@@ -805,9 +790,14 @@ class AppController {
         if (topicId === 'ionengitter') {
             this.buildLattice('lattice-nacl', 'Na⁺', 'Cl⁻');
         }
-        // Gittermodell
+        // Modelle: Kugelpackung + Ball-Stick
         if (topicId === 'modelle_gitter') {
-            this.buildLattice('lattice-model-view', 'Na⁺', 'Cl⁻');
+            this.buildPackingModel('packing-nacl');
+            this.buildBallStickModel('ball-stick-model');
+        }
+        // Überkreuzregel animation
+        if (topicId === 'verhaeltnisformel') {
+            this.buildCrossRuleAnimation('cross-rule-anim');
         }
         // Conductivity
         if (topicId === 'eigenschaften') {
@@ -830,13 +820,132 @@ class AppController {
         }
     }
 
+    buildPackingModel(containerId) {
+        const el = document.getElementById(containerId);
+        if (!el) return;
+        el.innerHTML = '';
+        // NaCl: Na⁺ is small (r≈102pm), Cl⁻ is large (r≈181pm)
+        const rows = 3;
+        const cols = 5;
+        for (let r = 0; r < rows; r++) {
+            const rowDiv = document.createElement('div');
+            rowDiv.className = `packing-row${r % 2 === 1 ? ' offset' : ''}`;
+            for (let c = 0; c < cols; c++) {
+                const isCat = (r + c) % 2 === 0;
+                const sphere = document.createElement('div');
+                sphere.className = `packing-sphere ${isCat ? 'cat-pack' : 'an-pack'}`;
+                // Different sizes: Na⁺ small, Cl⁻ large
+                if (isCat) {
+                    sphere.style.width = '28px';
+                    sphere.style.height = '28px';
+                } else {
+                    sphere.style.width = '46px';
+                    sphere.style.height = '46px';
+                }
+                sphere.title = isCat ? 'Na⁺ (klein)' : 'Cl⁻ (groß)';
+                rowDiv.appendChild(sphere);
+            }
+            el.appendChild(rowDiv);
+        }
+    }
+
+    buildBallStickModel(containerId) {
+        const el = document.getElementById(containerId);
+        if (!el) return;
+        // SVG-based ball-and-stick model (4x3 grid)
+        const cols = 5, rows = 3;
+        const spacingX = 60, spacingY = 60;
+        const padX = 30, padY = 30;
+        const w = padX * 2 + (cols - 1) * spacingX;
+        const h = padY * 2 + (rows - 1) * spacingY;
+
+        let svg = `<svg viewBox="0 0 ${w} ${h}" width="100%" style="max-width:${w}px;">`;
+
+        // Draw sticks (lines) first
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
+                const x = padX + c * spacingX;
+                const y = padY + r * spacingY;
+                // Horizontal stick
+                if (c < cols - 1) {
+                    svg += `<line x1="${x}" y1="${y}" x2="${x + spacingX}" y2="${y}" stroke="#94a3b8" stroke-width="3" />`;
+                }
+                // Vertical stick
+                if (r < rows - 1) {
+                    svg += `<line x1="${x}" y1="${y}" x2="${x}" y2="${y + spacingY}" stroke="#94a3b8" stroke-width="3" />`;
+                }
+            }
+        }
+
+        // Draw balls on top
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
+                const x = padX + c * spacingX;
+                const y = padY + r * spacingY;
+                const isCat = (r + c) % 2 === 0;
+                const radius = 14;
+                const color = isCat ? '#ef4444' : '#3b82f6';
+                const label = isCat ? 'Na⁺' : 'Cl⁻';
+                svg += `<circle cx="${x}" cy="${y}" r="${radius}" fill="${color}" />`;
+                svg += `<text x="${x}" y="${y + 4}" text-anchor="middle" fill="white" font-size="9" font-weight="700">${label}</text>`;
+            }
+        }
+
+        svg += '</svg>';
+        el.innerHTML = svg;
+    }
+
+    buildCrossRuleAnimation(containerId) {
+        const el = document.getElementById(containerId);
+        if (!el) return;
+        el.innerHTML = `
+            <div class="cross-rule-animated-inner">
+                <div class="cr-step cr-step-1">
+                    <div class="cr-ion cr-cation">
+                        <span class="cr-charge-label">3+</span>
+                        <span class="cr-symbol">Al</span>
+                    </div>
+                    <div class="cr-ion cr-anion">
+                        <span class="cr-charge-label">2−</span>
+                        <span class="cr-symbol">O</span>
+                    </div>
+                </div>
+                <svg class="cr-arrows" viewBox="0 0 200 80" width="200" height="80">
+                    <path d="M 50,15 C 80,15 120,65 150,65" stroke="var(--error)" stroke-width="2.5" fill="none" stroke-dasharray="6 3" class="cr-arrow-line cr-arrow-1" />
+                    <polygon points="148,60 155,68 145,68" fill="var(--error)" class="cr-arrow-head cr-arrowh-1" />
+                    <path d="M 150,15 C 120,15 80,65 50,65" stroke="var(--accent)" stroke-width="2.5" fill="none" stroke-dasharray="6 3" class="cr-arrow-line cr-arrow-2" />
+                    <polygon points="52,60 45,68 55,68" fill="var(--accent)" class="cr-arrow-head cr-arrowh-2" />
+                </svg>
+                <div class="cr-step cr-step-2">
+                    <span class="cr-result">Al<sub>2</sub>O<sub>3</sub></span>
+                </div>
+            </div>
+        `;
+    }
+
     buildConductivityDemo() {
         const container = document.getElementById('conductivity-demo');
         if (!container) return;
 
+        // Crystal: mini lattice with fixed ions
+        let crystalSvg = '<svg viewBox="0 0 80 60" width="80" height="60">';
+        for (let r = 0; r < 3; r++) {
+            for (let c = 0; c < 4; c++) {
+                const x = 10 + c * 20;
+                const y = 10 + r * 20;
+                const isCat = (r + c) % 2 === 0;
+                // Sticks
+                if (c < 3) crystalSvg += `<line x1="${x}" y1="${y}" x2="${x+20}" y2="${y}" stroke="#94a3b8" stroke-width="1.5" />`;
+                if (r < 2) crystalSvg += `<line x1="${x}" y1="${y}" x2="${x}" y2="${y+20}" stroke="#94a3b8" stroke-width="1.5" />`;
+                crystalSvg += `<circle cx="${x}" cy="${y}" r="6" fill="${isCat ? '#ef4444' : '#3b82f6'}" />`;
+                crystalSvg += `<text x="${x}" y="${y+3}" text-anchor="middle" fill="white" font-size="5" font-weight="700">${isCat ? '+' : '−'}</text>`;
+            }
+        }
+        crystalSvg += '</svg>';
+
         container.innerHTML = `
             <div class="cond-cell">
-                <div class="cell-visual crystal-visual"></div>
+                <div class="cell-visual crystal-visual-lattice">${crystalSvg}</div>
                 <div class="cell-label">Kristallin (fest)</div>
                 <div class="cell-result no">Nicht leitfähig</div>
             </div>
@@ -869,31 +978,42 @@ class AppController {
     buildBrittlenessScene() {
         const container = document.getElementById('brittleness-scene');
         if (!container) return;
-
-        const makeHalf = (shifted) => {
-            const div = document.createElement('div');
-            div.className = `lattice-half${shifted ? ' shifted' : ''}`;
-            const pattern = shifted
-                ? ['bc', 'ba', 'bc', 'ba', 'bc', 'ba', 'bc', 'ba', 'bc']
-                : ['ba', 'bc', 'ba', 'bc', 'ba', 'bc', 'ba', 'bc', 'ba'];
-            pattern.forEach(cls => {
-                const ion = document.createElement('div');
-                ion.className = `britt-ion ${cls}`;
-                ion.textContent = cls === 'bc' ? '+' : '−';
-                div.appendChild(ion);
-            });
-            return div;
-        };
-
         container.innerHTML = '';
-        container.appendChild(makeHalf(false));
+        container.className = 'brittleness-anim-container';
 
-        const crack = document.createElement('div');
-        crack.className = 'crack-symbol';
-        crack.textContent = '⚡';
-        container.appendChild(crack);
+        // Build a 6-col x 4-row lattice. Top 2 rows can shift.
+        // Pattern: alternating + and − on a checkerboard
+        const cols = 6, rows = 4;
+        const ions = [];
 
-        container.appendChild(makeHalf(true));
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
+                const isCat = (r + c) % 2 === 0;
+                const ion = document.createElement('div');
+                ion.className = `britt-ion-v2 ${isCat ? 'biv2-cat' : 'biv2-an'}`;
+                ion.textContent = isCat ? '+' : '−';
+                ion.style.gridRow = r + 1;
+                ion.style.gridColumn = c + 1;
+                // Top 2 rows get the shift animation
+                if (r < 2) {
+                    ion.classList.add('britt-top');
+                }
+                container.appendChild(ion);
+                ions.push(ion);
+            }
+        }
+
+        // Hammer / pressure indicator
+        const hammer = document.createElement('div');
+        hammer.className = 'britt-hammer';
+        hammer.textContent = '🔨';
+        container.appendChild(hammer);
+
+        // Repulsion markers (appear after shift)
+        const repulse = document.createElement('div');
+        repulse.className = 'britt-repulse-label';
+        repulse.innerHTML = '⚡ Abstoßung!';
+        container.appendChild(repulse);
     }
 
     handleQuizAnswer(optionIndex, quiz) {
