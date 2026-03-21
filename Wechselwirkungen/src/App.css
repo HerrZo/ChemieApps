@@ -1,0 +1,146 @@
+:root {
+  --primary: #f97316;
+  --accent: #0891b2;
+  --neutral-50: #f9fafb;
+  --neutral-900: #111827;
+}
+
+* { box-sizing: border-box; }
+
+.interactions-app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: linear-gradient(135deg, var(--neutral-50) 0%, #fff5f0 100%);
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+.app-header {
+  background: white;
+  border-bottom: 2px solid #e5e7eb;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.app-header h1 { margin: 0; color: var(--neutral-900); font-size: 1.8rem; }
+.app-header p { margin: 4px 0 0 0; color: #6b7280; font-size: 0.9rem; }
+
+.nav-tabs {
+  display: flex;
+  gap: 12px;
+  padding: 16px 24px;
+  background: white;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.tab {
+  padding: 12px 20px;
+  background: #f3f4f6;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  color: #6b7280;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tab.active {
+  background: linear-gradient(135deg, var(--primary), #ea580c);
+  color: white;
+  border-color: transparent;
+  box-shadow: 0 4px 12px rgba(249,115,22,0.3);
+}
+
+.app-main {
+  flex: 1;
+  padding: 32px 24px;
+  max-width: 1000px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.app-footer {
+  margin-top: auto;
+  padding: 24px;
+  text-align: center;
+  color: #9ca3af;
+  font-size: 0.85rem;
+  border-top: 1px solid #e5e7eb;
+  background: white;
+}
+
+/* Interactions Visualization */
+.interactions-visualization {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.type-selector {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+}
+
+.type-btn {
+  flex: 1;
+  min-width: 100px;
+  padding: 12px 16px;
+  background: #f3f4f6;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  font-weight: 600;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.type-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.type-btn.active {
+  background: linear-gradient(135deg, var(--primary), #ea580c);
+  color: white;
+  border-color: transparent;
+  box-shadow: 0 4px 12px rgba(249,115,22,0.3);
+}
+
+.interaction-display {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.interaction-display h3 {
+  margin: 0;
+  color: #1f2937;
+  font-size: 1.3rem;
+  text-align: center;
+}
+
+.interaction-diagram {
+  width: 100%;
+  max-width: 300px;
+  height: auto;
+  margin: 0 auto;
+  display: block;
+}
+
+.interaction-properties {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.interaction-properties .property.full {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 640px) {
+  .app-main { padding: 20px 16px; }
+  .type-selector { gap: 8px; }
+  .type-btn { padding: 10px 12px; }
+}
