@@ -13,8 +13,15 @@ const TOPICS = [
         title: "1. Brønsted-Theorie",
         content: `
             <p>Die klassische Säure-Base-Theorie nach Arrhenius wurde durch Johannes Nicolaus Brønsted und Thomas Martin Lowry erweitert. Diese Theorie legt den Fokus auf die Übertragung von Protonen (Wasserstoff-Ionen, H⁺).</p>
-            <div class="visualization-container">
-                <div class="molecule">Säure ⇌ Base + H⁺</div>
+            <div class="proton-transfer-scene" style="margin: 32px 0;">
+                <div class="block-entity" style="border-color: var(--error);">
+                    SÄURE
+                    <div class="proton-circle">H⁺</div>
+                </div>
+                <div style="font-size: 2rem; opacity: 0.5;">⇌</div>
+                <div class="block-entity" style="border-color: var(--accent);">
+                    BASE
+                </div>
             </div>
             <ul>
                 <li><strong>Säuren</strong> sind Protonendonatoren (Spender). Sie geben H⁺ ab.</li>
@@ -26,7 +33,7 @@ const TOPICS = [
             </div>
         `,
         quiz: {
-            question: "Was macht ein Teilchen nach Brønsted zu einer Basis?",
+            question: "Was macht ein Teilchen nach Brønsted zu einer Base?",
             options: [
                 { text: "Es gibt Protonen ab.", isCorrect: false, error: "Das wäre eine Säure (Protonendonator)." },
                 { text: "Es nimmt Protonen auf.", isCorrect: true },
@@ -182,8 +189,93 @@ const TOPICS = [
                 { text: "Oxonium-Ionen reagieren mit Hydroxid-Ionen zu Wasserstoffbrücken.. ähm, zu Wasser (H₃O⁺ + OH⁻ ⟶ 2 H₂O)", isCorrect: true }
             ]
         }
+    },
+    {
+        id: "minigame",
+        title: "8. Minispiel: Drop-Game",
+        content: `
+            <p>Wende dein Wissen spielerisch an! Handelt es sich bei dem gezeigten Teilchen eher um eine typische Brønsted-Säure oder Base?</p>
+            <div class="game-container" id="game-root">
+                <div class="game-score-row">
+                    <span>Partikel <span id="game-round-count">1</span>/10</span>
+                    <span>Punkte: <span id="game-score">0</span></span>
+                </div>
+                <div class="game-molecule" id="game-target">...</div>
+                <div class="game-controls">
+                    <button class="game-btn btn-acid" onclick="gameHandleAnswer('Säure')">Ist Säure</button>
+                    <button class="game-btn btn-base" onclick="gameHandleAnswer('Base')">Ist Base</button>
+                </div>
+            </div>
+        `
     }
 ];
+
+const GAME_ITEMS = [
+    { label: "HCl", type: "Säure" }, { label: "NaOH", type: "Base" }, 
+    { label: "H₂SO₄", type: "Säure" }, { label: "NH₃", type: "Base" }, 
+    { label: "H₃O⁺", type: "Säure" }, { label: "OH⁻", type: "Base" }, 
+    { label: "HNO₃", type: "Säure" }, { label: "CO₃²⁻", type: "Base" }, 
+    { label: "NH₄⁺", type: "Säure" }, { label: "CH₃COO⁻", type: "Base" }
+];
+
+let miniGameState = { active: false, questions: [], currentIndex: 0, score: 0 };
+
+window.initMiniGame = function() {
+    miniGameState.questions = [...GAME_ITEMS].sort(() => Math.random() - 0.5);
+    miniGameState.currentIndex = 0;
+    miniGameState.score = 0;
+    miniGameState.active = true;
+    updateGameUI();
+};
+
+window.gameHandleAnswer = function(guessType) {
+    if (!miniGameState.active) return;
+    if (miniGameState.currentIndex >= miniGameState.questions.length) return;
+    
+    const currentItem = miniGameState.questions[miniGameState.currentIndex];
+    const targetEl = document.getElementById("game-target");
+    
+    if (currentItem.type === guessType) {
+        miniGameState.score += 10;
+        state.score += 10;
+        showToast("Richtig! +10");
+        targetEl.style.color = "var(--success)";
+        targetEl.style.transform = "scale(1.2)";
+    } else {
+        miniGameState.streak = 0;
+        showToast("Falsch! Es war " + currentItem.type);
+        targetEl.style.color = "var(--error)";
+        targetEl.style.transform = "translateX(20px)";
+    }
+    
+    setTimeout(() => {
+        targetEl.style.color = "var(--primary)";
+        targetEl.style.transform = "none";
+        miniGameState.currentIndex++;
+        updateGameUI();
+    }, 600);
+};
+
+window.updateGameUI = function() {
+    const targetEl = document.getElementById("game-target");
+    if (!targetEl) return;
+    
+    if (miniGameState.currentIndex >= miniGameState.questions.length) {
+        targetEl.innerText = "Ende!";
+        targetEl.style.fontSize = "2rem";
+        miniGameState.active = false;
+        showToast("Minispiel beendet!");
+        state.completedQuizzes.add(7);
+        const st = document.getElementById("status-7");
+        if (st) st.innerText = '✅';
+        document.getElementById("btn-next").style.display = "inline-flex";
+        updateProgress();
+    } else {
+        document.getElementById("game-round-count").innerText = (miniGameState.currentIndex + 1);
+        document.getElementById("game-score").innerText = miniGameState.score;
+        targetEl.innerText = miniGameState.questions[miniGameState.currentIndex].label;
+    }
+};
 
 // App Initialization
 document.addEventListener("DOMContentLoaded", () => {
@@ -265,8 +357,11 @@ function renderTopic(index) {
             </div>
         </div>
     `;
-    
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    
+    if (index === 7) {
+        setTimeout(() => window.initMiniGame(), 100);
+    }
 }
 
 function handleAnswer(optionIndex) {
