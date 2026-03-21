@@ -27,7 +27,7 @@ interface Question {
   commonMistakes?: string[]
 }
 
-const FORCE_OPTIONS: ForceType[] = ['LDWW', 'DDWW', 'WB']
+// const FORCE_OPTIONS: ForceType[] = ['LDWW', 'DDWW', 'WB'] // aktuell ungenutzt
 const TIMER_SECONDS = 30
 
 // Neue vielfältigere Aufgaben
@@ -113,7 +113,7 @@ export function EnhancedQuizPanel() {
   const [score, setScore] = useState(0)
   const [answered, setAnswered] = useState<any>(null)
   const [showFeedback, setShowFeedback] = useState(false)
-  const [showHint, setShowHint] = useState(false)
+  const [, setShowHint] = useState(false) // showHint entfernt, da ungenutzt
   const [hints, setHints] = useState<string[]>([])
   const [streak, setStreak] = useState(0)
   const [timerKey, setTimerKey] = useState(0)
