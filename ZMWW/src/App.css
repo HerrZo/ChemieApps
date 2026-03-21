@@ -1,0 +1,133 @@
+:root {
+  --primary: #f97316;
+  --accent: #0891b2;
+  --neutral-900: #111827;
+  --neutral-50: #f9fafb;
+  --neutral-100: #f3f4f6;
+  --neutral-200: #e5e7eb;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+.zmww-app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: linear-gradient(135deg, var(--neutral-50) 0%, #fff5f0 100%);
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+/* Header */
+.app-header {
+  background: white;
+  border-bottom: 2px solid var(--neutral-200);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.header-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+
+.header-left h1 {
+  margin: 0 0 8px 0;
+  color: var(--neutral-900);
+  font-size: 1.8rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.header-left p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 0.95rem;
+}
+
+.header-nav {
+  display: flex;
+  gap: 12px;
+}
+
+.nav-button {
+  padding: 12px 20px;
+  background: var(--neutral-100);
+  border: 2px solid var(--neutral-200);
+  border-radius: 10px;
+  color: #6b7280;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  font-size: 0.95rem;
+}
+
+.nav-button:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.05), rgba(234, 88, 12, 0.02));
+}
+
+.nav-button.active {
+  background: linear-gradient(135deg, var(--primary), #ea580c);
+  color: white;
+  border-color: transparent;
+  box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+}
+
+/* Main Content */
+.app-main {
+  flex: 1;
+  width: 100%;
+}
+
+/* Footer */
+.app-footer {
+  margin-top: 48px;
+  padding: 24px;
+  text-align: center;
+  color: #9ca3af;
+  font-size: 0.85rem;
+  border-top: 1px solid var(--neutral-200);
+  background: white;
+}
+
+.app-footer p {
+  margin: 0;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .header-container {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .header-left h1 {
+    font-size: 1.4rem;
+  }
+
+  .header-nav {
+    width: 100%;
+  }
+
+  .nav-button {
+    flex: 1;
+  }
+}
