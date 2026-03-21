@@ -1,0 +1,31 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(for dir:*)",
+      "Bash(do)",
+      "Bash(echo \"=== $dir ===\")",
+      "Read(//c/Users/Zollf/ChemieApps/.claude/worktrees/loving-kepler/**)",
+      "Bash(__NEW_LINE_63070f7d26f07230__ done:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(mkdir -p /c/Users/Zollf/ChemieApps/shared)",
+      "Bash(mkdir -p /c/Users/Zollf/ChemieApps/.github/workflows)",
+      "Read(//c/Users/Zollf/ChemieApps/**)",
+      "Bash(gh pr:*)",
+      "Bash(npm install:*)",
+      "Read(//c/Users/Zollf/AppData/Local/Programs//**)",
+      "Read(//c/Users/Zollf/AppData/Roaming//**)",
+      "Read(//c/Users/Zollf/**)",
+      "Bash(export PATH=\"$PATH:/c/Program Files/nodejs\")",
+      "Bash(npm --version)",
+      "Bash(powershell.exe -Command \"Get-Command node -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Source\")",
+      "Bash(powershell.exe -Command \"Get-Command node\")",
+      "Bash(powershell.exe -Command \"Get-ItemProperty HKLM:\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Uninstall\\\\* | Where-Object {$_DisplayName -like ''*Node*''} | Select-Object DisplayName,InstallLocation\")",
+      "Bash(git -C /c/Users/Zollf/ChemieApps branch)",
+      "Bash(powershell.exe -Command \"& { $env:PATH }\")",
+      "Bash(tr ';' '\\\\n')",
+      "Read(//c/Program Files/**)",
+      "Read(//c/Program Files \\(x86\\)/**)"
+    ]
+  }
+}
