@@ -1,13 +1,16 @@
-// State
-let state = {
-    currentTopicIndex: 0,
-    score: 0,
-    streak: 0,
-    completedQuizzes: new Set()
-};
+/**
+ * Säure-Base-Trainer (Brønsted)
+ * Architektur nach modernen Best Practices (ES6 Classes, Separation of Concerns).
+ * 
+ * Beinhaltet:
+ * 1. Data Models (TOPICS_DATA)
+ * 2. ThemeManager (Dark/Light Mode)
+ * 3. MiniGame (Interaktives Drop-Game)
+ * 4. QuizManager (Single-Choice Checks)
+ * 5. AppController (Orchestrierung und UI Rendering)
+ */
 
-// Content Data
-const TOPICS = [
+const TOPICS_DATA = [
     {
         id: "broensted",
         title: "1. Brønsted-Theorie",
@@ -118,18 +121,26 @@ const TOPICS = [
         title: "5. Sauer & basisch wirkende Salze",
         content: `
             <p>Salzlösungen sind nicht immer pH-neutral! Manche Ionen können mit Wasser als Säure oder Base reagieren.</p>
-            <div class="visualization-container">
-                <p><strong>Sauer wirkendes Salz:</strong> Ammoniumchlorid (NH₄Cl)</p>
-                <div class="equation-row">
-                    NH₄⁺ + H₂O ⇌ NH₃ + <span class="proton">H₃O⁺</span>
-                </div>
+            
+            <p><strong>Sauer wirkendes Salz:</strong> Ammoniumchlorid (NH₄Cl)</p>
+            <div class="solution-scene">
+                <div class="crystal-block">NH₄Cl (s)</div>
+                <div class="ion-block ion-cation ion-split-left">NH₄⁺ (aq)</div>
+                <div class="ion-block ion-anion ion-split-right">Cl⁻ (aq)</div>
             </div>
-            <p>Das Ammonium-Ion (NH₄⁺) ist eine schwache Säure und gibt ein Proton an Wasser ab.</p>
-            <div class="visualization-container" style="border-color: var(--primary);">
-                <p><strong>Basisch wirkendes Salz:</strong> Natriumcarbonat (Na₂CO₃)</p>
-                <div class="equation-row">
-                    CO₃²⁻ + H₂O ⇌ HCO₃⁻ + <span class="proton" style="color:var(--accent)">OH⁻</span>
-                </div>
+            <div class="equation-row">
+                NH₄⁺ + H₂O ⇌ NH₃ + <span class="proton">H₃O⁺</span>
+            </div>
+            <p style="margin-bottom: 24px;">Das Ammonium-Ion (NH₄⁺) ist eine schwache Säure und gibt ein Proton an Wasser ab.</p>
+            
+            <p><strong>Basisch wirkendes Salz:</strong> Natriumcarbonat (Na₂CO₃)</p>
+            <div class="solution-scene">
+                <div class="crystal-block">Na₂CO₃ (s)</div>
+                <div class="ion-block ion-cation ion-split-left">2 Na⁺ (aq)</div>
+                <div class="ion-block ion-anion ion-split-right" style="background:var(--accent-light); color:var(--neutral-900);">CO₃²⁻ (aq)</div>
+            </div>
+            <div class="equation-row">
+                CO₃²⁻ + H₂O ⇌ HCO₃⁻ + <span class="proton" style="color:var(--accent)">OH⁻</span>
             </div>
             <p>Das Carbonat-Ion (CO₃²⁻) ist eine Base und nimmt ein Proton von Wasser auf.</p>
         `,
@@ -160,9 +171,9 @@ const TOPICS = [
         quiz: {
             question: "Welche Eigenschaft macht ein Teilchen zum Ampholyt?",
             options: [
-                { text: "Er ist zwingend flüssig wie Wasser.", isCorrect: false },
-                { text: "Er kann sowohl als Protonendonator als auch als Protonenakzeptor wirken.", isCorrect: true },
-                { text: "Er hat einen neutralen pH-Wert von 7.", isCorrect: false, error: "Ampholytlösungen wie NaHCO3 können je nach Gleichgewicht leicht basisch oder sauer sein." }
+                { text: "Es ist zwingend flüssig wie Wasser.", isCorrect: false },
+                { text: "Es kann sowohl als Protonendonator als auch als Protonenakzeptor wirken.", isCorrect: true },
+                { text: "Es hat einen neutralen pH-Wert von 7.", isCorrect: false, error: "Ampholytlösungen wie NaHCO3 können je nach Gleichgewicht leicht basisch oder sauer sein." }
             ]
         }
     },
@@ -173,12 +184,19 @@ const TOPICS = [
             <p>Protolyse-Reaktionen sind meist <strong>umkehrbar</strong> und führen zu einem chemischen Gleichgewicht (⇌).</p>
             <h3>Die Neutralisation</h3>
             <p>Wenn eine saure und eine basische Lösung im richtigen Verhältnis vermischt werden, neutralisieren sie sich. Die eigentliche Neutralisationsreaktion ist die Kombination von Oxonium- und Hydroxidionen zu Wasser:</p>
-            <div class="visualization-container">
-                <div class="equation-row" style="font-weight:bold;">
-                    H₃O⁺ + OH⁻ ⟶ 2 H₂O
-                </div>
-                <p>Diese Reaktion ist <strong>exotherm</strong> (setzt Wärmeenergie frei).</p>
+            
+            <div class="neutralization-scene">
+                <div class="ion-block ion-h3o">H₃O⁺</div>
+                <div class="ion-block ion-oh">OH⁻</div>
+                <div class="flash-bang">💥</div>
+                <div class="water-molecule wm-left">H₂O</div>
+                <div class="water-molecule wm-right">H₂O</div>
             </div>
+            
+            <div class="equation-row" style="font-weight:bold;">
+                H₃O⁺ + OH⁻ ⟶ 2 H₂O
+            </div>
+            <p>Diese Reaktion ist <strong>exotherm</strong> (setzt Wärmeenergie frei).</p>
             <p>Das verbleibende Metallkation (aus der Base) und der Säurerest ergeben zusammen gelöstes <strong>Salz</strong>.</p>
         `,
         quiz: {
@@ -202,270 +220,400 @@ const TOPICS = [
                 </div>
                 <div class="game-molecule" id="game-target">...</div>
                 <div class="game-controls">
-                    <button class="game-btn btn-acid" onclick="gameHandleAnswer('Säure')">Ist Säure</button>
-                    <button class="game-btn btn-base" onclick="gameHandleAnswer('Base')">Ist Base</button>
+                    <button class="game-btn btn-acid" id="btn-guess-acid">Ist Säure</button>
+                    <button class="game-btn btn-base" id="btn-guess-base">Ist Base</button>
                 </div>
             </div>
         `
     }
 ];
 
-const GAME_ITEMS = [
-    { label: "HCl", type: "Säure" }, { label: "NaOH", type: "Base" }, 
-    { label: "H₂SO₄", type: "Säure" }, { label: "NH₃", type: "Base" }, 
-    { label: "H₃O⁺", type: "Säure" }, { label: "OH⁻", type: "Base" }, 
-    { label: "HNO₃", type: "Säure" }, { label: "CO₃²⁻", type: "Base" }, 
-    { label: "NH₄⁺", type: "Säure" }, { label: "CH₃COO⁻", type: "Base" }
-];
 
-let miniGameState = { active: false, questions: [], currentIndex: 0, score: 0 };
-
-window.initMiniGame = function() {
-    miniGameState.questions = [...GAME_ITEMS].sort(() => Math.random() - 0.5);
-    miniGameState.currentIndex = 0;
-    miniGameState.score = 0;
-    miniGameState.active = true;
-    updateGameUI();
-};
-
-window.gameHandleAnswer = function(guessType) {
-    if (!miniGameState.active) return;
-    if (miniGameState.currentIndex >= miniGameState.questions.length) return;
-    
-    const currentItem = miniGameState.questions[miniGameState.currentIndex];
-    const targetEl = document.getElementById("game-target");
-    
-    if (currentItem.type === guessType) {
-        miniGameState.score += 10;
-        state.score += 10;
-        showToast("Richtig! +10");
-        targetEl.style.color = "var(--success)";
-        targetEl.style.transform = "scale(1.2)";
-    } else {
-        miniGameState.streak = 0;
-        showToast("Falsch! Es war " + currentItem.type);
-        targetEl.style.color = "var(--error)";
-        targetEl.style.transform = "translateX(20px)";
+/**
+ * @class ThemeManager
+ * Handhabt den Dark/Light Mode. LocalStorage + Fallback zur Systempräferenz.
+ */
+class ThemeManager {
+    constructor() {
+        this.toggleBtn = document.getElementById('theme-toggle');
+        this.iconPath = document.getElementById('theme-icon-path');
+        this.init();
     }
     
-    setTimeout(() => {
-        targetEl.style.color = "var(--primary)";
-        targetEl.style.transform = "none";
-        miniGameState.currentIndex++;
-        updateGameUI();
-    }, 600);
-};
+    init() {
+        if (!this.toggleBtn || !this.iconPath) return;
 
-window.updateGameUI = function() {
-    const targetEl = document.getElementById("game-target");
-    if (!targetEl) return;
-    
-    if (miniGameState.currentIndex >= miniGameState.questions.length) {
-        targetEl.innerText = "Ende!";
-        targetEl.style.fontSize = "2rem";
-        miniGameState.active = false;
-        showToast("Minispiel beendet!");
-        state.completedQuizzes.add(7);
-        const st = document.getElementById("status-7");
-        if (st) st.innerText = '✅';
-        document.getElementById("btn-next").style.display = "inline-flex";
-        updateProgress();
-    } else {
-        document.getElementById("game-round-count").innerText = (miniGameState.currentIndex + 1);
-        document.getElementById("game-score").innerText = miniGameState.score;
-        targetEl.innerText = miniGameState.questions[miniGameState.currentIndex].label;
-    }
-};
-
-// App Initialization
-document.addEventListener("DOMContentLoaded", () => {
-    initNav();
-    renderTopic(0);
-});
-
-function initNav() {
-    const navMenu = document.getElementById("topic-nav");
-    navMenu.innerHTML = '';
-    
-    TOPICS.forEach((topic, index) => {
-        const item = document.createElement("div");
-        item.className = "nav-item";
-        item.innerHTML = `
-            ${topic.title}
-            <span class="nav-status" id="status-${index}"></span>
-        `;
-        item.onclick = () => renderTopic(index);
-        navMenu.appendChild(item);
-    });
-}
-
-function updateNavHighlight(index) {
-    const items = document.querySelectorAll(".nav-item");
-    items.forEach((item, i) => {
-        if (i === index) item.classList.add("active");
-        else item.classList.remove("active");
-    });
-}
-
-function updateProgress() {
-    const total = TOPICS.length;
-    const completed = state.completedQuizzes.size;
-    const pct = (completed / total) * 100;
-    document.getElementById("app-progress").style.width = `${pct}%`;
-    document.getElementById("score-display").innerText = `${state.score}`;
-}
-
-function renderTopic(index) {
-    state.currentTopicIndex = index;
-    const topic = TOPICS[index];
-    updateNavHighlight(index);
-    
-    const container = document.getElementById("content-area");
-    
-    // Check if user already completed this quiz
-    const isCompleted = state.completedQuizzes.has(index);
-    
-    let quizHtml = '';
-    if (topic.quiz) {
-        let optionsHtml = topic.quiz.options.map((opt, i) => {
-            return `<button class="option-btn" onclick="handleAnswer(${i})">${opt.text}</button>`;
-        }).join('');
+        const stored = localStorage.getItem('ab-theme');
+        const isDark = stored ? stored === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
         
-        quizHtml = `
-            <div class="quiz-section">
-                <div class="quiz-question">🏁 Quiz: ${topic.quiz.question}</div>
-                <div class="options-grid" id="quiz-options">
-                    ${optionsHtml}
-                </div>
-                <div id="quiz-feedback"></div>
-            </div>
-        `;
+        this.setTheme(isDark);
+        
+        this.toggleBtn.addEventListener('click', () => {
+            const currentlyDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            this.setTheme(!currentlyDark);
+        });
     }
 
-    container.innerHTML = `
-        <div class="content-card">
-            <h2 class="card-title">${topic.title}</h2>
-            <div class="content-body">
-                ${topic.content}
-            </div>
-            ${quizHtml}
-            
-            <div style="text-align: right; margin-top: 32px;">
-                <button class="btn-primary" id="btn-next" onclick="nextTopic()" ${!isCompleted ? 'style="display:none;"' : ''}>
-                    Weiter ➔
-                </button>
-            </div>
-        </div>
-    `;
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    
-    if (index === 7) {
-        setTimeout(() => window.initMiniGame(), 100);
+    setTheme(isDark) {
+        document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+        localStorage.setItem('ab-theme', isDark ? 'dark' : 'light');
+        
+        // Update SVG Path for Sun/Moon
+        if (isDark) {
+            // Sun Icon
+            this.iconPath.setAttribute('d', 'M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z');
+        } else {
+            // Moon Icon
+            this.iconPath.setAttribute('d', 'M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z');
+        }
     }
 }
 
-function handleAnswer(optionIndex) {
-    const topic = TOPICS[state.currentTopicIndex];
-    const quiz = topic.quiz;
-    const selected = quiz.options[optionIndex];
-    
-    const btns = document.querySelectorAll("#quiz-options .option-btn");
-    btns.forEach(b => b.disabled = true); // Disable after guess
-    
-    if (selected.isCorrect) {
-        btns[optionIndex].classList.add("correct", "selected");
-        showToast("Richtig gemerkt! 🎉");
+
+/**
+ * @class ToastService
+ * Ein globaler Service für Popups/Feedback.
+ */
+class ToastService {
+    constructor() {
+        this.container = document.getElementById('toast-container');
+        this.message = document.getElementById('toast-message');
+        this.timeout = null;
+    }
+
+    show(msg, duration = 3000) {
+        if (!this.container || !this.message) return;
         
-        // Update Game State
-        if (!state.completedQuizzes.has(state.currentTopicIndex)) {
-            state.score += 10;
-            state.streak += 1;
-            state.completedQuizzes.add(state.currentTopicIndex);
-            document.getElementById(`status-${state.currentTopicIndex}`).innerText = '✅';
+        clearTimeout(this.timeout);
+        this.message.innerText = msg;
+        this.container.classList.remove('hidden');
+        
+        this.timeout = setTimeout(() => {
+            this.container.classList.add('hidden');
+        }, duration);
+    }
+}
+const toast = new ToastService();
+
+
+/**
+ * @class MiniGame
+ * Handhabt die Logik des Säure/Base Klassifizierungs-Spiels.
+ */
+class MiniGame {
+    constructor(appRef) {
+        this.appRef = appRef; // Reference to main app for updating total score
+        this.items = [
+            { label: "HCl", type: "Säure" }, { label: "NaOH", type: "Base" }, 
+            { label: "H₂SO₄", type: "Säure" }, { label: "NH₃", type: "Base" }, 
+            { label: "H₃O⁺", type: "Säure" }, { label: "OH⁻", type: "Base" }, 
+            { label: "HNO₃", type: "Säure" }, { label: "CO₃²⁻", type: "Base" }, 
+            { label: "NH₄⁺", type: "Säure" }, { label: "CH₃COO⁻", type: "Base" }
+        ];
+        this.state = { active: false, questions: [], currentIndex: 0, score: 0 };
+    }
+
+    init() {
+        this.state.questions = [...this.items].sort(() => Math.random() - 0.5);
+        this.state.currentIndex = 0;
+        this.state.score = 0;
+        this.state.active = true;
+        this.bindEvents();
+        this.updateUI();
+    }
+
+    bindEvents() {
+        const btnAcid = document.getElementById("btn-guess-acid");
+        const btnBase = document.getElementById("btn-guess-base");
+        
+        // Remove old listeners to prevent bubbling (via clone)
+        if (btnAcid && btnBase) {
+            const newBtnAcid = btnAcid.cloneNode(true);
+            const newBtnBase = btnBase.cloneNode(true);
+            btnAcid.parentNode.replaceChild(newBtnAcid, btnAcid);
+            btnBase.parentNode.replaceChild(newBtnBase, btnBase);
+
+            newBtnAcid.addEventListener('click', () => this.handleAnswer('Säure'));
+            newBtnBase.addEventListener('click', () => this.handleAnswer('Base'));
+        }
+    }
+
+    handleAnswer(guessType) {
+        if (!this.state.active || this.state.currentIndex >= this.state.questions.length) return;
+        
+        const currentItem = this.state.questions[this.state.currentIndex];
+        const targetEl = document.getElementById("game-target");
+        
+        if (currentItem.type === guessType) {
+            this.state.score += 10;
+            this.appRef.addScore(10);
+            toast.show("Richtig! +10");
+            targetEl.style.color = "var(--success)";
+            targetEl.style.transform = "scale(1.2)";
+        } else {
+            this.appRef.resetStreak();
+            toast.show("Falsch! Es war " + currentItem.type);
+            targetEl.style.color = "var(--error)";
+            targetEl.style.transform = "translateX(20px)";
         }
         
-        document.getElementById("btn-next").style.display = "inline-flex";
+        this.state.currentIndex++;
         
-    } else {
-        btns[optionIndex].classList.add("incorrect", "selected");
+        setTimeout(() => {
+            if (targetEl) {
+                targetEl.style.color = "var(--primary)";
+                targetEl.style.transform = "none";
+            }
+            this.updateUI();
+        }, 600);
+    }
+
+    updateUI() {
+        const targetEl = document.getElementById("game-target");
+        if (!targetEl) return;
         
-        // Highlight correct answer
-        const correctIndex = quiz.options.findIndex(o => o.isCorrect);
-        btns[correctIndex].classList.add("correct");
+        if (this.state.currentIndex >= this.state.questions.length) {
+            targetEl.innerText = "Ende!";
+            targetEl.style.fontSize = "2rem";
+            this.state.active = false;
+            toast.show("Minispiel beendet!");
+            this.appRef.markQuizCompleted(7);
+        } else {
+            document.getElementById("game-round-count").innerText = (this.state.currentIndex + 1);
+            document.getElementById("game-score").innerText = this.state.score;
+            targetEl.innerText = this.state.questions[this.state.currentIndex].label;
+        }
+    }
+}
+
+
+/**
+ * @class AppController 
+ * Hauptklasse der Anwendung. Registriert Navigation, States und Events.
+ */
+class AppController {
+    constructor() {
+        this.topics = TOPICS_DATA;
+        this.state = {
+            currentIndex: 0,
+            score: 0,
+            streak: 0,
+            completed: new Set() // stores topic indices
+        };
+        this.miniGame = new MiniGame(this);
+    }
+
+    init() {
+        this.renderSidebar();
+        this.renderTopic(0);
+        this.updateHeaderProgress();
+    }
+
+    renderSidebar() {
+        const navMenu = document.getElementById("topic-nav");
+        if (!navMenu) return;
         
-        state.streak = 0; // Lost streak
+        navMenu.innerHTML = '';
+        this.topics.forEach((topic, index) => {
+            const item = document.createElement("div");
+            item.className = "nav-item";
+            item.id = `nav-item-${index}`;
+            item.innerHTML = `
+                ${topic.title}
+                <span class="nav-status" id="status-${index}"></span>
+            `;
+            item.addEventListener('click', () => this.renderTopic(index));
+            navMenu.appendChild(item);
+        });
+    }
+
+    updateSidebarSelection(activeIndex) {
+        document.querySelectorAll(".nav-item").forEach((item, i) => {
+            item.classList.toggle("active", i === activeIndex);
+        });
+    }
+
+    updateHeaderProgress() {
+        const pct = (this.state.completed.size / this.topics.length) * 100;
+        document.getElementById("app-progress").style.width = `${pct}%`;
+        document.getElementById("score-display").innerText = this.state.score;
+    }
+
+    addScore(points) {
+        this.state.score += points;
+        this.updateHeaderProgress();
+    }
+
+    resetStreak() {
+        this.state.streak = 0;
+    }
+
+    markQuizCompleted(topicIndex) {
+        if (!this.state.completed.has(topicIndex)) {
+            this.state.completed.add(topicIndex);
+            
+            const statusEl = document.getElementById(`status-${topicIndex}`);
+            if (statusEl) statusEl.innerText = '✅';
+            
+            this.updateHeaderProgress();
+        }
         
-        let feedbackHtml = `
-            <div class="callout error" style="margin-top: 16px;">
-                <div class="callout-title">⚠️ Fehlerteufel</div>
-                ${selected.error || 'Diese Antwort ist leider nicht korrekt.'}
+        const nextBtn = document.getElementById("btn-next");
+        if (nextBtn) nextBtn.style.display = "inline-flex";
+    }
+
+    renderTopic(index) {
+        this.state.currentIndex = index;
+        const topic = this.topics[index];
+        this.updateSidebarSelection(index);
+        
+        const container = document.getElementById("content-area");
+        if (!container) return;
+        
+        const isCompleted = this.state.completed.has(index);
+        
+        // Build Quiz HTML (if pure quiz)
+        let quizHtml = '';
+        if (topic.quiz) {
+            const optionsHtml = topic.quiz.options.map((opt, i) => {
+                return `<button class="option-btn" id="opt-btn-${i}">${opt.text}</button>`;
+            }).join('');
+            
+            quizHtml = `
+                <div class="quiz-section">
+                    <div class="quiz-question">🏁 Quiz: ${topic.quiz.question}</div>
+                    <div class="options-grid" id="quiz-options">
+                        ${optionsHtml}
+                    </div>
+                    <div id="quiz-feedback"></div>
+                </div>
+            `;
+        }
+
+        // Output complete Content Card
+        container.innerHTML = `
+            <div class="content-card">
+                <h2 class="card-title">${topic.title}</h2>
+                <div class="content-body">
+                    ${topic.content}
+                </div>
+                ${quizHtml}
+                
+                <div style="text-align: right; margin-top: 32px;">
+                    <button class="btn-primary" id="btn-next" style="display: ${isCompleted ? 'inline-flex' : 'none'}">
+                        Weiter ➔
+                    </button>
+                </div>
             </div>
         `;
-        document.getElementById("quiz-feedback").innerHTML = feedbackHtml;
         
-        showToast("Leider falsch!");
+        // Bind Quiz Logic dynamically to avoid inline events
+        if (topic.quiz) {
+            topic.quiz.options.forEach((opt, i) => {
+                document.getElementById(`opt-btn-${i}`).addEventListener('click', () => {
+                    this.handleQuizAnswer(i, topic.quiz);
+                });
+            });
+        }
         
-        // We still allow user to continue
-        document.getElementById("btn-next").style.display = "inline-flex";
-        state.completedQuizzes.add(state.currentTopicIndex);
+        // Event for Next Button
+        document.getElementById("btn-next").addEventListener('click', () => {
+             if (this.state.currentIndex < this.topics.length - 1) {
+                 this.renderTopic(this.state.currentIndex + 1);
+             } else {
+                 this.renderCompletionScreen();
+             }
+        });
+        
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        
+        // Init Minigame automatically if it's the game topic
+        if (topic.id === "minigame") {
+            setTimeout(() => this.miniGame.init(), 100);
+        }
     }
-    
-    updateProgress();
-}
 
-function nextTopic() {
-    if (state.currentTopicIndex < TOPICS.length - 1) {
-        renderTopic(state.currentTopicIndex + 1);
-    } else {
-        showCompletionCard();
-    }
-}
-
-function showCompletionCard() {
-    state.currentTopicIndex = -1;
-    updateNavHighlight(-1);
-    
-    const container = document.getElementById("content-area");
-    container.innerHTML = `
-        <div class="content-card" style="text-align: center;">
-            <div style="font-size: 4rem; margin-bottom: 16px;">🎓</div>
-            <h2 class="card-title" style="justify-content: center;">Applaus!</h2>
-            <p style="font-size: 1.2rem;">Du hast alle Grundlagen der Brønsted Säure-Base Theorie gemeistert.</p>
+    handleQuizAnswer(optionIndex, quiz) {
+        const selected = quiz.options[optionIndex];
+        const btns = document.querySelectorAll("#quiz-options .option-btn");
+        
+        // Block interaction after first click
+        btns.forEach(b => { b.disabled = true; b.style.pointerEvents = 'none'; }); 
+        
+        if (selected.isCorrect) {
+            btns[optionIndex].classList.add("correct", "selected");
+            toast.show("Richtig gemerkt! 🎉");
             
-            <div style="margin: 32px 0; background: var(--neutral-100); padding: 24px; border-radius: 12px;">
-                <div style="font-size: 2rem; color: var(--primary); font-weight: bold;">${state.score} / 70 Punkte</div>
-                <div>Dein Chemie-XP</div>
+            if (!this.state.completed.has(this.state.currentIndex)) {
+                this.state.score += 10;
+                this.state.streak += 1;
+                this.markQuizCompleted(this.state.currentIndex);
+            }
+            
+        } else {
+            btns[optionIndex].classList.add("incorrect", "selected");
+            
+            // Highlight correct one automatically
+            const correctIndex = quiz.options.findIndex(o => o.isCorrect);
+            btns[correctIndex].classList.add("correct");
+            
+            this.resetStreak();
+            
+            const feedbackHtml = `
+                <div class="callout error" style="margin-top: 16px;">
+                    <div class="callout-title">⚠️ Fehlerteufel</div>
+                    ${selected.error || 'Diese Antwort ist leider nicht korrekt.'}
+                </div>
+            `;
+            document.getElementById("quiz-feedback").innerHTML = feedbackHtml;
+            
+            toast.show("Leider falsch!");
+            this.markQuizCompleted(this.state.currentIndex); // allow advance anyway
+        }
+    }
+
+    renderCompletionScreen() {
+        this.state.currentIndex = -1;
+        this.updateSidebarSelection(-1);
+        
+        const container = document.getElementById("content-area");
+        container.innerHTML = `
+            <div class="content-card" style="text-align: center;">
+                <div style="font-size: 4rem; margin-bottom: 16px;">🎓</div>
+                <h2 class="card-title" style="justify-content: center;">Applaus!</h2>
+                <p style="font-size: 1.2rem;">Du hast alle Grundlagen der Brønsted Säure-Base Theorie gemeistert.</p>
+                
+                <div style="margin: 32px 0; background: var(--neutral-100); padding: 24px; border-radius: 12px; transition: background 0.3s;">
+                    <div style="font-size: 2rem; color: var(--primary); font-weight: bold;">${this.state.score} Punkte / Maximum XP</div>
+                    <div>Dein Chemie-Erfolg🚀</div>
+                </div>
+                
+                <button class="btn-primary" id="btn-restart">Nochmal Üben</button>
             </div>
-            
-            <button class="btn-primary" onclick="resetApp()">Nochmal Üben</button>
-        </div>
-    `;
+        `;
+        
+        document.getElementById("btn-restart").addEventListener('click', () => this.resetApp());
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    resetApp() {
+        this.state.score = 0;
+        this.state.streak = 0;
+        this.state.completed.clear();
+        
+        this.topics.forEach((t, i) => {
+            const statEl = document.getElementById(`status-${i}`);
+            if(statEl) statEl.innerText = '';
+        });
+        
+        this.updateHeaderProgress();
+        this.renderTopic(0);
+    }
 }
 
-function resetApp() {
-    state.score = 0;
-    state.streak = 0;
-    state.completedQuizzes.clear();
-    TOPICS.forEach((t, i) => {
-        const statEl = document.getElementById(`status-${i}`);
-        if(statEl) statEl.innerText = '';
-    });
-    updateProgress();
-    renderTopic(0);
-}
-
-// Toast System
-let toastTimeout;
-function showToast(msg) {
-    const container = document.getElementById("toast-container");
-    const label = document.getElementById("toast-message");
-    
-    clearTimeout(toastTimeout);
-    
-    label.innerText = msg;
-    container.classList.remove("hidden");
-    
-    toastTimeout = setTimeout(() => {
-        container.classList.add("hidden");
-    }, 3000);
-}
+// Bootstrap Application
+document.addEventListener("DOMContentLoaded", () => {
+    new ThemeManager();
+    const app = new AppController();
+    app.init();
+});
