@@ -1,4 +1,6 @@
-export const baseConfig = {
+import type { Config } from 'tailwindcss'
+
+export const baseConfig: Partial<Config> = {
   theme: {
     extend: {
       colors: {
