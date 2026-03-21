@@ -6,7 +6,7 @@ import './App.css'
 type AppView = 'quiz' | 'resources'
 
 export function App() {
-  const [view, setView] = useState<AppView>('quiz')
+  const [view, setView] = useState<AppView>('resources')
 
   return (
     <div className="zmww-app">

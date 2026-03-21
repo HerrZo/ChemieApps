@@ -1,118 +1,26 @@
-import { useState, useMemo } from 'react'
+import React, { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { molecules } from '@/data/molecules'
-import type { Difficulty, ForceType } from '@/types'
+import { Difficulty } from '@/types'
+import { ENHANCED_QUESTIONS } from '@/data/questions'
+import { MultipleChoiceQuestion } from './quiz/MultipleChoiceQuestion'
+import { InputQuestionComponent } from './quiz/InputQuestion'
+import { MatchingQuestionComponent } from './quiz/MatchingQuestion'
+import { OrderingQuestionComponent } from './quiz/OrderingQuestion'
 import { DifficultySelector } from './DifficultySelector'
 import { TimerRing } from './TimerRing'
 import './enhanced-quiz.css'
-
-// Neue Aufgabentypen
-type QuestionType = 'multiple-choice' | 'input' | 'matching' | 'ordering'
-
-interface Question {
-  id: string
-  type: QuestionType
-  category: ForceType
-  difficulty: Difficulty
-  question: string
-  moleculeIds?: string[]
-  // MC
-  options?: Array<{ label: string; explanation: string }>
-  correctAnswer?: number
-  // Input/Ordering
-  correctValue?: string | string[]
-  // Matching
-  pairs?: Array<{ left: string; right: string }>
-  hints?: string[]
-  commonMistakes?: string[]
-}
-
-const FORCE_OPTIONS: ForceType[] = ['LDWW', 'DDWW', 'WB']
-const TIMER_SECONDS = 30
-
-// Neue vielfältigere Aufgaben
-const ENHANCED_QUESTIONS: Question[] = [
-  // MC
-  {
-    id: 'zmww-mc-1',
-    type: 'multiple-choice',
-    category: 'LDWW',
-    difficulty: 'leicht',
-    question: 'Welche Wechselwirkung dominiert in Methan (CH₄)?',
-    moleculeIds: ['methan'],
-    options: [
-      { label: 'London-Kräfte', explanation: '✓ Richtig! Methan ist unpolar → nur London-Kräfte' },
-      { label: 'Dipol-Dipol', explanation: '✗ Falsch. Methan ist symmetrisch und unpolar' },
-      { label: 'Wasserstoffbrücken', explanation: '✗ Falsch. H-Brücken nur bei H-N/O/F' }
-    ],
-    correctAnswer: 0,
-    commonMistakes: ['Verwechslung mit Ethan', 'Annahme dass alle Alkane Dipole haben']
-  },
-
-  // Input-Aufgabe: Siedepunkt schätzen
-  {
-    id: 'zmww-input-1',
-    type: 'input',
-    category: 'LDWW',
-    difficulty: 'mittel',
-    question: 'Pentan (C₅H₁₂) ist ein Alkan mit London-Kräften. Welcher Siedepunkt ist realistisch?',
-    correctValue: '36',
-    hints: [
-      'Größere Alkane haben höhere Siedepunkte',
-      'Methan: -162°C, Butan: -0.5°C',
-      'Pentan hat 5 Kohlenstoffe → noch höher'
-    ],
-    commonMistakes: [
-      'Verwechslung mit Methan-Siedepunkt',
-      'Unterschätzung der London-Kraft-Stärke bei längeren Ketten',
-      'Vergessen dass Siedepunkt mit Kettenlänge steigt'
-    ]
-  },
-
-  // Zuordnungs-Aufgabe
-  {
-    id: 'zmww-matching-1',
-    type: 'matching',
-    category: 'WB',
-    difficulty: 'mittel',
-    question: 'Ordne die Moleküle ihren dominierenden Wechselwirkungen zu:',
-    pairs: [
-      { left: 'Ethanol (C₂H₅OH)', right: 'Wasserstoffbrücken' },
-      { left: 'Oktan (C₈H₁₈)', right: 'London-Kräfte' },
-      { left: 'Chlorwasserstoff (HCl)', right: 'Dipol-Dipol' },
-      { left: 'Wasser (H₂O)', right: 'Wasserstoffbrücken' }
-    ],
-    hints: [
-      'Schaue auf -OH, -NH, -FH Gruppen für H-Brücken',
-      'Unpolare Alkane → London-Kräfte',
-      'Polare Moleküle ohne H-Brücken → Dipol-Dipol'
-    ]
-  },
-
-  // Lückentext / Ordering
-  {
-    id: 'zmww-ordering-1',
-    type: 'ordering',
-    category: 'LDWW',
-    difficulty: 'schwer',
-    question: 'Ordne diese Alkane nach steigendem Siedepunkt (London-Kräfte nehmen zu mit Kettenlänge)',
-    correctValue: ['methan', 'ethan', 'butan', 'heptan', 'oktan'],
-    moleculeIds: ['methan', 'ethan', 'butan', 'heptan', 'oktan'],
-    hints: [
-      'Mehr C-Atome = größere Oberfläche = stärkere Wechselwirkungen',
-      'Methan hat nur 1 C-Atom',
-      'Oktan hat 8 C-Atome'
-    ]
-  }
-]
 
 export function EnhancedQuizPanel() {
   const [difficulty, setDifficulty] = useState<Difficulty | 'alle'>('alle')
   const [timeModeEnabled, setTimeModeEnabled] = useState(false)
   const [questionIndex, setQuestionIndex] = useState(0)
   const [score, setScore] = useState(0)
+  
+  // State for current question
   const [answered, setAnswered] = useState<any>(null)
   const [showFeedback, setShowFeedback] = useState(false)
+  const [attempts, setAttempts] = useState(0)
+  
   const [showHint, setShowHint] = useState(false)
   const [hints, setHints] = useState<string[]>([])
   const [streak, setStreak] = useState(0)
@@ -123,35 +31,55 @@ export function EnhancedQuizPanel() {
     () => difficulty === 'alle' ? ENHANCED_QUESTIONS : ENHANCED_QUESTIONS.filter((q) => q.difficulty === difficulty),
     [difficulty]
   )
+  
   const current = pool[questionIndex % pool.length]
   const progress = ((questionIndex + 1) / pool.length) * 100
 
+  // Dynamic timer based on question type
+  const timerSeconds = useMemo(() => {
+    switch(current?.type) {
+      case 'multiple-choice': return 15
+      case 'input': return 30
+      case 'matching': return 60
+      case 'ordering': return 60
+      default: return 30
+    }
+  }, [current?.type])
+
   function handleAnswer(answer: any) {
     if (answered !== null || timeExpired) return
-
-    setAnswered(answer)
 
     let isCorrect = false
     if (current.type === 'multiple-choice') {
       isCorrect = answer === current.correctAnswer
     } else if (current.type === 'input') {
-      isCorrect = String(answer).trim() === String(current.correctValue).trim()
+      isCorrect = String(answer).trim().toLowerCase() === String(current.correctValue).trim().toLowerCase()
     } else if (current.type === 'matching' || current.type === 'ordering') {
-      isCorrect = JSON.stringify(answer) === JSON.stringify(current.correctValue)
+      // Very simple deep check
+      isCorrect = JSON.stringify(answer) === JSON.stringify(current.type === 'matching' ? current.pairs.map(p => ({ left: p.left, right: p.right })) : current.correctValue)
     }
 
     if (isCorrect) {
+      setAnswered(answer)
       setScore((s) => s + 1)
       setStreak((s) => s + 1)
+      setShowFeedback(true)
     } else {
-      setStreak(0)
+      // Differentiated Feedback (Scaffolding): Wrong -> Give hint if available -> 2nd try
+      if (attempts === 0 && current.hints && current.hints.length > 0) {
+        setAttempts(1)
+        handleRevealHint()
+        // Provide visual feedback it was wrong but don't lock
+      } else {
+        setAnswered(answer)
+        setStreak(0)
+        setShowFeedback(true)
+      }
     }
-
-    setShowFeedback(true)
   }
 
   function handleRevealHint() {
-    if (current.hints && hints.length < current.hints.length) {
+    if (current?.hints && hints.length < current.hints.length) {
       setHints((h) => [...h, current.hints![h.length]])
       setShowHint(true)
     }
@@ -160,6 +88,7 @@ export function EnhancedQuizPanel() {
   function handleExpire() {
     setTimeExpired(true)
     setAnswered('timeout')
+    setShowFeedback(true)
   }
 
   function next() {
@@ -167,27 +96,29 @@ export function EnhancedQuizPanel() {
     setShowFeedback(false)
     setShowHint(false)
     setHints([])
+    setAttempts(0)
     setTimeExpired(false)
     setTimerKey((k) => k + 1)
     setQuestionIndex((i) => i + 1)
   }
 
+  if (!current) return <div className="p-8 text-center text-gray-500">Keine Fragen für diese Schwierigkeit gefunden.</div>
+
   const isCorrect = answered !== null && answered !== 'timeout' && (
     current.type === 'multiple-choice' ? answered === current.correctAnswer :
     current.type === 'input' ? String(answered).trim() === String(current.correctValue).trim() :
-    JSON.stringify(answered) === JSON.stringify(current.correctValue)
+    JSON.stringify(answered) === JSON.stringify(current.type === 'matching' ? current.pairs.map(p => ({ left: p.left, right: p.right })) : current.correctValue)
   )
 
   return (
     <div className="enhanced-quiz">
-      {/* Top Stats */}
       <div className="quiz-stats">
         <div className="stat-item">
           <span className="stat-label">Frage</span>
           <span className="stat-value">{questionIndex + 1}/{pool.length}</span>
         </div>
         <div className="progress-bar-container">
-          <div className="progress-bar" style={{ width: `${progress}%` }}></div>
+          <div className="progress-bar" style={{ width: \`\${progress}%\` }}></div>
         </div>
         <div className="stat-item">
           <span className="stat-label">Punkte</span>
@@ -200,11 +131,10 @@ export function EnhancedQuizPanel() {
           </div>
         )}
         {timeModeEnabled && (
-          <TimerRing key={timerKey} seconds={TIMER_SECONDS} onExpire={handleExpire} active={!answered && !timeExpired} />
+          <TimerRing key={timerKey} seconds={timerSeconds} onExpire={handleExpire} active={!answered && !timeExpired} />
         )}
       </div>
 
-      {/* Difficulty & Timer Toggle */}
       <div className="quiz-controls">
         <DifficultySelector value={difficulty} onChange={setDifficulty} />
         <label className="timer-toggle">
@@ -213,11 +143,10 @@ export function EnhancedQuizPanel() {
             checked={timeModeEnabled}
             onChange={(e) => { setTimeModeEnabled(e.target.checked); setTimerKey((k) => k + 1) }}
           />
-          <span>Zeitmodus (30s)</span>
+          <span>Zeitmodus ({timerSeconds}s)</span>
         </label>
       </div>
 
-      {/* Question */}
       <AnimatePresence mode="wait">
         <motion.div
           key={current.id + questionIndex}
@@ -227,7 +156,6 @@ export function EnhancedQuizPanel() {
           transition={{ duration: 0.25 }}
           className="question-container"
         >
-          {/* Category Badge + Type Indicator */}
           <div className="question-header">
             <span className="category-badge">{current.category}</span>
             <span className="question-type">
@@ -240,111 +168,39 @@ export function EnhancedQuizPanel() {
 
           <h2 className="question-text">{current.question}</h2>
 
-          {/* Question Type: Multiple Choice */}
-          {current.type === 'multiple-choice' && current.options && (
-            <div className="mc-options">
-              {current.options.map((option, idx) => {
-                const isChosen = answered === idx
-                const isCorrectOption = idx === current.correctAnswer
-                let state = 'default'
+          {/* Renders decoupled sub-components */}
+          <div className="mt-4">
+            {current.type === 'multiple-choice' && (
+              <MultipleChoiceQuestion question={current} answered={answered} onAnswer={handleAnswer} />
+            )}
+            
+            {current.type === 'input' && (
+              <InputQuestionComponent question={current} answered={answered} onAnswer={handleAnswer} showFeedback={showFeedback} />
+            )}
+            
+            {current.type === 'matching' && (
+              <MatchingQuestionComponent question={current} answered={answered} onAnswer={handleAnswer} />
+            )}
+            
+            {current.type === 'ordering' && (
+              <OrderingQuestionComponent question={current} answered={answered} onAnswer={handleAnswer} />
+            )}
+          </div>
 
-                if (answered !== null) {
-                  if (isCorrectOption) state = 'correct'
-                  else if (isChosen) state = 'wrong'
-                  else state = 'disabled'
-                }
-
-                return (
-                  <motion.button
-                    key={idx}
-                    className={`option-button ${state}`}
-                    onClick={() => handleAnswer(idx)}
-                    disabled={answered !== null}
-                    whileTap={answered === null ? { scale: 0.98 } : {}}
-                    animate={isChosen && !isCorrect ? { x: [-6, 6, -6, 6, 0] } : {}}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <span className="option-letter">{String.fromCharCode(65 + idx)}</span>
-                    <span className="option-text">{option.label}</span>
-                    {state === 'correct' && <span className="option-check">✓</span>}
-                    {state === 'wrong' && <span className="option-check">✗</span>}
-                  </motion.button>
-                )
-              })}
-            </div>
+          {attempts > 0 && !showFeedback && (
+            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-3 text-red-500 font-medium text-sm">
+              Das war noch nicht ganz richtig. Versuch es nochmal mit diesem Tipp:
+            </motion.p>
           )}
 
-          {/* Question Type: Input */}
-          {current.type === 'input' && (
-            <div className="input-question">
-              <input
-                type="text"
-                value={answered || ''}
-                onChange={(e) => setAnswered(e.target.value)}
-                placeholder="Deine Antwort eingeben..."
-                disabled={showFeedback}
-                className="answer-input"
-              />
-              <button onClick={() => handleAnswer(answered)} disabled={!answered || showFeedback} className="btn-submit">
-                Prüfen
-              </button>
-            </div>
-          )}
-
-          {/* Question Type: Matching */}
-          {current.type === 'matching' && current.pairs && (
-            <div className="matching-pairs">
-              {current.pairs.map((pair, idx) => (
-                <div key={idx} className="pair-row">
-                  <div className="pair-left">{pair.left}</div>
-                  <div className="pair-arrow">→</div>
-                  <div className="pair-right">{pair.right}</div>
-                </div>
-              ))}
-              {answered === null && (
-                <p className="matching-hint">Ordne die Paare mental zu und überprüfe dann</p>
-              )}
-              {answered === null && (
-                <button onClick={() => handleAnswer(current.pairs)} className="btn-check">
-                  Prüfen
-                </button>
-              )}
-            </div>
-          )}
-
-          {/* Question Type: Ordering */}
-          {current.type === 'ordering' && current.moleculeIds && (
-            <div className="ordering-question">
-              <p className="ordering-hint">Sortiere vom kleinsten zum größten Siedepunkt:</p>
-              <div className="molecule-list">
-                {current.moleculeIds.map((molId, idx) => {
-                  const mol = molecules.find((m) => m.id === molId)
-                  return (
-                    <div key={molId} className="molecule-item">
-                      <span className="rank">{idx + 1}.</span>
-                      <span className="mol-name">{mol?.name}</span>
-                      <span className="mol-formula">{mol?.formula}</span>
-                    </div>
-                  )
-                })}
-              </div>
-              {answered === null && (
-                <button onClick={() => handleAnswer(current.moleculeIds)} className="btn-check">
-                  Überprüfen
-                </button>
-              )}
-            </div>
-          )}
-
-          {/* Hints */}
           {answered === null && current.hints && current.hints.length > 0 && (
-            <button onClick={handleRevealHint} className="btn-hint">
-              💡 Hinweis {hints.length > 0 && `(${hints.length}/${current.hints.length})`}
+            <button onClick={handleRevealHint} className="btn-hint mt-4">
+              💡 Hinweis {hints.length > 0 && \`(\${hints.length}/\${current.hints.length})\`}
             </button>
           )}
 
           {hints.length > 0 && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="hints-box">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="hints-box mt-4">
               {hints.map((hint, idx) => (
                 <div key={idx} className="hint-item">
                   <span className="hint-number">{idx + 1}.</span>
@@ -354,34 +210,34 @@ export function EnhancedQuizPanel() {
             </motion.div>
           )}
 
-          {/* Feedback */}
           <AnimatePresence>
             {showFeedback && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className={`feedback-box ${isCorrect ? 'correct' : 'wrong'}`}
+                className={\`feedback-box mt-6 \${isCorrect ? 'correct' : 'wrong'}\`}
               >
-                <div className="feedback-icon">
+                <div className="feedback-icon" style={{ fontSize: '2rem' }}>
                   {isCorrect ? '🎉' : timeExpired ? '⏰' : '💡'}
                 </div>
                 <div className="feedback-content">
-                  <h3>
+                  <h3 className="font-bold text-lg mb-1">
                     {isCorrect ? 'Perfekt!' : timeExpired ? 'Zeit abgelaufen!' : 'Nicht ganz...'}
                   </h3>
-                  <p>
-                    {current.type === 'multiple-choice' && current.options
-                      ? current.options[current.correctAnswer!].explanation
+                  <p className="text-sm">
+                    {current.type === 'multiple-choice' && (current as any).options
+                      ? (current as any).options[(current as any).correctAnswer].explanation
                       : isCorrect
                       ? 'Großartig gelöst!'
-                      : `Richtige Antwort: ${current.correctValue}`}
+                      : \`Richtige Antwort war: \${current.type === 'ordering' ? (current as any).correctValue.join(' → ') : (current as any).correctValue || 'Siehe Lösung'}\`}
                   </p>
+                  
                   {!isCorrect && current.commonMistakes && current.commonMistakes.length > 0 && (
-                    <details className="mistake-details">
-                      <summary>Häufige Fehler bei dieser Aufgabe</summary>
-                      <ul>
+                    <details className="mistake-details mt-3 text-sm">
+                      <summary className="font-semibold cursor-pointer text-gray-700">Häufige Fehler bei dieser Aufgabe</summary>
+                      <ul className="mt-2 text-gray-600 pl-4 list-disc">
                         {current.commonMistakes.map((mistake, idx) => (
-                          <li key={idx}>• {mistake}</li>
+                          <li key={idx} className="mb-1">{mistake}</li>
                         ))}
                       </ul>
                     </details>
@@ -391,13 +247,12 @@ export function EnhancedQuizPanel() {
             )}
           </AnimatePresence>
 
-          {/* Next Button */}
           {showFeedback && (
             <motion.button
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               onClick={next}
-              className="btn-next-question"
+              className="btn-next-question mt-6 w-full py-3 bg-gray-800 text-white font-medium rounded-xl hover:bg-gray-700 transition"
             >
               {questionIndex === pool.length - 1 ? 'Fertig!' : 'Nächste Frage →'}
             </motion.button>
