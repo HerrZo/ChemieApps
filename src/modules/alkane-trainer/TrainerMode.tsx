@@ -9,7 +9,7 @@ interface TrainerModeProps {
   score: number
   total: number
   streak: number
-  onUpdate: (updates: any) => void
+  onUpdate: (updates: Partial<{ score: number; total: number; streak: number }>) => void
 }
 
 interface TrainerState {

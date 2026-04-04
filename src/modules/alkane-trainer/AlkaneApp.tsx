@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { GuideMode } from './components/GuideMode'
-import { TrainerMode } from './components/TrainerMode'
-import { PracticeMode } from './components/PracticeMode'
+import { GuideMode } from './GuideMode'
+import { TrainerMode } from './TrainerMode'
+import { PracticeMode } from './PracticeMode'
 import './App.css'
 
 type AppMode = 'guide' | 'trainer' | 'practice'
@@ -15,7 +15,7 @@ interface AppState {
   level: number
 }
 
-export function App() {
+export function AlkaneApp() {
   const [state, setState] = useState<AppState>({
     mode: 'guide',
     carbonCount: 3,
@@ -82,7 +82,7 @@ export function App() {
         {state.mode === 'guide' && (
           <GuideMode
             carbonCount={state.carbonCount}
-            onCarbonCountChange={(carbonCount) => updateState({ carbonCount })}
+            onCarbonCountChange={(carbonCount: number) => updateState({ carbonCount })}
           />
         )}
         {state.mode === 'trainer' && (

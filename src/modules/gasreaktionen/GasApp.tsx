@@ -1,12 +1,12 @@
 import { useState } from 'react'
-import { EnhancedQuizPanel } from './components/EnhancedQuizPanel'
-import { GasVisualization } from './components/GasVisualization'
-import { LearningResources } from './components/LearningResources'
+import { EnhancedQuizPanel } from '@/components/shared/EnhancedQuizPanel'
+import { GasVisualization } from './GasVisualization'
+import { LearningResources } from '@/components/shared/LearningResources'
 import './App.css'
 
 type AppView = 'quiz' | 'visualization' | 'resources'
 
-export function App() {
+export function GasApp() {
   const [view, setView] = useState<AppView>('quiz')
   const [score, setScore] = useState(0)
   const [total, setTotal] = useState(0)

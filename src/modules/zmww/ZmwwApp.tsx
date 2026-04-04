@@ -1,11 +1,11 @@
 import { useState } from 'react'
-import { EnhancedQuizPanel } from '@/components/EnhancedQuizPanel'
-import { LearningResources } from '@/components/LearningResources'
+import { EnhancedQuizPanel } from '@/components/shared/EnhancedQuizPanel'
+import { LearningResources } from '@/components/shared/LearningResources'
 import './App.css'
 
 type AppView = 'quiz' | 'resources'
 
-export function App() {
+export function ZmwwApp() {
   const [view, setView] = useState<AppView>('quiz')
 
   return (

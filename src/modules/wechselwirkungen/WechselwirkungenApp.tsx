@@ -1,12 +1,12 @@
 import { useState } from 'react'
-import { EnhancedQuizPanel } from './components/EnhancedQuizPanel'
-import { InteractionsVisualization } from './components/InteractionsVisualization'
-import { LearningResources } from './components/LearningResources'
+import { EnhancedQuizPanel } from '@/components/shared/EnhancedQuizPanel'
+import { InteractionsVisualization } from './InteractionsVisualization'
+import { LearningResources } from '@/components/shared/LearningResources'
 import './App.css'
 
 type View = 'quiz' | 'visualization' | 'resources'
 
-export function App() {
+export function WechselwirkungenApp() {
   const [view, setView] = useState<View>('quiz')
 
   return (

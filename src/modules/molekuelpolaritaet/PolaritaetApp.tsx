@@ -1,12 +1,12 @@
 import { useState } from 'react'
-import { EnhancedQuizPanel } from './components/EnhancedQuizPanel'
-import { PolarityVisualization } from './components/PolarityVisualization'
-import { LearningResources } from './components/LearningResources'
+import { EnhancedQuizPanel } from '@/components/shared/EnhancedQuizPanel'
+import { PolarityVisualization } from './PolarityVisualization'
+import { LearningResources } from '@/components/shared/LearningResources'
 import './App.css'
 
 type View = 'quiz' | 'visualization' | 'resources'
 
-export function App() {
+export function PolaritaetApp() {
   const [view, setView] = useState<View>('quiz')
 
   return (

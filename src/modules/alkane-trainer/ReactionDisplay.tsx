@@ -28,7 +28,7 @@ export function ReactionDisplay({
   const isFraction = oTotal % 2 !== 0
 
   // Calculate display values
-  const displayCoeffs = interactive
+  const displayCoeffs = (interactive && coefficients)
     ? coefficients
     : {
         a: step >= 5 && isFraction ? '2' : '1',
