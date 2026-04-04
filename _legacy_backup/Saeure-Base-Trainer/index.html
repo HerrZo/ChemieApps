@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Säure-Base-Trainer (Brønsted) | ChemieApps</title>
+    <meta name="description" content="Interaktive Lern-App für die 10. Klasse: Säure-Base-Theorie nach Brønsted, Protolyse, Ampholyte und Neutralisation.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+                    colors: {
+                        orange: {
+                            50: '#fff7ed', 100: '#ffedd5', 200: '#fed7aa', 300: '#fdba74',
+                            400: '#fb923c', 500: '#f97316', 600: '#ea580c', 700: '#c2410c',
+                            800: '#9a3412', 900: '#7c2d12'
+                        }
+                    },
+                    keyframes: {
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' }
+                        },
+                        slideUp: {
+                            '0%': { opacity: '0', transform: 'translateY(16px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' }
+                        },
+                        pop: {
+                            '0%, 100%': { transform: 'scale(1)' },
+                            '50%': { transform: 'scale(1.06)' }
+                        },
+                        shake: {
+                            '0%, 100%': { transform: 'translateX(0)' },
+                            '25%, 75%': { transform: 'translateX(-5px)' },
+                            '50%': { transform: 'translateX(5px)' }
+                        },
+                        protonFly: {
+                            '0%':   { transform: 'translate(0,0)',      opacity: '0' },
+                            '10%':  { transform: 'translate(0,0)',      opacity: '1' },
+                            '45%':  { transform: 'translate(176px,0)',  opacity: '1' },
+                            '55%':  { transform: 'translate(176px,0)',  opacity: '0' },
+                            '100%': { transform: 'translate(176px,0)',  opacity: '0' }
+                        },
+                        crystalDissolve: {
+                            '0%, 10%': { transform: 'scale(1)', opacity: '1' },
+                            '20%': { transform: 'scale(1.1) rotate(2deg)', opacity: '1', filter: 'blur(0px)' },
+                            '30%, 100%': { transform: 'scale(0.5)', opacity: '0', filter: 'blur(4px)' }
+                        },
+                        moveLeft: {
+                            '0%, 20%': { transform: 'translate(0,0) scale(0.5)', opacity: '0' },
+                            '30%': { transform: 'translate(-28px,0) scale(1)', opacity: '1' },
+                            '80%': { transform: 'translate(-72px,0) scale(1)', opacity: '1' },
+                            '90%, 100%': { transform: 'translate(-72px,0) scale(1)', opacity: '0' }
+                        },
+                        moveRight: {
+                            '0%, 20%': { transform: 'translate(0,0) scale(0.5)', opacity: '0' },
+                            '30%': { transform: 'translate(28px,0) scale(1)', opacity: '1' },
+                            '80%': { transform: 'translate(72px,0) scale(1)', opacity: '1' },
+                            '90%, 100%': { transform: 'translate(72px,0) scale(1)', opacity: '0' }
+                        },
+                        collideLeft: {
+                            '0%': { transform: 'translateX(-90px)', opacity: '0' },
+                            '20%': { transform: 'translateX(-90px)', opacity: '1' },
+                            '40%': { transform: 'translateX(-14px)', opacity: '1' },
+                            '45%, 100%': { transform: 'translateX(-14px)', opacity: '0' }
+                        },
+                        collideRight: {
+                            '0%': { transform: 'translateX(90px)', opacity: '0' },
+                            '20%': { transform: 'translateX(90px)', opacity: '1' },
+                            '40%': { transform: 'translateX(14px)', opacity: '1' },
+                            '45%, 100%': { transform: 'translateX(14px)', opacity: '0' }
+                        },
+                        flashStrike: {
+                            '0%, 40%': { opacity: '0', transform: 'scale(0.5)' },
+                            '45%': { opacity: '1', transform: 'scale(2)' },
+                            '55%, 100%': { opacity: '0', transform: 'scale(1)' }
+                        },
+                        waterLeft: {
+                            '0%, 45%': { opacity: '0', transform: 'translate(0,0) scale(0.5)' },
+                            '50%': { opacity: '1', transform: 'translate(-38px,-18px) scale(1.1)' },
+                            '60%, 80%': { opacity: '1', transform: 'translate(-56px,0) scale(1)' },
+                            '90%, 100%': { opacity: '0', transform: 'translate(-56px,0)' }
+                        },
+                        waterRight: {
+                            '0%, 45%': { opacity: '0', transform: 'translate(0,0) scale(0.5)' },
+                            '50%': { opacity: '1', transform: 'translate(38px,18px) scale(1.1)' },
+                            '60%, 80%': { opacity: '1', transform: 'translate(56px,0) scale(1)' },
+                            '90%, 100%': { opacity: '0', transform: 'translate(56px,0)' }
+                        }
+                    },
+                    animation: {
+                        fadeInUp: 'fadeInUp 0.45s ease forwards',
+                        slideUp: 'slideUp 0.3s cubic-bezier(0.175,0.885,0.32,1.275) forwards',
+                        pop: 'pop 0.3s cubic-bezier(0.175,0.885,0.32,1.275)',
+                        shake: 'shake 0.4s ease',
+                        protonFly: 'protonFly 3s cubic-bezier(0.4,0,0.2,1) infinite',
+                        crystalDissolve: 'crystalDissolve 4s infinite',
+                        moveLeft: 'moveLeft 4s infinite',
+                        moveRight: 'moveRight 4s infinite',
+                        collideLeft: 'collideLeft 4s infinite',
+                        collideRight: 'collideRight 4s infinite',
+                        flashStrike: 'flashStrike 4s infinite',
+                        waterLeft: 'waterLeft 4s infinite',
+                        waterRight: 'waterRight 4s infinite'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: 'Inter', system-ui, sans-serif; }
+        sub { font-size: 0.72em; }
+        sup { font-size: 0.72em; }
+        .content-prose p { margin-bottom: 0.9rem; font-size: 1.05rem; line-height: 1.7; }
+        .content-prose ul, .content-prose ol { margin-bottom: 0.9rem; padding-left: 1.4rem; }
+        .content-prose li { margin-bottom: 0.4rem; font-size: 1.05rem; line-height: 1.6; }
+        .content-prose h3 { font-size: 1.1rem; font-weight: 600; margin: 1rem 0 0.5rem; color: #0891b2; }
+        .dark .content-prose h3 { color: #22d3ee; }
+        .content-prose strong { font-weight: 700; }
+        /* proton circle absolute-positioned inside flex parent */
+        .proton-circle {
+            position: absolute;
+            top: -18px;
+            left: 50%;
+            width: 32px;
+            height: 32px;
+            margin-left: -16px;
+        }
+        /* pH gradient bar */
+        .ph-gradient {
+            background: linear-gradient(90deg,
+                #ef4444 0%,
+                #f97316 14.3%,
+                #eab308 28.6%,
+                #22c55e 42.9%,
+                #3b82f6 57.1%,
+                #8b5cf6 71.4%,
+                #6d28d9 85.7%,
+                #4c1d95 100%
+            );
+        }
+        /* Sidebar scrollbar */
+        .sidebar-scroll::-webkit-scrollbar { width: 4px; }
+        .sidebar-scroll::-webkit-scrollbar-track { background: transparent; }
+        .sidebar-scroll::-webkit-scrollbar-thumb { background: #fdba74; border-radius: 2px; }
+        /* Focus ring */
+        button:focus-visible, a:focus-visible {
+            outline: 3px solid #f97316;
+            outline-offset: 2px;
+            border-radius: 6px;
+        }
+        /* card anim reset */
+        .card-enter { animation: fadeInUp 0.45s ease forwards; }
+    </style>
+</head>
+<body>
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:bg-orange-500 focus:text-white focus:px-4 focus:py-2 focus:rounded-lg focus:font-semibold">
+        Zum Inhalt springen
+    </a>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef, useCallback } = React;
+
+        /* ═══════════════════════════════════════════════════
+           DATA
+        ═══════════════════════════════════════════════════ */
+        const TOPICS = [
+            {
+                id: "broensted",
+                title: "1. Brønsted-Theorie",
+                icon: "🔬",
+                content: "broensted",
+                quiz: {
+                    question: "Was macht ein Teilchen nach Brønsted zu einer Base?",
+                    options: [
+                        { text: "Es gibt Protonen ab.", correct: false, error: "Das wäre eine Säure (Protonendonator)." },
+                        { text: "Es nimmt Protonen auf.", correct: true },
+                        { text: "Es enthält Sauerstoff.", correct: false, error: "Sauerstoff ist nicht zwingend erforderlich – NH₃ ist z.B. eine Base ohne Sauerstoff." }
+                    ]
+                }
+            },
+            {
+                id: "reaktion_wasser",
+                title: "2. Reaktion mit Wasser",
+                icon: "💧",
+                content: "reaktion_wasser",
+                quiz: {
+                    question: "Welches Ion ist für die saure Eigenschaft einer Lösung verantwortlich?",
+                    options: [
+                        { text: "Hydroxid-Ion (OH⁻)", correct: false, error: "OH⁻ ist charakteristisch für basische Lösungen." },
+                        { text: "Oxonium-Ion (H₃O⁺)", correct: true },
+                        { text: "Chlorid-Ion (Cl⁻)", correct: false, error: "Cl⁻ ist das Gegenion und verhält sich neutral." }
+                    ]
+                }
+            },
+            {
+                id: "stoff_loesung",
+                title: "3. Stoff vs. Lösung",
+                icon: "⚗️",
+                content: "stoff_loesung",
+                quiz: {
+                    question: "Was ist 'Salzsäure' im chemischen Sinne?",
+                    options: [
+                        { text: "Der Reinstoff Chlorwasserstoff (HCl)", correct: false, error: "Das ist das reine Gas (die Säure), aber keine Lösung." },
+                        { text: "Eine wässrige Lösung mit H₃O⁺ und Cl⁻ Ionen", correct: true },
+                        { text: "Flüssiges Wasserstoffgas", correct: false, error: "Wasserstoff ist ein Gas (H₂), keine Säure." }
+                    ]
+                }
+            },
+            {
+                id: "molekuelbau",
+                title: "4. Acidität & Molekülbau",
+                icon: "🧪",
+                content: "molekuelbau",
+                quiz: {
+                    question: "Welcher Faktor erleichtert die Abspaltung eines Protons (hohe Acidität)?",
+                    options: [
+                        { text: "Eine unpolare C-H Bindung", correct: false, error: "Unpolare Bindungen spalten kaum H⁺-Ionen ab." },
+                        { text: "Eine kurze und extrem starke H-F Bindung", correct: false, error: "Starke Bindungen verhindern die Abspaltung. HF ist schwächer als HCl." },
+                        { text: "Hohe Polarität der H-X Bindung und Stabilität des Restions", correct: true }
+                    ]
+                }
+            },
+            {
+                id: "salze",
+                title: "5. Sauer & basisch wirkende Salze",
+                icon: "🧂",
+                content: "salze",
+                quiz: {
+                    question: "Warum reagiert eine Lösung von Natriumacetat (NaCH₃COO) leicht basisch?",
+                    options: [
+                        { text: "Weil Natriumionen OH⁻ bilden.", correct: false, error: "Na⁺ Ionen reagieren in Wasser neutral." },
+                        { text: "Das Acetat-Ion (CH₃COO⁻) nimmt ein Proton vom Wasser auf, wobei OH⁻ entsteht.", correct: true },
+                        { text: "Weil das Salz stark alkalisch riecht.", correct: false, error: "Geruch ist kein chemischer Beweis für Basizität." }
+                    ]
+                }
+            },
+            {
+                id: "ampholyte",
+                title: "6. Ampholyte",
+                icon: "🔄",
+                content: "ampholyte",
+                quiz: {
+                    question: "Welche Eigenschaft macht ein Teilchen zum Ampholyt?",
+                    options: [
+                        { text: "Es ist zwingend flüssig wie Wasser.", correct: false, error: "Aggregatszustand ist nicht das Kriterium." },
+                        { text: "Es kann sowohl als Protonendonator als auch als Protonenakzeptor wirken.", correct: true },
+                        { text: "Es hat einen neutralen pH-Wert von 7.", correct: false, error: "Lösungen von Ampholyten können leicht sauer oder basisch sein." }
+                    ]
+                }
+            },
+            {
+                id: "neutralisation",
+                title: "7. Umkehrbarkeit & Neutralisation",
+                icon: "⚡",
+                content: "neutralisation",
+                quiz: {
+                    question: "Was ist die entscheidende Teilchenreaktion bei einer typischen Neutralisation?",
+                    options: [
+                        { text: "Reaktion von Säurerestionen mit Metallkationen", correct: false, error: "Diese bilden lediglich das gelöste Salz, sind aber für die pH-Änderung nicht ausschlaggebend." },
+                        { text: "Sauerstoff und Wasserstoff reagieren zu Wasser", correct: false, error: "Das ist eine Verbrennung, keine Neutralisation." },
+                        { text: "Oxonium-Ionen reagieren mit Hydroxid-Ionen zu Wasser (H₃O⁺ + OH⁻ → 2 H₂O)", correct: true }
+                    ]
+                }
+            },
+            {
+                id: "ph_skala",
+                title: "8. pH-Skala",
+                icon: "📊",
+                content: "ph_skala",
+                quiz: {
+                    question: "Welcher pH-Bereich kennzeichnet eine basische Lösung bei 25 °C?",
+                    options: [
+                        { text: "pH < 7", correct: false, error: "pH < 7 bedeutet saure Lösung." },
+                        { text: "pH = 7", correct: false, error: "pH = 7 ist neutral (reines Wasser bei 25 °C)." },
+                        { text: "pH > 7", correct: true }
+                    ]
+                }
+            },
+            {
+                id: "minigame",
+                title: "9. Minispiel: Drop-Game",
+                icon: "🎮",
+                content: "minigame"
+            }
+        ];
+
+        const GAME_ITEMS = [
+            { label: "HCl", type: "Säure" }, { label: "NaOH", type: "Base" },
+            { label: "H₂SO₄", type: "Säure" }, { label: "NH₃", type: "Base" },
+            { label: "H₃O⁺", type: "Säure" }, { label: "OH⁻", type: "Base" },
+            { label: "HNO₃", type: "Säure" }, { label: "CO₃²⁻", type: "Base" },
+            { label: "NH₄⁺", type: "Säure" }, { label: "CH₃COO⁻", type: "Base" }
+        ];
+
+        const PH_EXAMPLES = [
+            { ph: 0, label: "Salzsäure (konz.)", color: "#dc2626" },
+            { ph: 1, label: "Magensäure", color: "#ef4444" },
+            { ph: 2, label: "Zitronensaft", color: "#f97316" },
+            { ph: 3, label: "Essig", color: "#fb923c" },
+            { ph: 4, label: "Tomaten", color: "#f59e0b" },
+            { ph: 5, label: "Kaffee", color: "#eab308" },
+            { ph: 6, label: "Milch", color: "#84cc16" },
+            { ph: 7, label: "Reines Wasser", color: "#22c55e" },
+            { ph: 8, label: "Meerwasser", color: "#14b8a6" },
+            { ph: 9, label: "Backpulver-Lsg.", color: "#06b6d4" },
+            { ph: 10, label: "Waschmittel", color: "#3b82f6" },
+            { ph: 11, label: "Ammoniak-Lsg.", color: "#6366f1" },
+            { ph: 12, label: "Kalk-Lsg.", color: "#8b5cf6" },
+            { ph: 13, label: "Natronlauge (verd.)", color: "#a855f7" },
+            { ph: 14, label: "NaOH (konz.)", color: "#7c3aed" }
+        ];
+
+        /* ═══════════════════════════════════════════════════
+           SMALL COMPONENTS
+        ═══════════════════════════════════════════════════ */
+
+        // ── Callout ──────────────────────────────────────────
+        const Callout = ({ type = "info", title, children }) => {
+            const styles = {
+                info:    "border-cyan-500 bg-cyan-50 dark:bg-cyan-900/20",
+                warning: "border-red-500 bg-red-50 dark:bg-red-900/20",
+            };
+            const titleStyles = {
+                info:    "text-cyan-600 dark:text-cyan-400",
+                warning: "text-red-600 dark:text-red-400",
+            };
+            return (
+                <div className={`border-l-4 rounded-r-xl px-4 py-3 my-3 ${styles[type]}`}>
+                    {title && <div className={`font-bold mb-1 ${titleStyles[type]}`}>{title}</div>}
+                    <div className="text-sm leading-relaxed dark:text-gray-200">{children}</div>
+                </div>
+            );
+        };
+
+        // ── Equation ─────────────────────────────────────────
+        const Equation = ({ parts }) => (
+            <div className="flex flex-wrap items-center justify-center gap-2 my-4 p-3 bg-gray-50 dark:bg-gray-800 rounded-xl font-mono text-base font-semibold">
+                {parts.map((p, i) => (
+                    <span key={i} className={p.highlight === "acid" ? "text-red-500" : p.highlight === "base" ? "text-cyan-500" : "dark:text-gray-200"}>
+                        {p.text}
+                    </span>
+                ))}
+            </div>
+        );
+
+        // ── ProtonTransfer Animation ──────────────────────────
+        const ProtonTransferScene = () => (
+            <div className="relative flex justify-center items-center gap-12 h-28 my-4 select-none" aria-label="Animation: Protonübertragung von Säure zu Base">
+                {/* Acid block */}
+                <div className="relative w-32 h-14 flex items-center justify-center rounded-xl font-bold text-lg border-2 border-red-400 bg-red-50 dark:bg-red-900/30 dark:text-red-300 text-red-700 shadow">
+                    SÄURE
+                    {/* flying proton */}
+                    <div
+                        className="proton-circle flex items-center justify-center rounded-full bg-orange-500 text-white text-xs font-bold shadow-lg animate-protonFly"
+                        aria-hidden="true"
+                    >
+                        H⁺
+                    </div>
+                </div>
+                <span className="text-3xl opacity-40 dark:text-gray-400">⇌</span>
+                {/* Base block */}
+                <div className="relative w-32 h-14 flex items-center justify-center rounded-xl font-bold text-lg border-2 border-cyan-400 bg-cyan-50 dark:bg-cyan-900/30 dark:text-cyan-300 text-cyan-700 shadow">
+                    BASE
+                </div>
+            </div>
+        );
+
+        // ── SolutionScene (salt dissolution) ─────────────────
+        const SolutionScene = ({ saltLabel, cationLabel, anionLabel, anionBasic }) => (
+            <div className="relative flex items-center justify-center h-32 my-3 select-none" aria-label={`Animation: ${saltLabel} löst sich auf`}>
+                <div className="absolute px-4 py-2 rounded bg-gray-800 text-white font-bold text-base shadow animate-crystalDissolve">
+                    {saltLabel}
+                </div>
+                <div className={`absolute px-4 py-2 rounded-full font-bold text-white text-sm shadow animate-moveLeft bg-red-500`}>
+                    {cationLabel}
+                </div>
+                <div className={`absolute px-4 py-2 rounded-full font-bold text-white text-sm shadow animate-moveRight ${anionBasic ? 'bg-cyan-500' : 'bg-cyan-500'}`}>
+                    {anionLabel}
+                </div>
+            </div>
+        );
+
+        // ── NeutralisationScene ───────────────────────────────
+        const NeutralisationScene = () => (
+            <div className="relative flex justify-center items-center h-28 my-4 select-none" aria-label="Animation: Neutralisation">
+                <div className="absolute px-4 py-2 rounded-full font-bold text-white bg-red-500 shadow animate-collideLeft">H₃O⁺</div>
+                <div className="absolute px-4 py-2 rounded-full font-bold text-white bg-cyan-500 shadow animate-collideRight">OH⁻</div>
+                <div className="absolute text-4xl animate-flashStrike" aria-hidden="true">💥</div>
+                <div className="absolute px-3 py-2 rounded-full font-bold bg-gray-800 text-white text-sm shadow animate-waterLeft">H₂O</div>
+                <div className="absolute px-3 py-2 rounded-full font-bold bg-gray-800 text-white text-sm shadow animate-waterRight">H₂O</div>
+            </div>
+        );
+
+        // ── pH Scale component ────────────────────────────────
+        const PHScale = ({ onSelectPH, selectedPH }) => (
+            <div>
+                <div className="ph-gradient h-6 rounded-xl mb-3 shadow-inner" aria-label="pH-Farbgradient von rot (sauer) bis violett (basisch)" />
+                <div className="grid grid-cols-5 sm:grid-cols-8 md:grid-cols-15 gap-1 mb-4" role="list" aria-label="pH-Werte">
+                    {PH_EXAMPLES.map(item => (
+                        <button
+                            key={item.ph}
+                            role="listitem"
+                            onClick={() => onSelectPH(item.ph)}
+                            aria-pressed={selectedPH === item.ph}
+                            aria-label={`pH ${item.ph}: ${item.label}`}
+                            className={`flex flex-col items-center p-1 rounded-lg text-xs font-semibold border-2 transition-all duration-150 focus:outline-none focus-visible:outline-orange-500
+                                ${selectedPH === item.ph
+                                    ? 'border-orange-500 scale-105 shadow-lg'
+                                    : 'border-transparent hover:border-gray-300 dark:hover:border-gray-600'
+                                }`}
+                            style={{ borderColor: selectedPH === item.ph ? item.color : undefined }}
+                        >
+                            <span className="w-7 h-7 rounded-full flex items-center justify-center text-white font-bold text-xs mb-0.5"
+                                style={{ background: item.color }}>
+                                {item.ph}
+                            </span>
+                        </button>
+                    ))}
+                </div>
+                {selectedPH !== null && (
+                    <div className="p-3 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm animate-fadeInUp">
+                        <span className="font-bold mr-2" style={{ color: PH_EXAMPLES[selectedPH].color }}>pH {selectedPH}</span>
+                        <span className="dark:text-gray-200">{PH_EXAMPLES[selectedPH].label}</span>
+                        <span className="ml-2 px-2 py-0.5 rounded-full text-xs font-semibold text-white" style={{ background: PH_EXAMPLES[selectedPH].color }}>
+                            {selectedPH < 7 ? "sauer" : selectedPH === 7 ? "neutral" : "basisch"}
+                        </span>
+                    </div>
+                )}
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">Klicke auf einen pH-Wert für Details.</p>
+            </div>
+        );
+
+        /* ═══════════════════════════════════════════════════
+           CONTENT RENDERERS (per topic id)
+        ═══════════════════════════════════════════════════ */
+        const ContentBroensted = () => (
+            <div className="content-prose">
+                <p>Die klassische Säure-Base-Theorie nach Arrhenius wurde durch <strong>Johannes Nicolaus Brønsted</strong> und <strong>Thomas Martin Lowry</strong> erweitert. Diese Theorie legt den Fokus auf die Übertragung von Protonen (H⁺).</p>
+                <ProtonTransferScene />
+                <ul>
+                    <li><strong>Säuren</strong> sind <strong>Protonendonatoren</strong> (Spender) – sie geben H⁺ ab.</li>
+                    <li><strong>Basen</strong> sind <strong>Protonenakzeptoren</strong> (Empfänger) – sie nehmen H⁺ auf.</li>
+                </ul>
+                <Callout type="info" title="💡 Protonenübergang">
+                    Damit eine Säure ein Proton abgeben kann, muss eine Base vorhanden sein, die es aufnimmt.
+                    Eine Säure-Base-Reaktion ist daher immer eine <strong>Protolyse</strong> (Protonenübertragung).
+                </Callout>
+            </div>
+        );
+
+        const ContentReaktionWasser = () => (
+            <div className="content-prose">
+                <p>Säuren und Basen reagieren mit Wasser. Das Wasser agiert dabei als Reaktionspartner.</p>
+                <h3>Reaktion einer Säure mit Wasser</h3>
+                <p>Die Säure gibt ein Proton an das Wasser ab. Es entsteht das <strong>Oxonium-Ion (H₃O⁺)</strong>. Die Lösung wird sauer.</p>
+                <Equation parts={[
+                    { text: "HCl" }, { text: "+" }, { text: "H₂O" }, { text: "⇌" },
+                    { text: "H₃O⁺", highlight: "acid" }, { text: "+" }, { text: "Cl⁻" }
+                ]} />
+                <h3>Reaktion einer Base mit Wasser</h3>
+                <p>Die Base nimmt ein Proton vom Wasser auf. Es entsteht das <strong>Hydroxid-Ion (OH⁻)</strong>. Die Lösung wird basisch.</p>
+                <Equation parts={[
+                    { text: "NH₃" }, { text: "+" }, { text: "H₂O" }, { text: "⇌" },
+                    { text: "NH₄⁺" }, { text: "+" }, { text: "OH⁻", highlight: "base" }
+                ]} />
+            </div>
+        );
+
+        const ContentStoffLoesung = () => (
+            <div className="content-prose">
+                <p>Es ist wichtig, zwischen dem reinen Stoff und seiner wässrigen Lösung zu unterscheiden.</p>
+                <Callout type="warning" title="⚠️ Häufiger Fehler">
+                    Oft wird "Säure" und "saure Lösung" als Synonym verwendet. Das ist chemisch unpräzise!
+                </Callout>
+                <ul>
+                    <li>
+                        <strong>Säure / Base (Stoff):</strong> Der Reinstoff, z.&nbsp;B. Chlorwasserstoff-Gas (HCl) oder festes Natriumhydroxid (NaOH).
+                        In diesem Zustand messen wir keinen pH-Wert.
+                    </li>
+                    <li>
+                        <strong>Saure / basische Lösung:</strong> Das Gemisch, das entsteht, wenn der Stoff mit Wasser reagiert.
+                        Erst durch die Bildung von H₃O⁺- oder OH⁻-Ionen wird die Lösung sauer oder basisch.
+                        Z.&nbsp;B. ist "Salzsäure" die wässrige Lösung des Gases HCl.
+                    </li>
+                </ul>
+            </div>
+        );
+
+        const ContentMolekuelbau = () => (
+            <div className="content-prose">
+                <p>Warum geben manche Moleküle leicht Protonen ab (starke Säuren), während andere es kaum tun? Die <strong>Acidität</strong> hängt stark vom Molekülbau ab:</p>
+                <ol>
+                    <li><strong>Elektronegativität:</strong> Je polarer die Bindung zum Wasserstoffatom, desto leichter kann sich das H⁺-Ion abspalten. (HCl ist sauer, CH₄ nicht.)</li>
+                    <li><strong>Atomgröße & Bindungslänge:</strong> Bei längeren, schwächeren Bindungen löst sich das Proton leichter. (HI ist stärkere Säure als HF, da die H-I-Bindung viel länger ist.)</li>
+                    <li><strong>Stabilität des Säurerest-Ions:</strong> Wird die negative Ladung des entstehenden Ions (z.&nbsp;B. durch Mesomerie) gut stabilisiert, gibt das Molekül das Proton bereitwilliger ab.</li>
+                </ol>
+            </div>
+        );
+
+        const ContentSalze = () => (
+            <div className="content-prose">
+                <p>Salzlösungen sind nicht immer pH-neutral! Manche Ionen können mit Wasser als Säure oder Base reagieren.</p>
+                <p><strong>Sauer wirkendes Salz:</strong> Ammoniumchlorid (NH₄Cl)</p>
+                <SolutionScene saltLabel="NH₄Cl (s)" cationLabel="NH₄⁺ (aq)" anionLabel="Cl⁻ (aq)" />
+                <Equation parts={[
+                    { text: "NH₄⁺" }, { text: "+" }, { text: "H₂O" }, { text: "⇌" },
+                    { text: "NH₃" }, { text: "+" }, { text: "H₃O⁺", highlight: "acid" }
+                ]} />
+                <p>Das Ammonium-Ion (NH₄⁺) ist eine schwache Säure und gibt ein Proton an Wasser ab.</p>
+                <p className="mt-4"><strong>Basisch wirkendes Salz:</strong> Natriumcarbonat (Na₂CO₃)</p>
+                <SolutionScene saltLabel="Na₂CO₃ (s)" cationLabel="2 Na⁺ (aq)" anionLabel="CO₃²⁻ (aq)" anionBasic />
+                <Equation parts={[
+                    { text: "CO₃²⁻" }, { text: "+" }, { text: "H₂O" }, { text: "⇌" },
+                    { text: "HCO₃⁻" }, { text: "+" }, { text: "OH⁻", highlight: "base" }
+                ]} />
+                <p>Das Carbonat-Ion (CO₃²⁻) ist eine Base und nimmt ein Proton von Wasser auf.</p>
+            </div>
+        );
+
+        const ContentAmpholyte = () => (
+            <div className="content-prose">
+                <p>Manche Teilchen können sowohl Protonen aufnehmen als auch abgeben. Sie heißen <strong>Ampholyte</strong>.</p>
+                <p>Das wichtigste Beispiel ist Wasser (H₂O):</p>
+                <ul>
+                    <li>Als <strong>Base</strong>: reagiert mit HCl zu H₃O⁺.</li>
+                    <li>Als <strong>Säure</strong>: reagiert mit NH₃ zu OH⁻.</li>
+                </ul>
+                <Callout type="info" title="💧 Weitere Ampholyte">
+                    Ionen aus mehrprotonigen Säuren, z.&nbsp;B. Hydrogencarbonat (HCO₃⁻) oder Dihydrogenphosphat (H₂PO₄⁻).
+                    Sie haben immer <strong>mindestens ein abspaltbares H-Atom</strong> und eine <strong>negative Ladung / freies Elektronenpaar</strong>.
+                </Callout>
+            </div>
+        );
+
+        const ContentNeutralisation = () => (
+            <div className="content-prose">
+                <p>Protolyse-Reaktionen sind meist <strong>umkehrbar</strong> und führen zu einem chemischen Gleichgewicht (⇌).</p>
+                <h3>Die Neutralisation</h3>
+                <p>Wenn eine saure und eine basische Lösung im richtigen Verhältnis vermischt werden, neutralisieren sie sich. Die eigentliche Neutralisationsreaktion ist:</p>
+                <NeutralisationScene />
+                <Equation parts={[
+                    { text: "H₃O⁺", highlight: "acid" }, { text: "+" }, { text: "OH⁻", highlight: "base" },
+                    { text: "⟶" }, { text: "2 H₂O" }
+                ]} />
+                <p>Diese Reaktion ist <strong>exotherm</strong> (setzt Wärmeenergie frei). Das verbleibende Metallkation und der Säurerest ergeben zusammen gelöstes <strong>Salz</strong>.</p>
+            </div>
+        );
+
+        const ContentPHSkala = ({ onSelectPH, selectedPH }) => (
+            <div className="content-prose">
+                <p>Der <strong>pH-Wert</strong> ist ein Maß für die Konzentration der Oxonium-Ionen (H₃O⁺) in einer Lösung. Die Skala reicht von 0 (sehr sauer) bis 14 (sehr basisch).</p>
+                <ul>
+                    <li><strong>pH &lt; 7:</strong> saure Lösung (mehr H₃O⁺ als OH⁻)</li>
+                    <li><strong>pH = 7:</strong> neutrale Lösung (reines Wasser bei 25 °C)</li>
+                    <li><strong>pH &gt; 7:</strong> basische Lösung (mehr OH⁻ als H₃O⁺)</li>
+                </ul>
+                <Callout type="info" title="🔢 Mathematisch">
+                    pH = −lg([H₃O⁺]). Der pH-Wert ist der negative dekadische Logarithmus der Oxoniumionen-Konzentration.
+                    Jede Einheit entspricht dem Faktor 10!
+                </Callout>
+                <div className="mt-4">
+                    <PHScale onSelectPH={onSelectPH} selectedPH={selectedPH} />
+                </div>
+            </div>
+        );
+
+        // ── MiniGame Component ────────────────────────────────
+        const MiniGame = ({ onCorrect, onWrong }) => {
+            const [questions, setQuestions] = useState(() => [...GAME_ITEMS].sort(() => Math.random() - 0.5));
+            const [index, setIndex] = useState(0);
+            const [score, setScore] = useState(0);
+            const [feedback, setFeedback] = useState(null); // null | 'correct' | 'wrong'
+            const [finished, setFinished] = useState(false);
+
+            const handleGuess = useCallback((guess) => {
+                if (feedback !== null || finished) return;
+                const current = questions[index];
+                const isCorrect = current.type === guess;
+                setFeedback(isCorrect ? 'correct' : 'wrong');
+                if (isCorrect) {
+                    setScore(s => s + 10);
+                    onCorrect(10);
+                } else {
+                    onWrong();
+                }
+                setTimeout(() => {
+                    const next = index + 1;
+                    if (next >= questions.length) {
+                        setFinished(true);
+                    } else {
+                        setIndex(next);
+                        setFeedback(null);
+                    }
+                }, 700);
+            }, [index, questions, feedback, finished, onCorrect, onWrong]);
+
+            // Keyboard: A = Säure, B = Base
+            useEffect(() => {
+                const handler = (e) => {
+                    if (e.key === 'a' || e.key === 'A') handleGuess('Säure');
+                    if (e.key === 'b' || e.key === 'B') handleGuess('Base');
+                };
+                window.addEventListener('keydown', handler);
+                return () => window.removeEventListener('keydown', handler);
+            }, [handleGuess]);
+
+            const restart = () => {
+                setQuestions([...GAME_ITEMS].sort(() => Math.random() - 0.5));
+                setIndex(0);
+                setScore(0);
+                setFeedback(null);
+                setFinished(false);
+            };
+
+            return (
+                <div className="border-2 border-dashed border-cyan-400 rounded-2xl p-6 mt-4 flex flex-col items-center gap-4 bg-white dark:bg-gray-800 transition-colors">
+                    {/* Score row */}
+                    <div className="w-full flex justify-between font-semibold text-sm text-gray-600 dark:text-gray-300">
+                        <span>Teilchen {finished ? questions.length : index + 1}/{questions.length}</span>
+                        <span>Punkte: <span className="text-orange-500 font-bold">{score}</span></span>
+                    </div>
+
+                    {finished ? (
+                        <div className="text-center py-4 animate-fadeInUp">
+                            <div className="text-5xl mb-3">🎉</div>
+                            <p className="text-xl font-bold dark:text-white">Minispiel abgeschlossen!</p>
+                            <p className="text-gray-500 dark:text-gray-400 mt-1">{score} / {questions.length * 10} Punkte</p>
+                            <button onClick={restart}
+                                className="mt-4 px-6 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-semibold transition-all">
+                                Nochmal spielen
+                            </button>
+                        </div>
+                    ) : (
+                        <>
+                            {/* Molecule display */}
+                            <div
+                                className={`min-w-[200px] min-h-[80px] flex items-center justify-center text-4xl font-bold rounded-2xl shadow-lg px-8 py-4 transition-all duration-200 select-none
+                                    ${feedback === 'correct' ? 'text-green-500 scale-110 bg-green-50 dark:bg-green-900/30' :
+                                      feedback === 'wrong' ? 'text-red-500 bg-red-50 dark:bg-red-900/30' :
+                                      'text-orange-500 bg-orange-50 dark:bg-orange-900/20'}`}
+                                aria-live="polite"
+                                aria-label={`Aktuelles Teilchen: ${questions[index]?.label}`}
+                            >
+                                {feedback === 'correct' && '✓'}
+                                {feedback === 'wrong' && '✗'}
+                                {feedback === null && questions[index]?.label}
+                            </div>
+
+                            {/* Buttons */}
+                            <div className="flex gap-4 w-full max-w-xs">
+                                <button
+                                    onClick={() => handleGuess('Säure')}
+                                    disabled={feedback !== null}
+                                    aria-label="Antwort: Ist Säure (Taste A)"
+                                    className="flex-1 py-4 rounded-xl font-bold text-white bg-red-500 hover:bg-red-600 active:translate-y-1 disabled:opacity-50 transition-all shadow-[0_4px_0_#b91c1c] active:shadow-none text-base"
+                                >
+                                    Ist Säure
+                                </button>
+                                <button
+                                    onClick={() => handleGuess('Base')}
+                                    disabled={feedback !== null}
+                                    aria-label="Antwort: Ist Base (Taste B)"
+                                    className="flex-1 py-4 rounded-xl font-bold text-white bg-cyan-500 hover:bg-cyan-600 active:translate-y-1 disabled:opacity-50 transition-all shadow-[0_4px_0_#0369a1] active:shadow-none text-base"
+                                >
+                                    Ist Base
+                                </button>
+                            </div>
+                            <p className="text-xs text-gray-400">Tastaturkürzel: <kbd className="px-1 py-0.5 bg-gray-100 dark:bg-gray-700 rounded text-xs">A</kbd> = Säure &nbsp;
+                                <kbd className="px-1 py-0.5 bg-gray-100 dark:bg-gray-700 rounded text-xs">B</kbd> = Base</p>
+                        </>
+                    )}
+                </div>
+            );
+        };
+
+        /* ═══════════════════════════════════════════════════
+           QUIZ COMPONENT
+        ═══════════════════════════════════════════════════ */
+        const Quiz = ({ quiz, onCompleted }) => {
+            const [selected, setSelected] = useState(null);
+            const [answered, setAnswered] = useState(false);
+
+            const handleSelect = (index) => {
+                if (answered) return;
+                setSelected(index);
+                setAnswered(true);
+                const isCorrect = quiz.options[index].correct;
+                onCompleted(isCorrect);
+            };
+
+            const getButtonClass = (index) => {
+                const base = "w-full text-left px-4 py-3 rounded-xl border-2 font-medium text-sm transition-all duration-200 focus:outline-none focus-visible:outline-orange-500 ";
+                if (!answered) return base + "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:-translate-y-0.5 hover:border-orange-400 hover:shadow-md dark:text-gray-200 cursor-pointer";
+                const opt = quiz.options[index];
+                if (opt.correct) return base + "border-green-500 bg-green-500 text-white animate-pop cursor-default";
+                if (index === selected && !opt.correct) return base + "border-red-500 bg-red-500 text-white animate-shake cursor-default";
+                return base + "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 opacity-60 cursor-default dark:text-gray-400";
+            };
+
+            return (
+                <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+                    <div className="font-semibold text-base mb-3 dark:text-white">
+                        🏁 Quiz: {quiz.question}
+                    </div>
+                    <div className="flex flex-col gap-2" role="radiogroup" aria-label="Quiz-Antworten">
+                        {quiz.options.map((opt, i) => (
+                            <button
+                                key={i}
+                                onClick={() => handleSelect(i)}
+                                role="radio"
+                                aria-checked={selected === i}
+                                aria-disabled={answered}
+                                className={getButtonClass(i)}
+                                disabled={answered}
+                            >
+                                {opt.text}
+                            </button>
+                        ))}
+                    </div>
+                    {answered && selected !== null && !quiz.options[selected].correct && quiz.options[selected].error && (
+                        <div className="mt-3 px-4 py-3 border-l-4 border-red-500 bg-red-50 dark:bg-red-900/20 rounded-r-xl text-sm dark:text-red-200 animate-fadeInUp">
+                            <span className="font-bold">⚠️ Fehlerteufel: </span>{quiz.options[selected].error}
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        /* ═══════════════════════════════════════════════════
+           TOAST
+        ═══════════════════════════════════════════════════ */
+        const Toast = ({ message, visible }) => {
+            if (!visible) return null;
+            return (
+                <div
+                    role="status"
+                    aria-live="polite"
+                    className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-full bg-gray-900 text-white font-medium shadow-xl animate-slideUp text-sm"
+                >
+                    {message}
+                </div>
+            );
+        };
+
+        /* ═══════════════════════════════════════════════════
+           MAIN APP
+        ═══════════════════════════════════════════════════ */
+        const STORAGE_KEY = 'sb-trainer-v2';
+
+        function loadState() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (raw) return JSON.parse(raw);
+            } catch (_) {}
+            return { score: 0, streak: 0, completed: [] };
+        }
+
+        function saveState(s) {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
+            } catch (_) {}
+        }
+
+        const App = () => {
+            const [darkMode, setDarkMode] = useState(() => {
+                const stored = localStorage.getItem('sb-theme');
+                return stored ? stored === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+            });
+            const [activeIndex, setActiveIndex] = useState(0);
+            const [sidebarOpen, setSidebarOpen] = useState(false);
+            const [gameState, setGameState] = useState(() => loadState());
+            const [toast, setToast] = useState({ visible: false, message: '' });
+            const [quizDone, setQuizDone] = useState(() => {
+                const s = loadState();
+                return new Set(s.completed || []);
+            });
+            const [finished, setFinished] = useState(false);
+            const [selectedPH, setSelectedPH] = useState(null);
+            const contentRef = useRef(null);
+            const toastTimer = useRef(null);
+            const cardKey = useRef(0);
+
+            // Persist dark mode preference
+            useEffect(() => {
+                localStorage.setItem('sb-theme', darkMode ? 'dark' : 'light');
+                if (darkMode) document.documentElement.classList.add('dark');
+                else document.documentElement.classList.remove('dark');
+            }, [darkMode]);
+
+            // Persist game state
+            useEffect(() => {
+                saveState({ ...gameState, completed: [...quizDone] });
+            }, [gameState, quizDone]);
+
+            const showToast = useCallback((msg) => {
+                clearTimeout(toastTimer.current);
+                setToast({ visible: true, message: msg });
+                toastTimer.current = setTimeout(() => setToast({ visible: false, message: '' }), 2800);
+            }, []);
+
+            const progressPct = Math.round((quizDone.size / TOPICS.length) * 100);
+
+            const goToTopic = useCallback((idx) => {
+                cardKey.current++;
+                setActiveIndex(idx);
+                setSidebarOpen(false);
+                setFinished(false);
+                setSelectedPH(null);
+                if (contentRef.current) {
+                    contentRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }, []);
+
+            const handleQuizDone = useCallback((topicIndex, isCorrect) => {
+                if (!quizDone.has(topicIndex)) {
+                    if (isCorrect) {
+                        setGameState(s => {
+                            const newScore = s.score + 10;
+                            const newStreak = s.streak + 1;
+                            showToast(`Richtig! +10 Punkte 🎉 (Streak: ${newStreak})`);
+                            return { ...s, score: newScore, streak: newStreak };
+                        });
+                    } else {
+                        setGameState(s => {
+                            showToast('Leider falsch – weiter üben!');
+                            return { ...s, streak: 0 };
+                        });
+                    }
+                    setQuizDone(prev => new Set([...prev, topicIndex]));
+                }
+            }, [quizDone, showToast]);
+
+            const handleGameCorrect = useCallback((pts) => {
+                setGameState(s => ({ ...s, score: s.score + pts, streak: s.streak + 1 }));
+                showToast(`Richtig! +${pts} ⚡`);
+            }, [showToast]);
+
+            const handleGameWrong = useCallback(() => {
+                setGameState(s => ({ ...s, streak: 0 }));
+                showToast('Falsch! Weiter üben!');
+            }, [showToast]);
+
+            const handleNext = () => {
+                if (activeIndex < TOPICS.length - 1) {
+                    goToTopic(activeIndex + 1);
+                } else {
+                    setFinished(true);
+                    cardKey.current++;
+                }
+            };
+
+            const handleRestart = () => {
+                setGameState({ score: 0, streak: 0, completed: [] });
+                setQuizDone(new Set());
+                setFinished(false);
+                goToTopic(0);
+            };
+
+            const activeTopic = TOPICS[activeIndex];
+
+            // Render topic content
+            const renderContent = () => {
+                if (!activeTopic) return null;
+                switch (activeTopic.content) {
+                    case 'broensted':          return <ContentBroensted />;
+                    case 'reaktion_wasser':    return <ContentReaktionWasser />;
+                    case 'stoff_loesung':      return <ContentStoffLoesung />;
+                    case 'molekuelbau':        return <ContentMolekuelbau />;
+                    case 'salze':              return <ContentSalze />;
+                    case 'ampholyte':          return <ContentAmpholyte />;
+                    case 'neutralisation':     return <ContentNeutralisation />;
+                    case 'ph_skala':           return <ContentPHSkala onSelectPH={setSelectedPH} selectedPH={selectedPH} />;
+                    case 'minigame':
+                        return (
+                            <div>
+                                <p className="text-base dark:text-gray-200 mb-2">Wende dein Wissen spielerisch an! Handelt es sich bei dem gezeigten Teilchen eher um eine typische Brønsted-Säure oder Base?</p>
+                                <MiniGame onCorrect={handleGameCorrect} onWrong={handleGameWrong} />
+                            </div>
+                        );
+                    default: return null;
+                }
+            };
+
+            const isQuizDone = quizDone.has(activeIndex);
+
+            return (
+                <div className={`min-h-screen flex flex-col transition-colors duration-300 ${darkMode ? 'dark' : ''}`}>
+                    <div className="min-h-screen flex flex-col bg-gradient-to-br from-orange-50 via-orange-100 to-orange-200 dark:from-gray-900 dark:via-gray-800 dark:to-slate-900 transition-colors duration-300">
+
+                        {/* ── HEADER ──────────────────────────────── */}
+                        <header className="sticky top-0 z-40 bg-white/75 dark:bg-gray-900/80 backdrop-blur-xl border-b border-white/30 dark:border-gray-700/50 shadow-sm">
+                            <div className="max-w-screen-xl mx-auto px-4 py-3 flex items-center gap-3">
+                                {/* Back link */}
+                                <a href="../index.html"
+                                    aria-label="Zurück zur Startseite"
+                                    className="flex items-center gap-1 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-orange-500 transition-colors shrink-0">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+                                        <path d="M15 19l-7-7 7-7" />
+                                    </svg>
+                                    <span className="hidden sm:inline">Zurück</span>
+                                </a>
+
+                                {/* Hamburger (mobile) */}
+                                <button
+                                    className="md:hidden p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                                    onClick={() => setSidebarOpen(o => !o)}
+                                    aria-label={sidebarOpen ? "Menü schließen" : "Menü öffnen"}
+                                    aria-expanded={sidebarOpen}
+                                    aria-controls="sidebar-nav"
+                                >
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 dark:text-gray-200">
+                                        {sidebarOpen
+                                            ? <><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></>
+                                            : <><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></>
+                                        }
+                                    </svg>
+                                </button>
+
+                                {/* Title */}
+                                <h1 className="flex-1 text-base sm:text-xl font-bold text-orange-500 truncate text-center">
+                                    Säure-Base-Theorie (Brønsted)
+                                </h1>
+
+                                {/* Stats + dark mode */}
+                                <div className="flex items-center gap-2 shrink-0">
+                                    {/* Streak */}
+                                    {gameState.streak > 1 && (
+                                        <div className="hidden sm:flex items-center gap-1 px-2 py-1 bg-yellow-100 dark:bg-yellow-900/30 rounded-full text-xs font-semibold text-yellow-700 dark:text-yellow-400" aria-label={`Aktuelle Streak: ${gameState.streak}`}>
+                                            🔥 {gameState.streak}
+                                        </div>
+                                    )}
+                                    {/* Score badge */}
+                                    <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-orange-400 text-white font-semibold text-sm" aria-label={`Punkte: ${gameState.score}`}>
+                                        <span>⭐</span>
+                                        <span>{gameState.score}</span>
+                                    </div>
+                                    {/* Dark mode */}
+                                    <button
+                                        onClick={() => setDarkMode(d => !d)}
+                                        aria-label={darkMode ? "Hellen Modus aktivieren" : "Dunklen Modus aktivieren"}
+                                        className="p-2 rounded-full bg-gray-100 dark:bg-gray-700 hover:bg-orange-100 dark:hover:bg-gray-600 transition-all"
+                                    >
+                                        {darkMode
+                                            ? <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 text-yellow-400"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                                            : <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 text-gray-500"><path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+                                        }
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Progress bar */}
+                            <div className="h-1 bg-gray-200 dark:bg-gray-700 w-full" role="progressbar" aria-valuenow={progressPct} aria-valuemin={0} aria-valuemax={100} aria-label={`Fortschritt: ${progressPct}%`}>
+                                <div
+                                    className="h-full bg-gradient-to-r from-orange-500 to-cyan-500 transition-all duration-700 ease-out"
+                                    style={{ width: `${progressPct}%` }}
+                                />
+                            </div>
+                        </header>
+
+                        {/* ── MOBILE SIDEBAR OVERLAY ───────────────── */}
+                        {sidebarOpen && (
+                            <div
+                                className="fixed inset-0 z-30 bg-black/40 md:hidden"
+                                onClick={() => setSidebarOpen(false)}
+                                aria-hidden="true"
+                            />
+                        )}
+
+                        {/* ── MAIN LAYOUT ──────────────────────────── */}
+                        <div className="flex flex-1 max-w-screen-xl mx-auto w-full gap-6 p-4 sm:p-6" id="main-content">
+
+                            {/* ── SIDEBAR ─────────────────────────────── */}
+                            <aside
+                                id="sidebar-nav"
+                                role="navigation"
+                                aria-label="Themen-Navigation"
+                                className={`
+                                    sidebar-scroll overflow-y-auto
+                                    fixed md:static top-0 left-0 h-full md:h-auto z-40 md:z-auto
+                                    w-72 md:w-64 lg:w-72 shrink-0
+                                    bg-white/90 dark:bg-gray-900/90 md:bg-white/70 md:dark:bg-gray-800/60
+                                    backdrop-blur-xl md:backdrop-blur-xl
+                                    border-r md:border md:border-white/30 md:dark:border-gray-700/50
+                                    md:rounded-2xl md:shadow-lg
+                                    md:self-start md:sticky md:top-24
+                                    transition-transform duration-300
+                                    pt-16 md:pt-4 px-3 pb-4
+                                    ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+                                `}
+                            >
+                                <div className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500 px-2 mb-3">
+                                    Themen ({quizDone.size}/{TOPICS.length})
+                                </div>
+                                <ul className="flex flex-col gap-1">
+                                    {TOPICS.map((topic, i) => {
+                                        const done = quizDone.has(i);
+                                        const active = i === activeIndex && !finished;
+                                        return (
+                                            <li key={topic.id}>
+                                                <button
+                                                    onClick={() => goToTopic(i)}
+                                                    aria-current={active ? 'page' : undefined}
+                                                    className={`
+                                                        w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium text-left
+                                                        border-l-4 transition-all duration-200 group
+                                                        ${active
+                                                            ? 'bg-orange-500 text-white border-orange-700 shadow-lg shadow-orange-500/20'
+                                                            : 'border-transparent text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50 hover:border-orange-300'
+                                                        }
+                                                    `}
+                                                >
+                                                    <span className="text-base leading-none">{topic.icon}</span>
+                                                    <span className="flex-1 leading-snug">{topic.title}</span>
+                                                    {done && (
+                                                        <span className="text-green-400 text-xs ml-auto" aria-label="Abgeschlossen">✅</span>
+                                                    )}
+                                                </button>
+                                            </li>
+                                        );
+                                    })}
+                                </ul>
+                            </aside>
+
+                            {/* ── CONTENT AREA ────────────────────────── */}
+                            <main
+                                ref={contentRef}
+                                className="flex-1 min-w-0 flex flex-col gap-6"
+                                tabIndex="-1"
+                                aria-label="Hauptinhalt"
+                            >
+                                {finished ? (
+                                    /* Completion screen */
+                                    <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-xl p-8 text-center animate-fadeInUp">
+                                        <div className="text-6xl mb-4">🎓</div>
+                                        <h2 className="text-2xl font-bold text-cyan-600 dark:text-cyan-400 mb-2">Herzlichen Glückwunsch!</h2>
+                                        <p className="text-gray-600 dark:text-gray-300 text-base mb-6">
+                                            Du hast alle Grundlagen der Brønsted Säure-Base-Theorie gemeistert.
+                                        </p>
+                                        <div className="bg-orange-50 dark:bg-orange-900/20 rounded-xl p-6 mb-6 inline-block">
+                                            <div className="text-4xl font-bold text-orange-500 mb-1">{gameState.score}</div>
+                                            <div className="text-gray-500 dark:text-gray-400 text-sm">Punkte gesamt</div>
+                                        </div>
+                                        <div className="flex justify-center gap-3 flex-wrap">
+                                            <button
+                                                onClick={handleRestart}
+                                                className="px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-semibold transition-all shadow-lg shadow-orange-500/30"
+                                            >
+                                                Nochmal üben 🔄
+                                            </button>
+                                            <a
+                                                href="../index.html"
+                                                className="px-6 py-3 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-xl font-semibold transition-all"
+                                            >
+                                                Startseite
+                                            </a>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div
+                                        key={`card-${cardKey.current}`}
+                                        className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-xl p-6 sm:p-8 card-enter"
+                                    >
+                                        {/* Card header */}
+                                        <div className="flex items-center gap-3 mb-5">
+                                            <div className="w-1.5 h-9 bg-orange-500 rounded-full shrink-0" aria-hidden="true" />
+                                            <h2 className="text-xl sm:text-2xl font-bold text-cyan-600 dark:text-cyan-400">
+                                                {activeTopic?.icon} {activeTopic?.title}
+                                            </h2>
+                                        </div>
+
+                                        {/* Topic content */}
+                                        {renderContent()}
+
+                                        {/* Quiz */}
+                                        {activeTopic?.quiz && (
+                                            <Quiz
+                                                key={`quiz-${activeIndex}`}
+                                                quiz={activeTopic.quiz}
+                                                onCompleted={(isCorrect) => handleQuizDone(activeIndex, isCorrect)}
+                                            />
+                                        )}
+
+                                        {/* Auto-mark minigame topic when visited */}
+                                        {activeTopic?.id === 'minigame' && !quizDone.has(activeIndex) && (() => {
+                                            // mark as done silently when minigame is shown
+                                            // (handled via timeout to avoid render loop)
+                                            return null;
+                                        })()}
+
+                                        {/* Next button */}
+                                        {isQuizDone && (
+                                            <div className="flex justify-end mt-8 animate-fadeInUp">
+                                                <button
+                                                    onClick={handleNext}
+                                                    aria-label={activeIndex < TOPICS.length - 1 ? "Nächstes Thema" : "App abschließen"}
+                                                    className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white rounded-xl font-semibold shadow-lg shadow-orange-500/30 transition-all hover:-translate-y-0.5"
+                                                >
+                                                    {activeIndex < TOPICS.length - 1 ? "Weiter" : "Abschließen"}
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+                                                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        )}
+
+                                        {/* Minigame: always show next after entering the topic */}
+                                        {activeTopic?.id === 'minigame' && !isQuizDone && (
+                                            <div className="flex justify-end mt-6">
+                                                <button
+                                                    onClick={() => {
+                                                        setQuizDone(prev => new Set([...prev, activeIndex]));
+                                                        showToast('Minispiel gespielt! +0 Punkte');
+                                                    }}
+                                                    className="flex items-center gap-2 px-5 py-2.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-xl text-sm font-medium transition-all"
+                                                >
+                                                    Thema überspringen →
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </main>
+                        </div>
+
+                        {/* ── TOAST ───────────────────────────────── */}
+                        <Toast message={toast.message} visible={toast.visible} />
+
+                    </div>
+                </div>
+            );
+        };
+
+        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    </script>
+</body>
+</html>

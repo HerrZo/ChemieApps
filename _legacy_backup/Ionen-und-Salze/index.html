@@ -1,0 +1,1454 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ionen &amp; Salze Trainer | ChemieApps</title>
+    <meta name="description" content="Interaktive Lern-App: Ionen, Ionenbindung, Ionengitter, Verhältnisformeln, Molekülionen und Eigenschaften von Salzen.">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com;">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+                    colors: {
+                        chem: {
+                            50: '#fff7ed', 100: '#ffedd5', 200: '#fed7aa', 300: '#fdba74',
+                            400: '#fb923c', 500: '#f97316', 600: '#ea580c', 700: '#c2410c',
+                            800: '#9a3412', 900: '#7c2d12'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: 'Inter', system-ui, sans-serif; }
+
+        /* Chemical subscripts */
+        .chem-sub { vertical-align: sub; font-size: 0.75em; }
+        .chem-sup { vertical-align: super; font-size: 0.75em; }
+
+        /* Ion spheres */
+        .ion-sphere {
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            position: relative;
+        }
+        .ion-neutral  { background: linear-gradient(135deg, #94a3b8, #64748b); color: white; }
+        .ion-cation   { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; }
+        .ion-anion    { background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; }
+
+        /* Lattice grid */
+        .lattice-grid {
+            display: flex; flex-wrap: wrap;
+            gap: 6px; padding: 12px;
+            background: rgba(0,0,0,0.04);
+            border-radius: 12px;
+            max-width: 320px;
+        }
+        .dark .lattice-grid { background: rgba(255,255,255,0.05); }
+        .lattice-ion {
+            width: 44px; height: 44px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.7rem; font-weight: 700; color: white;
+            animation: fadeIn 0.3s ease both;
+        }
+        .lattice-ion.cat { background: radial-gradient(circle at 30% 30%, #f87171, #ef4444); }
+        .lattice-ion.an  { background: radial-gradient(circle at 30% 30%, #60a5fa, #3b82f6); }
+
+        /* Ball-stick SVG */
+        .ball-stick-svg line { stroke: #94a3b8; stroke-width: 3; }
+        .dark .ball-stick-svg line { stroke: #475569; }
+
+        /* Cross-rule animation */
+        .cr-arrow { animation: drawArrow 0.8s ease forwards; }
+        @keyframes drawArrow {
+            from { stroke-dashoffset: 120; }
+            to   { stroke-dashoffset: 0; }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.7); }
+            to   { opacity: 1; transform: scale(1); }
+        }
+
+        /* Conductivity cells */
+        .melt-ion, .dissolved-ion {
+            position: absolute;
+            width: 18px; height: 18px;
+            border-radius: 50%;
+        }
+        .melt-ion.mi-cat, .dissolved-ion.di-cat {
+            background: radial-gradient(circle at 35% 35%, #f87171, #ef4444);
+        }
+        .melt-ion.mi-an, .dissolved-ion.di-an {
+            background: radial-gradient(circle at 35% 35%, #60a5fa, #3b82f6);
+        }
+        .melt-ion { animation: float 2s ease-in-out infinite alternate; }
+        .dissolved-ion { animation: float2 2.5s ease-in-out infinite alternate; }
+        @keyframes float  { from { transform: translate(0,0); } to { transform: translate(4px,-4px); } }
+        @keyframes float2 { from { transform: translate(0,0); } to { transform: translate(-3px,5px); } }
+
+        /* Brittleness animation */
+        .britt-ion {
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; color: white; font-size: 0.8rem;
+        }
+        .britt-cat { background: radial-gradient(circle at 35% 35%, #f87171, #ef4444); }
+        .britt-an  { background: radial-gradient(circle at 35% 35%, #60a5fa, #3b82f6); }
+        .britt-top { animation: shiftRight 3s ease-in-out 1s infinite alternate; }
+        @keyframes shiftRight {
+            0%  { transform: translateX(0); }
+            50% { transform: translateX(22px); }
+            100% { transform: translateX(22px); }
+        }
+
+        /* Packing model spheres */
+        .pack-row { display: flex; align-items: center; margin-bottom: 2px; }
+        .pack-row.offset { margin-left: 24px; }
+        .pack-sphere {
+            border-radius: 50%;
+            margin: 2px;
+        }
+        .pack-cat { background: radial-gradient(circle at 35% 35%, #f87171, #ef4444); }
+        .pack-an  { background: radial-gradient(circle at 35% 35%, #60a5fa, #3b82f6); }
+
+        /* Quiz option buttons */
+        .option-btn {
+            transition: all 0.2s;
+        }
+        .option-btn:focus-visible {
+            outline: 2px solid #f97316;
+            outline-offset: 2px;
+        }
+
+        /* Mol ion cards */
+        .mol-ion-formula {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #f97316;
+            font-family: 'Inter', monospace;
+        }
+        .dark .mol-ion-formula { color: #fb923c; }
+
+        /* Compare table */
+        .compare-table { border-collapse: collapse; width: 100%; font-size: 0.875rem; }
+        .compare-table th { background: #fed7aa; color: #9a3412; }
+        .dark .compare-table th { background: #431407; color: #fed7aa; }
+        .compare-table th, .compare-table td { border: 1px solid #fdba74; padding: 8px 12px; text-align: left; }
+        .dark .compare-table th, .dark .compare-table td { border-color: #7c2d12; }
+        .compare-table tr:nth-child(even) td { background: #fff7ed; }
+        .dark .compare-table tr:nth-child(even) td { background: #431407; }
+
+        /* Sidebar transition */
+        .sidebar-transition { transition: transform 0.3s ease, opacity 0.3s ease; }
+
+        /* Skip link */
+        .skip-link {
+            position: absolute;
+            left: -9999px;
+            top: 0;
+            z-index: 9999;
+            padding: 8px 16px;
+            background: #f97316;
+            color: white;
+            font-weight: 600;
+            border-radius: 0 0 8px 0;
+        }
+        .skip-link:focus { left: 0; }
+
+        /* Progress bar animation */
+        .progress-bar-inner { transition: width 0.5s ease; }
+
+        /* Toast */
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to   { transform: translateY(0); opacity: 1; }
+        }
+        .toast-enter { animation: slideUp 0.3s ease forwards; }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #fdba74; border-radius: 3px; }
+        .dark ::-webkit-scrollbar-thumb { background: #7c2d12; }
+
+        /* Content callouts */
+        .callout {
+            background: #fff7ed;
+            border-left: 4px solid #f97316;
+            padding: 12px 16px;
+            border-radius: 0 8px 8px 0;
+            margin: 12px 0;
+        }
+        .dark .callout { background: #431407; border-color: #f97316; }
+        .callout.error {
+            background: #fef2f2;
+            border-left-color: #ef4444;
+        }
+        .dark .callout.error { background: #450a0a; border-color: #ef4444; }
+        .callout-title { font-weight: 700; margin-bottom: 4px; }
+
+        /* Content card prose */
+        .content-prose h3 { font-size: 1.1rem; font-weight: 700; margin: 16px 0 8px; color: #c2410c; }
+        .dark .content-prose h3 { color: #fb923c; }
+        .content-prose p { margin: 8px 0; line-height: 1.6; }
+        .content-prose ul, .content-prose ol { padding-left: 1.5rem; margin: 8px 0; }
+        .content-prose li { margin: 4px 0; line-height: 1.6; }
+        .content-prose strong { color: inherit; }
+
+        /* Game input */
+        .game-input-field {
+            border: 2px solid #fdba74;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+            background: white;
+            color: #1f2937;
+        }
+        .game-input-field:focus { border-color: #f97316; box-shadow: 0 0 0 3px rgba(249,115,22,0.15); }
+        .dark .game-input-field { background: #1e293b; color: #f9fafb; border-color: #7c2d12; }
+        .dark .game-input-field:focus { border-color: #f97316; }
+    </style>
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Zum Hauptinhalt springen</a>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useCallback, useRef, useMemo } = React;
+
+        /* ============================================================
+           TOPICS DATA
+           ============================================================ */
+        const TOPICS = [
+            {
+                id: "ionen_einfuehrung",
+                title: "1. Was sind Ionen?",
+                icon: "⚡",
+                content: "intro",
+                quiz: {
+                    question: "Was unterscheidet ein Ion von einem Atom?",
+                    options: [
+                        { text: "Ein Ion hat eine andere Anzahl an Protonen.", isCorrect: false, error: "Die Protonenzahl ändert sich nicht – sonst wäre es ein anderes Element! Nur die Elektronenzahl ändert sich." },
+                        { text: "Ein Ion hat eine andere Anzahl an Elektronen und damit eine elektrische Ladung.", isCorrect: true },
+                        { text: "Ionen sind einfach größere Atome.", isCorrect: false, error: "Die Größe kann sich ändern, aber das ist nicht das entscheidende Merkmal. Ionen haben eine Ladung!" }
+                    ]
+                }
+            },
+            {
+                id: "aufbau_salze",
+                title: "2. Aufbau von Salzen",
+                icon: "🧂",
+                content: "aufbau",
+                quiz: {
+                    question: "Woraus bestehen Salze?",
+                    options: [
+                        { text: "Aus Molekülen wie bei Wasser.", isCorrect: false, error: "Salze bestehen NICHT aus Molekülen, sondern aus Ionen! Es gibt im Salzkristall keine einzelnen NaCl-Moleküle." },
+                        { text: "Aus Metall-Kationen und Nichtmetall-Anionen, die sich gegenseitig anziehen.", isCorrect: true },
+                        { text: "Aus neutralen Atomen in einem festen Gitter.", isCorrect: false, error: "Die Teilchen im Salz sind geladen (Ionen), nicht neutral!" }
+                    ]
+                }
+            },
+            {
+                id: "ionengitter",
+                title: "3. Ionengitter & Ionenbindung",
+                icon: "🔷",
+                content: "gitter",
+                quiz: {
+                    question: "Warum gibt es im Ionengitter keine einzelnen Moleküle?",
+                    options: [
+                        { text: "Weil die Ionen flüssig sind.", isCorrect: false, error: "Im festen Salzkristall sind Ionen NICHT flüssig – sie sind fest angeordnet im Gitter." },
+                        { text: "Weil jedes Ion von mehreren Gegenionen umgeben ist und die Bindung ungerichtet in alle Richtungen wirkt.", isCorrect: true },
+                        { text: "Weil Salze nur aus einem Element bestehen.", isCorrect: false, error: "Salze bestehen aus mindestens zwei verschiedenen Elementen (Metall + Nichtmetall)." }
+                    ]
+                }
+            },
+            {
+                id: "modelle_gitter",
+                title: "4. Modelle des Ionengitters",
+                icon: "🔬",
+                content: "modelle",
+                quiz: {
+                    question: "Welches Modell eignet sich am besten, um die Koordinationszahl eines Ions zu bestimmen?",
+                    options: [
+                        { text: "Das Kugelpackungsmodell, weil es realitätsnah ist.", isCorrect: false, error: "Im Kugelpackungsmodell berühren sich die Kugeln – die Nachbarn sind schwer abzuzählen." },
+                        { text: "Das Gittermodell (Kugel-Stab), weil die Verbindungen gut sichtbar sind.", isCorrect: true },
+                        { text: "Beide Modelle sind gleich gut geeignet.", isCorrect: false, error: "Nein – das Gittermodell ist hierfür klar im Vorteil." }
+                    ]
+                }
+            },
+            {
+                id: "verhaeltnisformel",
+                title: "5. Verhältnisformeln & Überkreuzregel",
+                icon: "✖️",
+                content: "verhaeltnis",
+                quiz: {
+                    question: "Wie lautet die Verhältnisformel aus Ca²⁺ und N³⁻ (Nitrid)?",
+                    options: [
+                        { text: "CaN", isCorrect: false, error: "Überkreuzregel: Die 3 von N³⁻ wird zum Index von Ca, die 2 von Ca²⁺ zum Index von N → Ca₃N₂" },
+                        { text: "Ca₃N₂", isCorrect: true },
+                        { text: "Ca₂N₃", isCorrect: false, error: "Verwechslung! Die Ladungszahl des ANDEREN Ions wird jeweils zum Index." }
+                    ]
+                }
+            },
+            {
+                id: "molekuelionen",
+                title: "6. Molekülanionen",
+                icon: "🔗",
+                content: "molekuelionen",
+                quiz: {
+                    question: "Wie lautet die korrekte Verhältnisformel von Aluminiumsulfat (Al³⁺ + SO₄²⁻)?",
+                    options: [
+                        { text: "AlSO₄", isCorrect: false, error: "Die Ladungen sind nicht ausgeglichen! Überkreuzregel: Al braucht Index 2, SO₄ braucht Index 3." },
+                        { text: "Al₂(SO₄)₃", isCorrect: true },
+                        { text: "Al₃(SO₄)₂", isCorrect: false, error: "Indizes vertauscht! Die 2 von SO₄²⁻ kommt an Al → Al₂, die 3 von Al³⁺ kommt an SO₄ → (SO₄)₃" }
+                    ]
+                }
+            },
+            {
+                id: "namen_formeln",
+                title: "7. Salze: Name ↔ Formel",
+                icon: "📝",
+                content: "namen",
+                quiz: {
+                    question: "Wie heißt die Verbindung Al₂O₃?",
+                    options: [
+                        { text: "Aluminiumoxid", isCorrect: true },
+                        { text: "Aluminiumsauerstoff", isCorrect: false, error: "Bei Salzen wird der Name des Anions verwendet (Oxid), nicht der Elementname (Sauerstoff)." },
+                        { text: "Dialuminiumtrioxid", isCorrect: false, error: "Diese Benennung gilt nur für Molekülverbindungen zwischen Nichtmetallen, nicht für ionische Verbindungen!" }
+                    ]
+                }
+            },
+            {
+                id: "eigenschaften",
+                title: "8. Eigenschaften von Salzen",
+                icon: "🔩",
+                content: "eigenschaften",
+                quiz: {
+                    question: "Welches Salz hat voraussichtlich die höhere Schmelztemperatur: NaCl oder MgO?",
+                    options: [
+                        { text: "NaCl, weil es ein sehr bekanntes Salz ist.", isCorrect: false, error: "Bekanntheit hat nichts mit der Schmelztemperatur zu tun! Ladung und Größe der Ionen sind entscheidend." },
+                        { text: "Beide haben etwa die gleiche Schmelztemperatur.", isCorrect: false, error: "MgO hat deutlich höher geladene Ionen (2+/2−) und kleinere Ionen als NaCl (1+/1−)." },
+                        { text: "MgO, weil die Ionen höher geladen (2+/2−) und kleiner sind als bei NaCl.", isCorrect: true }
+                    ]
+                }
+            },
+            {
+                id: "minigame",
+                title: "9. Minispiel: Salz-Meister",
+                icon: "🏆",
+                content: "minigame"
+            }
+        ];
+
+        const MINIGAME_ITEMS = [
+            { name: "Natriumchlorid",   formula: "NaCl"      },
+            { name: "Calciumoxid",      formula: "CaO"       },
+            { name: "Magnesiumoxid",    formula: "MgO"       },
+            { name: "Kaliumsulfat",     formula: "K2SO4"     },
+            { name: "Calciumchlorid",   formula: "CaCl2"     },
+            { name: "Aluminiumoxid",    formula: "Al2O3"     },
+            { name: "Natriumhydroxid",  formula: "NaOH"      },
+            { name: "Ammoniumchlorid",  formula: "NH4Cl"     },
+            { name: "Calciumhydroxid",  formula: "Ca(OH)2"   },
+            { name: "Natriumsulfat",    formula: "Na2SO4"    },
+            { name: "Kaliumnitrat",     formula: "KNO3"      },
+            { name: "Magnesiumbromid",  formula: "MgBr2"     },
+        ];
+
+        /* ============================================================
+           UTILITY COMPONENTS
+           ============================================================ */
+        const Callout = ({ type = "info", title, children }) => (
+            <div className={`callout${type === "error" ? " error" : ""}`} role="note">
+                {title && <div className="callout-title">{title}</div>}
+                <div className="text-sm leading-relaxed">{children}</div>
+            </div>
+        );
+
+        /* ============================================================
+           VISUALIZATIONS
+           ============================================================ */
+        const LatticeGrid = ({ catLabel = "Na⁺", anLabel = "Cl⁻", count = 15 }) => {
+            const ions = useMemo(() =>
+                Array.from({ length: count }, (_, i) => ({
+                    id: i,
+                    isCat: i % 2 === 0,
+                    delay: `${i * 0.05}s`
+                })), [count]);
+
+            return (
+                <div className="lattice-grid mx-auto" role="img" aria-label={`Ionengitter mit ${catLabel} und ${anLabel}`}>
+                    {ions.map(ion => (
+                        <div
+                            key={ion.id}
+                            className={`lattice-ion ${ion.isCat ? 'cat' : 'an'}`}
+                            style={{ animationDelay: ion.delay }}
+                            title={ion.isCat ? catLabel : anLabel}
+                        >
+                            {ion.isCat ? catLabel : anLabel}
+                        </div>
+                    ))}
+                </div>
+            );
+        };
+
+        const PackingModel = () => {
+            const rows = 3, cols = 5;
+            return (
+                <div className="p-3" role="img" aria-label="Kugelpackungsmodell NaCl">
+                    {Array.from({ length: rows }, (_, r) => (
+                        <div key={r} className={`pack-row${r % 2 === 1 ? ' offset' : ''}`}>
+                            {Array.from({ length: cols }, (_, c) => {
+                                const isCat = (r + c) % 2 === 0;
+                                const size = isCat ? 28 : 46;
+                                return (
+                                    <div
+                                        key={c}
+                                        className={`pack-sphere ${isCat ? 'pack-cat' : 'pack-an'}`}
+                                        style={{ width: size, height: size }}
+                                        title={isCat ? 'Na⁺ (klein)' : 'Cl⁻ (groß)'}
+                                    />
+                                );
+                            })}
+                        </div>
+                    ))}
+                </div>
+            );
+        };
+
+        const BallStickModel = ({ darkMode }) => {
+            const cols = 5, rows = 3;
+            const spacingX = 60, spacingY = 60;
+            const padX = 30, padY = 30;
+            const w = padX * 2 + (cols - 1) * spacingX;
+            const h = padY * 2 + (rows - 1) * spacingY;
+
+            const lines = [];
+            const balls = [];
+
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    const x = padX + c * spacingX;
+                    const y = padY + r * spacingY;
+                    if (c < cols - 1) lines.push(<line key={`h-${r}-${c}`} x1={x} y1={y} x2={x + spacingX} y2={y} stroke={darkMode ? '#475569' : '#94a3b8'} strokeWidth="3" />);
+                    if (r < rows - 1) lines.push(<line key={`v-${r}-${c}`} x1={x} y1={y} x2={x} y2={y + spacingY} stroke={darkMode ? '#475569' : '#94a3b8'} strokeWidth="3" />);
+                }
+            }
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    const x = padX + c * spacingX;
+                    const y = padY + r * spacingY;
+                    const isCat = (r + c) % 2 === 0;
+                    balls.push(
+                        <g key={`b-${r}-${c}`}>
+                            <circle cx={x} cy={y} r={14} fill={isCat ? '#ef4444' : '#3b82f6'} />
+                            <text x={x} y={y + 4} textAnchor="middle" fill="white" fontSize="9" fontWeight="700">
+                                {isCat ? 'Na⁺' : 'Cl⁻'}
+                            </text>
+                        </g>
+                    );
+                }
+            }
+
+            return (
+                <svg viewBox={`0 0 ${w} ${h}`} width="100%" style={{ maxWidth: w }} role="img" aria-label="Kugel-Stab-Modell NaCl">
+                    {lines}
+                    {balls}
+                </svg>
+            );
+        };
+
+        const CrossRuleAnim = () => (
+            <div className="flex flex-col items-center gap-3 p-4 bg-orange-50 dark:bg-orange-950 rounded-xl border border-orange-200 dark:border-orange-800">
+                <div className="flex items-start gap-8">
+                    <div className="flex flex-col items-center">
+                        <span className="text-xs font-bold text-red-500 mb-1">3+</span>
+                        <div className="w-14 h-14 rounded-full bg-red-500 text-white flex items-center justify-center font-bold text-lg">Al</div>
+                    </div>
+                    <div className="flex flex-col items-center">
+                        <span className="text-xs font-bold text-blue-500 mb-1">2−</span>
+                        <div className="w-14 h-14 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold text-lg">O</div>
+                    </div>
+                </div>
+                <svg viewBox="0 0 200 80" width="200" height="80" role="img" aria-label="Überkreuzregel Animation">
+                    <path d="M 50,15 C 80,15 120,65 150,65" stroke="#ef4444" strokeWidth="2.5" fill="none" strokeDasharray="200" strokeDashoffset="0" className="cr-arrow" />
+                    <polygon points="148,60 155,68 145,68" fill="#ef4444" />
+                    <path d="M 150,15 C 120,15 80,65 50,65" stroke="#3b82f6" strokeWidth="2.5" fill="none" strokeDasharray="200" strokeDashoffset="0" className="cr-arrow" />
+                    <polygon points="52,60 45,68 55,68" fill="#3b82f6" />
+                </svg>
+                <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
+                    Al<sub>2</sub>O<sub>3</sub>
+                </div>
+                <p className="text-xs text-gray-500 dark:text-gray-400 text-center">Die 3 von Al³⁺ wird zum Index von O, die 2 von O²⁻ zum Index von Al.</p>
+            </div>
+        );
+
+        const ConductivityDemo = () => {
+            const crystalIons = useMemo(() => {
+                const items = [];
+                for (let r = 0; r < 3; r++) for (let c = 0; c < 4; c++) {
+                    const isCat = (r + c) % 2 === 0;
+                    items.push({ r, c, isCat });
+                }
+                return items;
+            }, []);
+
+            return (
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 my-4">
+                    {/* Kristallin */}
+                    <div className="flex flex-col items-center p-3 bg-white dark:bg-slate-800 rounded-xl border border-orange-100 dark:border-slate-700 shadow-sm">
+                        <svg viewBox="0 0 80 60" width="80" height="60" role="img" aria-label="Kristallines Ionengitter">
+                            {crystalIons.map(({ r, c, isCat }) => {
+                                const x = 10 + c * 20, y = 10 + r * 20;
+                                return (
+                                    <g key={`${r}-${c}`}>
+                                        {c < 3 && <line x1={x} y1={y} x2={x+20} y2={y} stroke="#94a3b8" strokeWidth="1.5" />}
+                                        {r < 2 && <line x1={x} y1={y} x2={x} y2={y+20} stroke="#94a3b8" strokeWidth="1.5" />}
+                                        <circle cx={x} cy={y} r={6} fill={isCat ? '#ef4444' : '#3b82f6'} />
+                                        <text x={x} y={y+3} textAnchor="middle" fill="white" fontSize="5" fontWeight="700">{isCat ? '+' : '−'}</text>
+                                    </g>
+                                );
+                            })}
+                        </svg>
+                        <div className="text-sm font-semibold mt-2 text-slate-700 dark:text-slate-300">Kristallin (fest)</div>
+                        <div className="text-xs mt-1 text-red-500 font-bold">❌ Nicht leitfähig</div>
+                    </div>
+                    {/* Geschmolzen */}
+                    <div className="flex flex-col items-center p-3 bg-white dark:bg-slate-800 rounded-xl border border-orange-100 dark:border-slate-700 shadow-sm">
+                        <div className="relative w-20 h-14">
+                            {[{t:12,l:15,cat:true},{t:30,l:40,cat:false},{t:8,l:55,cat:true},{t:35,l:20,cat:false},{t:25,l:60,cat:true}].map((ion, i) => (
+                                <div key={i} className={`melt-ion ${ion.cat ? 'mi-cat' : 'mi-an'}`} style={{ top: ion.t, left: ion.l, animationDelay: `${i*0.3}s` }} />
+                            ))}
+                        </div>
+                        <div className="text-sm font-semibold mt-2 text-slate-700 dark:text-slate-300">Geschmolzen</div>
+                        <div className="text-xs mt-1 text-green-600 font-bold">✅ Leitfähig</div>
+                    </div>
+                    {/* Gelöst */}
+                    <div className="flex flex-col items-center p-3 bg-white dark:bg-slate-800 rounded-xl border border-orange-100 dark:border-slate-700 shadow-sm">
+                        <div className="relative w-20 h-14" style={{ background: 'rgba(147,197,253,0.15)', borderRadius: 8 }}>
+                            {[{t:10,l:12,cat:true},{t:28,l:35,cat:false},{t:14,l:58,cat:true},{t:38,l:18,cat:false},{t:32,l:55,cat:true},{t:6,l:40,cat:false}].map((ion, i) => (
+                                <div key={i} className={`dissolved-ion ${ion.cat ? 'di-cat' : 'di-an'}`} style={{ top: ion.t, left: ion.l, animationDelay: `${i*0.4}s` }} />
+                            ))}
+                        </div>
+                        <div className="text-sm font-semibold mt-2 text-slate-700 dark:text-slate-300">Gelöst in Wasser</div>
+                        <div className="text-xs mt-1 text-green-600 font-bold">✅ Leitfähig</div>
+                    </div>
+                </div>
+            );
+        };
+
+        const BrittlenessScene = () => {
+            const cols = 6, rows = 4;
+            const ions = useMemo(() => {
+                const arr = [];
+                for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
+                    arr.push({ r, c, isCat: (r + c) % 2 === 0, isTop: r < 2 });
+                }
+                return arr;
+            }, []);
+
+            return (
+                <div className="flex flex-col items-center gap-3 my-4">
+                    <div className="text-2xl" role="img" aria-label="Hammer schlägt auf Kristall">🔨</div>
+                    <div className="grid gap-1" style={{ gridTemplateColumns: `repeat(${cols}, 36px)`, gridTemplateRows: `repeat(${rows}, 36px)` }} role="img" aria-label="Sprödigkeit Demonstration">
+                        {ions.map(({ r, c, isCat, isTop }) => (
+                            <div
+                                key={`${r}-${c}`}
+                                className={`britt-ion ${isCat ? 'britt-cat' : 'britt-an'}${isTop ? ' britt-top' : ''}`}
+                                style={{ gridRow: r + 1, gridColumn: c + 1 }}
+                            >
+                                {isCat ? '+' : '−'}
+                            </div>
+                        ))}
+                    </div>
+                    <div className="text-sm text-red-500 font-bold">⚡ Abstoßung → Kristall bricht!</div>
+                </div>
+            );
+        };
+
+        /* ============================================================
+           CONTENT RENDERERS
+           ============================================================ */
+        const ContentIntro = () => (
+            <div className="content-prose">
+                <p>Ein <strong>Ion</strong> ist ein elektrisch geladenes Teilchen, das entsteht, wenn ein Atom Elektronen aufnimmt oder abgibt. Ionen sind <strong>keine Atome</strong> – sie haben eine Ladung!</p>
+                <h3>Atom → Ion</h3>
+                <p>Metalle geben Elektronen ab und werden zu <strong>Kationen</strong> (positiv geladen).<br/>
+                Nichtmetalle nehmen Elektronen auf und werden zu <strong>Anionen</strong> (negativ geladen).</p>
+                <div className="flex flex-wrap items-center gap-4 my-4 p-4 bg-orange-50 dark:bg-orange-950 rounded-xl border border-orange-200 dark:border-orange-800">
+                    <div className="flex flex-col items-center gap-2">
+                        <div className="ion-sphere ion-neutral w-16 h-16 text-lg">Li</div>
+                        <div className="text-xs text-center text-slate-600 dark:text-slate-400">Lithium-Atom<br/>3 p⁺, 3 e⁻ → neutral</div>
+                    </div>
+                    <div className="text-2xl text-orange-500 font-bold">→ −1 e⁻ →</div>
+                    <div className="flex flex-col items-center gap-2">
+                        <div className="ion-sphere ion-cation w-16 h-16 text-lg relative">
+                            Li
+                            <span className="absolute -top-1 -right-1 text-xs bg-yellow-400 text-yellow-900 rounded-full w-5 h-5 flex items-center justify-center font-bold">+</span>
+                        </div>
+                        <div className="text-xs text-center text-slate-600 dark:text-slate-400">Lithium-<strong>Ion</strong><br/>3 p⁺, 2 e⁻ → positiv</div>
+                    </div>
+                </div>
+                <Callout title="💡 Wichtiger Unterschied">
+                    Ein Lithium-<strong>Atom</strong> (Li) ist elektrisch neutral. Ein Lithium-<strong>Ion</strong> (Li⁺) hat ein Elektron weniger und ist positiv geladen. Be²⁺ hat sogar zwei Elektronen abgegeben!
+                </Callout>
+                <h3>Warum sind Ionen wichtig?</h3>
+                <p>Ionen sind <strong>bewegliche Ladungsträger</strong>. Eine Substanz leitet den elektrischen Strom, wenn bewegliche Ladungsträger vorhanden sind – das ist bei gelösten oder geschmolzenen Salzen der Fall!</p>
+            </div>
+        );
+
+        const ContentAufbau = () => (
+            <div className="content-prose">
+                <p>Salze bestehen aus zwei Arten von Ionen:</p>
+                <ul>
+                    <li><strong>Kationen</strong> (positiv geladen) – meist <strong>Metall</strong>-Ionen, z. B. Na⁺, Ca²⁺, Al³⁺</li>
+                    <li><strong>Anionen</strong> (negativ geladen) – meist <strong>Nichtmetall</strong>-Ionen, z. B. Cl⁻, O²⁻, S²⁻</li>
+                </ul>
+                <div className="flex flex-wrap items-center gap-4 my-4 p-4 bg-orange-50 dark:bg-orange-950 rounded-xl border border-orange-200 dark:border-orange-800">
+                    <div className="flex flex-col items-center gap-2">
+                        <div className="ion-sphere ion-cation w-16 h-16 text-sm relative">
+                            Na
+                            <span className="absolute -top-1 -right-1 text-xs bg-yellow-400 text-yellow-900 rounded-full w-5 h-5 flex items-center justify-center font-bold">+</span>
+                        </div>
+                        <div className="text-xs text-center text-slate-600 dark:text-slate-400">Natrium-Kation<br/>(Metall-Ion)</div>
+                    </div>
+                    <div className="text-3xl font-bold text-slate-600 dark:text-slate-300">+</div>
+                    <div className="flex flex-col items-center gap-2">
+                        <div className="ion-sphere ion-anion w-16 h-16 text-sm relative">
+                            Cl
+                            <span className="absolute -top-1 -right-1 text-xs bg-cyan-300 text-cyan-900 rounded-full w-5 h-5 flex items-center justify-center font-bold">−</span>
+                        </div>
+                        <div className="text-xs text-center text-slate-600 dark:text-slate-400">Chlorid-Anion<br/>(Nichtmetall-Ion)</div>
+                    </div>
+                    <div className="text-3xl font-bold text-slate-600 dark:text-slate-300">→</div>
+                    <div className="flex flex-col items-center gap-2">
+                        <div className="w-16 h-16 rounded-full flex items-center justify-center font-bold text-white text-sm" style={{ background: 'linear-gradient(135deg, #ef4444 50%, #3b82f6 50%)' }}>NaCl</div>
+                        <div className="text-xs text-center text-slate-600 dark:text-slate-400"><strong>Natriumchlorid</strong><br/>(Kochsalz)</div>
+                    </div>
+                </div>
+                <Callout title="🔑 Merke">
+                    In einem Salz ist die Summe aller positiven Ladungen gleich der Summe aller negativen Ladungen → das Salz ist insgesamt <strong>elektrisch neutral</strong>.
+                </Callout>
+            </div>
+        );
+
+        const ContentGitter = () => (
+            <div className="content-prose">
+                <p>Ionen ordnen sich in einem regelmäßigen, dreidimensionalen Muster an – dem <strong>Ionengitter</strong> (auch Kristallgitter).</p>
+                <p>Die Anziehungskraft zwischen entgegengesetzt geladenen Ionen heißt <strong>Ionenbindung</strong> (elektrostatische Anziehung). Sie wirkt in alle Richtungen und ist sehr stark.</p>
+                <div className="my-4 p-4 bg-orange-50 dark:bg-orange-950 rounded-xl border border-orange-200 dark:border-orange-800">
+                    <p className="font-semibold mb-3 text-center">Ionengitter von NaCl (vereinfachte 2D-Darstellung)</p>
+                    <div className="flex justify-center">
+                        <LatticeGrid catLabel="Na⁺" anLabel="Cl⁻" count={15} />
+                    </div>
+                    <p className="text-xs text-center mt-2 text-slate-500">🔴 Na⁺ &nbsp; 🔵 Cl⁻ &nbsp;— abwechselnd angeordnet</p>
+                </div>
+                <ul>
+                    <li>Jedes Ion ist von <strong>Gegenionen</strong> umgeben → maximale Anziehung.</li>
+                    <li>Gleichnamig geladene Ionen sind möglichst weit voneinander entfernt → minimale Abstoßung.</li>
+                    <li>Es gibt <strong>keine einzelnen Moleküle</strong> im Ionengitter!</li>
+                </ul>
+                <Callout title="💡 Ungerichtet">
+                    Die Ionenbindung ist <strong>ungerichtet</strong> – jedes Ion zieht alle Gegenionen in seiner Umgebung an, nicht nur eines.
+                </Callout>
+            </div>
+        );
+
+        const ContentModelle = ({ darkMode }) => (
+            <div className="content-prose">
+                <p>Es gibt zwei wichtige Modelle, um ein Ionengitter darzustellen:</p>
+                <h3>1. Kugelpackungsmodell (Raumfüllend)</h3>
+                <p>Die Ionen werden als dichte Kugeln dargestellt, die sich berühren. Dieses Modell zeigt die <strong>tatsächlichen Größenverhältnisse</strong>. Beachte: Na⁺ ist <strong>kleiner</strong> als Cl⁻!</p>
+                <div className="my-4 p-4 bg-orange-50 dark:bg-orange-950 rounded-xl border border-orange-200 dark:border-orange-800 flex flex-col items-center">
+                    <PackingModel />
+                    <p className="text-xs mt-2 text-slate-500">🔴 Na⁺ (klein) &nbsp; 🔵 Cl⁻ (groß) — dicht gepackt</p>
+                </div>
+                <h3>2. Gittermodell (Kugel-Stab-Modell)</h3>
+                <p>Die Ionen werden als kleine Kugeln dargestellt, verbunden durch <strong>Stäbe</strong> (die die Bindungen symbolisieren). Zeigt die <strong>Struktur und Anordnung</strong> übersichtlich.</p>
+                <div className="my-4 p-4 bg-orange-50 dark:bg-orange-950 rounded-xl border border-orange-200 dark:border-orange-800 flex flex-col items-center">
+                    <BallStickModel darkMode={darkMode} />
+                    <p className="text-xs mt-2 text-slate-500">Kugel-Stab: Struktur gut sichtbar, Größen nicht maßstabsgetreu</p>
+                </div>
+                <h3>Vergleich der Modelle</h3>
+                <div className="overflow-x-auto my-3">
+                    <table className="compare-table">
+                        <thead><tr><th>Eigenschaft</th><th>Kugelpackungsmodell</th><th>Gittermodell</th></tr></thead>
+                        <tbody>
+                            <tr><td>Größenverhältnis</td><td>✅ Realitätsnah</td><td>❌ Nicht maßstabsgetreu</td></tr>
+                            <tr><td>Struktur erkennbar</td><td>❌ Schwer erkennbar</td><td>✅ Sehr übersichtlich</td></tr>
+                            <tr><td>Koordinationszahl</td><td>❌ Schwer abzuzählen</td><td>✅ Leicht abzuzählen</td></tr>
+                            <tr><td>Raumfüllung</td><td>✅ Zeigt Raumfüllung</td><td>❌ Zeigt Zwischenräume</td></tr>
+                            <tr><td><strong>Ionenbindung</strong></td><td>✅ Ungerichtet (korrekt)</td><td>❌ Gerichtet (falsch!)</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <Callout type="error" title="⚠️ Achtung beim Gittermodell">
+                    Die Stäbe im Gittermodell suggerieren eine <strong>gerichtete</strong> Bindung. Die Ionenbindung ist aber <strong>ungerichtet</strong>! Das Kugelpackungsmodell stellt dies korrekter dar.
+                </Callout>
+            </div>
+        );
+
+        const ContentVerhaeltnis = () => (
+            <div className="content-prose">
+                <p>Die Formel eines Salzes gibt das <strong>Verhältnis</strong> von Kationen zu Anionen an – keine einzelnen Moleküle!</p>
+                <Callout title="💡 Verhältnis- vs. Molekülformel">
+                    <strong>NaCl</strong> = Verhältnisformel → 1:1-Verhältnis, kein einzelnes „NaCl-Molekül".<br/>
+                    <strong>H₂O</strong> = Molekülformel → beschreibt ein konkretes Molekül.
+                </Callout>
+                <h3>Die Überkreuzregel</h3>
+                <p>Um die Verhältnisformel aufzustellen, nutzt man die <strong>Überkreuzregel</strong>:</p>
+                <ol>
+                    <li>Schreibe Kation und Anion mit ihren Ladungen auf.</li>
+                    <li><strong>Kreuze die Beträge der Ladungen</strong> als Indizes über.</li>
+                    <li><strong>Kürze</strong>, wenn möglich! (Z. B. 2:2 → 1:1)</li>
+                </ol>
+                <div className="my-4">
+                    <p className="font-semibold mb-2">Beispiel: Aluminium + Sauerstoff</p>
+                    <CrossRuleAnim />
+                </div>
+                <Callout type="error" title="⚠️ Kürzen nicht vergessen!">
+                    Beispiel: Mg<sup>2+</sup> + O<sup>2−</sup> → Überkreuzregel ergibt Mg₂O₂ → <strong>Kürzen</strong> zu <strong>MgO</strong>!<br/>
+                    Immer prüfen, ob die Indizes einen gemeinsamen Teiler haben.
+                </Callout>
+                <p><strong>Weitere Beispiele:</strong></p>
+                <ul>
+                    <li>Na⁺ + Cl⁻ → <strong>NaCl</strong> (1:1 → Indizes weggelassen)</li>
+                    <li>Ca²⁺ + Cl⁻ → <strong>CaCl₂</strong> (1:2)</li>
+                    <li>Mg²⁺ + O²⁻ → <strong>MgO</strong> (2:2 → kürzen zu 1:1)</li>
+                    <li>Fe³⁺ + O²⁻ → <strong>Fe₂O₃</strong> (nicht kürzbar)</li>
+                </ul>
+            </div>
+        );
+
+        const ContentMolekuelionen = () => (
+            <div className="content-prose">
+                <p>Manche Ionen bestehen nicht aus einem einzelnen Atom, sondern aus <strong>mehreren kovalent gebundenen Atomen</strong>, die zusammen eine Ladung tragen. Negativ geladene Molekülionen nennt man <strong>Molekülanionen</strong>. Das Ammonium-Ion ist ein positiv geladenes Molekülion.</p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 my-4">
+                    {[
+                        { formula: "SO₄²⁻", name: "Sulfat-Ion" },
+                        { formula: "NH₄⁺", name: "Ammonium-Ion" },
+                        { formula: "OH⁻", name: "Hydroxid-Ion" },
+                        { formula: "NO₃⁻", name: "Nitrat-Ion" },
+                        { formula: "CO₃²⁻", name: "Carbonat-Ion" },
+                        { formula: "PO₄³⁻", name: "Phosphat-Ion" },
+                    ].map(ion => (
+                        <div key={ion.formula} className="flex flex-col items-center p-3 bg-orange-50 dark:bg-orange-950 rounded-xl border border-orange-200 dark:border-orange-800">
+                            <div className="mol-ion-formula">{ion.formula}</div>
+                            <div className="text-xs font-semibold text-slate-600 dark:text-slate-400 mt-1">{ion.name}</div>
+                        </div>
+                    ))}
+                </div>
+                <h3>Besondere Molekülanionen und das Ammonium-Ion</h3>
+                <ul>
+                    <li><strong>Sulfat-Ion (SO₄²⁻):</strong> Zentrales Schwefelatom umgeben von 4 Sauerstoffatomen. Ladung: 2−. Beispiel: CaSO₄ (Gips).</li>
+                    <li><strong>Ammonium-Ion (NH₄⁺):</strong> Stickstoff mit 4 Wasserstoffen. Einziges häufiges <em>positiv</em> geladenes Molekülion! Beispiel: NH₄Cl (Salmiak).</li>
+                    <li><strong>Hydroxid-Ion (OH⁻):</strong> Sauerstoff gebunden an Wasserstoff. Ladung: 1−. Beispiel: NaOH (Natronlauge).</li>
+                </ul>
+                <Callout title="⚠️ Bei Verhältnisformeln">
+                    Wenn ein Molekülanion (oder das Ammonium-Ion) mehrfach vorkommt, wird es in <strong>Klammern</strong> gesetzt:<br/>
+                    Ca²⁺ + OH⁻ → <strong>Ca(OH)₂</strong> — nicht CaOH₂ und nicht CaO₂H₂!
+                </Callout>
+            </div>
+        );
+
+        const ContentNamen = () => (
+            <div className="content-prose">
+                <p>Der Name eines Salzes setzt sich zusammen aus:</p>
+                <ol>
+                    <li><strong>Kation</strong> (Metall oder Ammonium-Ion) → Name des Metalls (bzw. "Ammonium")</li>
+                    <li><strong>Anion</strong> (Nichtmetall-Ion oder Molekülanion) → Endung <strong>-id</strong> (einatomig) oder spezieller Name (Molekülanion)</li>
+                </ol>
+                <h3>Einatomige Anionen: Endung -id</h3>
+                <div className="overflow-x-auto my-3">
+                    <table className="compare-table">
+                        <thead><tr><th>Element</th><th>Ion</th><th>Name</th></tr></thead>
+                        <tbody>
+                            <tr><td>Chlor (Cl)</td><td>Cl⁻</td><td>Chlor<strong>id</strong></td></tr>
+                            <tr><td>Sauerstoff (O)</td><td>O²⁻</td><td>Ox<strong>id</strong></td></tr>
+                            <tr><td>Schwefel (S)</td><td>S²⁻</td><td>Sulf<strong>id</strong></td></tr>
+                            <tr><td>Stickstoff (N)</td><td>N³⁻</td><td>Nitr<strong>id</strong></td></tr>
+                            <tr><td>Fluor (F)</td><td>F⁻</td><td>Fluor<strong>id</strong></td></tr>
+                            <tr><td>Brom (Br)</td><td>Br⁻</td><td>Brom<strong>id</strong></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <h3>Beispiele</h3>
+                <ul>
+                    <li><strong>Natriumchlorid:</strong> Na⁺ + Cl⁻ → NaCl</li>
+                    <li><strong>Calciumoxid:</strong> Ca²⁺ + O²⁻ → CaO</li>
+                    <li><strong>Kaliumsulfat:</strong> K⁺ + SO₄²⁻ → K₂SO₄</li>
+                    <li><strong>Ammoniumnitrat:</strong> NH₄⁺ + NO₃⁻ → NH₄NO₃</li>
+                    <li><strong>Calciumhydroxid:</strong> Ca²⁺ + OH⁻ → Ca(OH)₂</li>
+                </ul>
+                <Callout title="🔑 Von der Formel zum Namen">
+                    Einfach umgekehrt: Zerteile die Formel in Kation und Anion und benenne beide.<br/>
+                    <strong>MgBr₂</strong> → Mg²⁺ + 2 Br⁻ → Magnesium + Bromid → <strong>Magnesiumbromid</strong>
+                </Callout>
+            </div>
+        );
+
+        const ContentEigenschaften = () => (
+            <div className="content-prose">
+                <p>Die besonderen Eigenschaften von Salzen lassen sich alle auf ihren <strong>Ionengitter-Aufbau</strong> zurückführen.</p>
+                <h3>1. Elektrische Leitfähigkeit</h3>
+                <p>Strom fließt nur, wenn <strong>bewegliche Ladungsträger</strong> vorhanden sind.</p>
+                <ConductivityDemo />
+                <ul>
+                    <li><strong>Kristallin (fest):</strong> Ionen im Gitter fixiert → NICHT leitfähig ❌</li>
+                    <li><strong>Geschmolzen (flüssig):</strong> Ionen frei beweglich → leitfähig ✅</li>
+                    <li><strong>Gelöst in Wasser:</strong> Ionen getrennt und beweglich → leitfähig ✅</li>
+                </ul>
+                <h3>2. Hohe Schmelztemperatur</h3>
+                <p>Die Ionenbindung ist sehr stark → es braucht viel Energie, um das Gitter aufzubrechen.</p>
+                <Callout title="📐 Zwei Einflussfaktoren">
+                    <strong>Ladungszahl:</strong> Je höher die Ladung der Ionen, desto stärker die Anziehung → höhere Schmelztemperatur.<br/>
+                    Beispiel: MgO (Mg²⁺/O²⁻, 2852 °C) &gt; NaCl (Na⁺/Cl⁻, 801 °C)<br/><br/>
+                    <strong>Ionenradius:</strong> Je kleiner die Ionen, desto näher kommen sie sich → stärkere Anziehung → höhere Schmelztemperatur.<br/>
+                    Beispiel: NaF (930 °C) &gt; NaCl (801 °C), weil F⁻ kleiner als Cl⁻ ist.
+                </Callout>
+                <h3>3. Sprödigkeit</h3>
+                <p>Wenn man einen Salzkristall verformt (z. B. mit einem Hammer schlägt), <strong>verschieben</strong> sich die Ionenschichten. Durch die Verschiebung landen <strong>gleichnamig geladene Ionen nebeneinander</strong>. Die elektrostatische <strong>Abstoßung</strong> sprengt den Kristall auseinander → das Salz ist <strong>spröde</strong>.</p>
+                <BrittlenessScene />
+            </div>
+        );
+
+        /* ============================================================
+           MINIGAME COMPONENT
+           ============================================================ */
+        const MinigameComponent = ({ onScore }) => {
+            const [questions, setQuestions] = useState([]);
+            const [currentIndex, setCurrentIndex] = useState(0);
+            const [gameScore, setGameScore] = useState(0);
+            const [inputValue, setInputValue] = useState('');
+            const [feedback, setFeedback] = useState(null); // null | 'correct' | { error: string }
+            const [finished, setFinished] = useState(false);
+            const inputRef = useRef(null);
+
+            useEffect(() => {
+                const shuffled = [...MINIGAME_ITEMS].sort(() => Math.random() - 0.5);
+                const qs = shuffled.map((item, i) => ({
+                    ...item,
+                    mode: i < 6 ? 'name-to-formula' : 'formula-to-name'
+                }));
+                setQuestions(qs);
+                setCurrentIndex(0);
+                setGameScore(0);
+                setInputValue('');
+                setFeedback(null);
+                setFinished(false);
+            }, []);
+
+            useEffect(() => {
+                if (!finished && inputRef.current) inputRef.current.focus();
+            }, [currentIndex, finished]);
+
+            const normalizeFormula = (s) =>
+                s.trim().replace(/\s+/g, '')
+                 .replace(/[₀₁₂₃₄₅₆₇₈₉]/g, d => '0123456789'['₀₁₂₃₄₅₆₇₈₉'.indexOf(d)])
+                 .toLowerCase();
+
+            const formatFormula = (f) => {
+                const parts = f.split(/(\d+)/);
+                return parts.map((p, i) =>
+                    /\d+/.test(p) ? <sub key={i}>{p}</sub> : p
+                );
+            };
+
+            const handleCheck = () => {
+                if (!inputValue.trim()) return;
+                const q = questions[currentIndex];
+                let correct = false;
+                let correctAnswer = '';
+
+                if (q.mode === 'name-to-formula') {
+                    correctAnswer = q.formula;
+                    correct = normalizeFormula(inputValue) === normalizeFormula(q.formula);
+                } else {
+                    correctAnswer = q.name;
+                    correct = inputValue.toLowerCase().trim() === q.name.toLowerCase().trim();
+                }
+
+                if (correct) {
+                    setGameScore(s => s + 10);
+                    onScore(10);
+                    setFeedback('correct');
+                } else {
+                    setFeedback({ error: `Richtig wäre: ${correctAnswer}` });
+                }
+
+                setTimeout(() => {
+                    setFeedback(null);
+                    setInputValue('');
+                    if (currentIndex + 1 >= questions.length) {
+                        setFinished(true);
+                    } else {
+                        setCurrentIndex(i => i + 1);
+                    }
+                }, 1200);
+            };
+
+            const handleKeyDown = (e) => {
+                if (e.key === 'Enter') handleCheck();
+            };
+
+            const handleRestart = () => {
+                const shuffled = [...MINIGAME_ITEMS].sort(() => Math.random() - 0.5);
+                const qs = shuffled.map((item, i) => ({
+                    ...item,
+                    mode: i < 6 ? 'name-to-formula' : 'formula-to-name'
+                }));
+                setQuestions(qs);
+                setCurrentIndex(0);
+                setGameScore(0);
+                setInputValue('');
+                setFeedback(null);
+                setFinished(false);
+            };
+
+            if (questions.length === 0) return <div className="text-center py-8 text-slate-400">Lade Aufgaben...</div>;
+
+            if (finished) {
+                const pct = Math.round((gameScore / (questions.length * 10)) * 100);
+                return (
+                    <div className="flex flex-col items-center gap-6 py-8">
+                        <div className="text-6xl">🏆</div>
+                        <h3 className="text-2xl font-bold text-orange-600 dark:text-orange-400">Minispiel beendet!</h3>
+                        <div className="text-5xl font-black text-orange-500">{gameScore}<span className="text-2xl font-normal text-slate-400"> / {questions.length * 10}</span></div>
+                        <div className="text-lg text-slate-600 dark:text-slate-400">{pct}% richtig</div>
+                        <button
+                            onClick={handleRestart}
+                            className="mt-2 px-8 py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl shadow-lg transition"
+                            aria-label="Minispiel neu starten"
+                        >
+                            Nochmal spielen 🔁
+                        </button>
+                    </div>
+                );
+            }
+
+            const q = questions[currentIndex];
+
+            return (
+                <div className="flex flex-col gap-5">
+                    <p className="text-slate-600 dark:text-slate-400 text-sm">Teste dein Wissen! Du bekommst entweder einen Salznamen oder eine Verhältnisformel. Gib das passende Gegenstück ein!</p>
+
+                    {/* Score row */}
+                    <div className="flex justify-between items-center text-sm font-semibold">
+                        <span className="text-slate-500 dark:text-slate-400">Aufgabe {currentIndex + 1} / {questions.length}</span>
+                        <span className="text-orange-600 dark:text-orange-400">Punkte: {gameScore}</span>
+                    </div>
+
+                    {/* Progress */}
+                    <div className="w-full bg-orange-100 dark:bg-orange-950 rounded-full h-2">
+                        <div
+                            className="bg-orange-500 h-2 rounded-full progress-bar-inner"
+                            style={{ width: `${(currentIndex / questions.length) * 100}%` }}
+                        />
+                    </div>
+
+                    {/* Task display */}
+                    <div className={`p-6 rounded-2xl border-2 text-center transition-all duration-300 ${
+                        feedback === 'correct' ? 'border-green-400 bg-green-50 dark:bg-green-950' :
+                        feedback ? 'border-red-400 bg-red-50 dark:bg-red-950' :
+                        'border-orange-200 dark:border-orange-800 bg-orange-50 dark:bg-orange-950'
+                    }`}>
+                        <div className="text-sm text-slate-500 dark:text-slate-400 mb-2">
+                            {q.mode === 'name-to-formula' ? '📝 Gib die Formel ein:' : '📝 Wie heißt das Salz?'}
+                        </div>
+                        <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                            {q.mode === 'name-to-formula' ? q.name : formatFormula(q.formula)}
+                        </div>
+                        {feedback === 'correct' && (
+                            <div className="text-green-600 dark:text-green-400 font-bold mt-2 text-sm">Richtig! +10 🎉</div>
+                        )}
+                        {feedback && feedback !== 'correct' && (
+                            <div className="text-red-500 font-semibold mt-2 text-sm">{feedback.error}</div>
+                        )}
+                    </div>
+
+                    {/* Input */}
+                    <div className="flex gap-3">
+                        <input
+                            ref={inputRef}
+                            type="text"
+                            value={inputValue}
+                            onChange={e => setInputValue(e.target.value)}
+                            onKeyDown={handleKeyDown}
+                            placeholder="Antwort eingeben..."
+                            className="game-input-field flex-1"
+                            disabled={!!feedback}
+                            aria-label="Antwort eingeben"
+                            autoComplete="off"
+                        />
+                        <button
+                            onClick={handleCheck}
+                            disabled={!!feedback || !inputValue.trim()}
+                            className="px-5 py-2 bg-orange-500 hover:bg-orange-600 disabled:opacity-50 text-white font-bold rounded-xl transition"
+                            aria-label="Antwort prüfen"
+                        >
+                            Prüfen
+                        </button>
+                    </div>
+                    <p className="text-xs text-slate-400 text-center">Tipp: Für Indizes einfach Zahlen schreiben, z. B. CaCl2 für CaCl₂</p>
+                </div>
+            );
+        };
+
+        /* ============================================================
+           QUIZ COMPONENT
+           ============================================================ */
+        const QuizSection = ({ quiz, topicIndex, completed, onComplete }) => {
+            const [selected, setSelected] = useState(null);
+
+            if (!quiz) return null;
+
+            const handleAnswer = (i) => {
+                if (selected !== null) return;
+                setSelected(i);
+                const isCorrect = quiz.options[i].isCorrect;
+                if (!completed) onComplete(isCorrect);
+            };
+
+            return (
+                <div className="mt-8 p-5 bg-orange-50 dark:bg-orange-950 rounded-2xl border border-orange-200 dark:border-orange-800">
+                    <h3 className="text-base font-bold text-orange-800 dark:text-orange-300 mb-4 flex items-center gap-2">
+                        <span aria-hidden="true">🏁</span>
+                        <span>Quiz: {quiz.question}</span>
+                    </h3>
+                    <div className="flex flex-col gap-3" role="radiogroup" aria-label="Quiz Antwortoptionen">
+                        {quiz.options.map((opt, i) => {
+                            let btnClass = "option-btn w-full text-left px-4 py-3 rounded-xl border-2 font-medium text-sm transition ";
+                            if (selected === null) {
+                                btnClass += "border-orange-200 dark:border-orange-800 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:border-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900 cursor-pointer";
+                            } else if (opt.isCorrect) {
+                                btnClass += "border-green-500 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200";
+                            } else if (i === selected) {
+                                btnClass += "border-red-400 bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200";
+                            } else {
+                                btnClass += "border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-400 opacity-60";
+                            }
+                            return (
+                                <button
+                                    key={i}
+                                    className={btnClass}
+                                    onClick={() => handleAnswer(i)}
+                                    disabled={selected !== null}
+                                    aria-pressed={selected === i}
+                                    aria-label={`Antwort ${i + 1}: ${opt.text}`}
+                                >
+                                    <span className="mr-2 font-bold text-orange-400">{String.fromCharCode(65 + i)}.</span>
+                                    {opt.text}
+                                </button>
+                            );
+                        })}
+                    </div>
+                    {selected !== null && !quiz.options[selected].isCorrect && quiz.options[selected].error && (
+                        <div className="mt-4 p-3 bg-red-100 dark:bg-red-950 border border-red-300 dark:border-red-800 rounded-xl">
+                            <p className="text-red-700 dark:text-red-300 text-sm"><strong>⚠️ Fehlerteufel:</strong> {quiz.options[selected].error}</p>
+                        </div>
+                    )}
+                    {selected !== null && quiz.options[selected].isCorrect && (
+                        <div className="mt-4 p-3 bg-green-100 dark:bg-green-950 border border-green-300 dark:border-green-800 rounded-xl">
+                            <p className="text-green-700 dark:text-green-300 text-sm font-semibold">✅ Richtig! Sehr gut!</p>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        /* ============================================================
+           TOAST COMPONENT
+           ============================================================ */
+        const Toast = ({ message, onDismiss }) => {
+            useEffect(() => {
+                if (!message) return;
+                const t = setTimeout(onDismiss, 3000);
+                return () => clearTimeout(t);
+            }, [message]);
+
+            if (!message) return null;
+
+            return (
+                <div
+                    className="toast-enter fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-xl shadow-xl font-semibold text-sm text-white bg-orange-500 max-w-xs text-center"
+                    role="status"
+                    aria-live="polite"
+                >
+                    {message}
+                </div>
+            );
+        };
+
+        /* ============================================================
+           MAIN APP COMPONENT
+           ============================================================ */
+        const App = () => {
+            const [darkMode, setDarkMode] = useState(() => {
+                const stored = localStorage.getItem('ionen-theme');
+                if (stored) return stored === 'dark';
+                return window.matchMedia('(prefers-color-scheme: dark)').matches;
+            });
+            const [currentIndex, setCurrentIndex] = useState(0);
+            const [score, setScore] = useState(() => {
+                const stored = localStorage.getItem('ionen-score');
+                return stored ? parseInt(stored, 10) : 0;
+            });
+            const [streak, setStreak] = useState(0);
+            const [completed, setCompleted] = useState(() => {
+                const stored = localStorage.getItem('ionen-completed');
+                return stored ? new Set(JSON.parse(stored)) : new Set();
+            });
+            const [sidebarOpen, setSidebarOpen] = useState(false);
+            const [toast, setToast] = useState(null);
+            const contentRef = useRef(null);
+
+            // Persist state
+            useEffect(() => {
+                localStorage.setItem('ionen-theme', darkMode ? 'dark' : 'light');
+                document.documentElement.classList.toggle('dark', darkMode);
+            }, [darkMode]);
+
+            useEffect(() => {
+                localStorage.setItem('ionen-score', score.toString());
+            }, [score]);
+
+            useEffect(() => {
+                localStorage.setItem('ionen-completed', JSON.stringify([...completed]));
+            }, [completed]);
+
+            const addScore = useCallback((pts) => {
+                setScore(s => s + pts);
+            }, []);
+
+            const showToast = useCallback((msg) => {
+                setToast(msg);
+            }, []);
+
+            const navigateTo = useCallback((index) => {
+                setCurrentIndex(index);
+                setSidebarOpen(false);
+                if (contentRef.current) {
+                    contentRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }, []);
+
+            const handleQuizComplete = useCallback((topicIndex, isCorrect) => {
+                if (!completed.has(topicIndex)) {
+                    setCompleted(prev => {
+                        const next = new Set(prev);
+                        next.add(topicIndex);
+                        return next;
+                    });
+                    if (isCorrect) {
+                        addScore(10);
+                        setStreak(s => s + 1);
+                        showToast('Richtig! +10 Punkte 🎉');
+                    } else {
+                        setStreak(0);
+                        showToast('Leider falsch! Weiter üben! 💪');
+                    }
+                }
+            }, [completed, addScore, showToast]);
+
+            const handleNext = useCallback(() => {
+                if (currentIndex < TOPICS.length - 1) {
+                    navigateTo(currentIndex + 1);
+                } else {
+                    navigateTo(TOPICS.length); // completion screen
+                }
+            }, [currentIndex, navigateTo]);
+
+            const resetApp = useCallback(() => {
+                setScore(0);
+                setStreak(0);
+                setCompleted(new Set());
+                localStorage.removeItem('ionen-score');
+                localStorage.removeItem('ionen-completed');
+                navigateTo(0);
+            }, [navigateTo]);
+
+            const progress = (completed.size / TOPICS.length) * 100;
+            const topic = currentIndex < TOPICS.length ? TOPICS[currentIndex] : null;
+            const isCompleted = topic ? completed.has(currentIndex) : false;
+
+            const renderContent = () => {
+                if (!topic) return null;
+                switch (topic.content) {
+                    case 'intro':         return <ContentIntro />;
+                    case 'aufbau':        return <ContentAufbau />;
+                    case 'gitter':        return <ContentGitter />;
+                    case 'modelle':       return <ContentModelle darkMode={darkMode} />;
+                    case 'verhaeltnis':   return <ContentVerhaeltnis />;
+                    case 'molekuelionen': return <ContentMolekuelionen />;
+                    case 'namen':         return <ContentNamen />;
+                    case 'eigenschaften': return <ContentEigenschaften />;
+                    case 'minigame':      return <MinigameComponent onScore={addScore} />;
+                    default: return null;
+                }
+            };
+
+            return (
+                <div className={`min-h-screen flex flex-col ${darkMode ? 'dark' : ''}`}>
+                    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-100 dark:from-gray-900 dark:to-slate-900 text-slate-800 dark:text-slate-200">
+
+                        {/* HEADER */}
+                        <header className="sticky top-0 z-40 bg-white/90 dark:bg-slate-900/90 backdrop-blur border-b border-orange-200 dark:border-slate-700 shadow-sm">
+                            <div className="flex items-center gap-3 px-4 py-3 max-w-screen-xl mx-auto">
+                                {/* Hamburger */}
+                                <button
+                                    onClick={() => setSidebarOpen(o => !o)}
+                                    className="md:hidden p-2 rounded-lg hover:bg-orange-100 dark:hover:bg-slate-700 transition"
+                                    aria-label={sidebarOpen ? 'Menü schließen' : 'Menü öffnen'}
+                                    aria-expanded={sidebarOpen}
+                                    aria-controls="sidebar-nav"
+                                >
+                                    {sidebarOpen ? (
+                                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                    ) : (
+                                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                                    )}
+                                </button>
+
+                                {/* Back link */}
+                                <a
+                                    href="../index.html"
+                                    className="hidden sm:flex items-center gap-1 text-sm text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 transition font-medium"
+                                    aria-label="Zurück zur Übersicht"
+                                >
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M15 19l-7-7 7-7"/></svg>
+                                    Zurück
+                                </a>
+
+                                {/* Title */}
+                                <h1 className="flex-1 text-lg font-extrabold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+                                    <span aria-hidden="true">⚗️</span> Ionen &amp; Salze
+                                </h1>
+
+                                {/* Stats */}
+                                <div className="flex items-center gap-2">
+                                    {streak >= 2 && (
+                                        <div className="hidden sm:flex items-center gap-1 px-2 py-1 bg-orange-100 dark:bg-orange-900 rounded-full text-xs font-bold text-orange-700 dark:text-orange-300" aria-label={`Streak: ${streak}`}>
+                                            🔥 {streak}
+                                        </div>
+                                    )}
+                                    <div className="flex items-center gap-1 px-2 py-1 bg-orange-100 dark:bg-orange-900 rounded-full text-sm font-bold text-orange-700 dark:text-orange-300" aria-label={`Punktestand: ${score}`}>
+                                        ⭐ {score}
+                                    </div>
+                                    {/* Dark mode toggle */}
+                                    <button
+                                        onClick={() => setDarkMode(d => !d)}
+                                        className="p-2 rounded-lg hover:bg-orange-100 dark:hover:bg-slate-700 transition"
+                                        aria-label={darkMode ? 'Helles Design aktivieren' : 'Dunkles Design aktivieren'}
+                                    >
+                                        {darkMode ? (
+                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                                        ) : (
+                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+                                        )}
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Progress bar */}
+                            <div className="w-full h-1 bg-orange-100 dark:bg-slate-800" role="progressbar" aria-valuenow={Math.round(progress)} aria-valuemin={0} aria-valuemax={100} aria-label={`Fortschritt: ${Math.round(progress)}%`}>
+                                <div className="h-1 bg-orange-500 progress-bar-inner" style={{ width: `${progress}%` }} />
+                            </div>
+                        </header>
+
+                        {/* BODY */}
+                        <div className="flex max-w-screen-xl mx-auto w-full min-h-[calc(100vh-72px)]">
+
+                            {/* SIDEBAR OVERLAY (mobile) */}
+                            {sidebarOpen && (
+                                <div
+                                    className="fixed inset-0 z-30 bg-black/40 md:hidden"
+                                    onClick={() => setSidebarOpen(false)}
+                                    aria-hidden="true"
+                                />
+                            )}
+
+                            {/* SIDEBAR */}
+                            <nav
+                                id="sidebar-nav"
+                                className={`
+                                    fixed md:sticky top-[57px] md:top-[57px] left-0 z-30
+                                    w-72 md:w-64 lg:w-72
+                                    h-[calc(100vh-57px)] md:h-[calc(100vh-57px)]
+                                    overflow-y-auto
+                                    bg-white dark:bg-slate-900
+                                    border-r border-orange-200 dark:border-slate-700
+                                    shadow-xl md:shadow-none
+                                    sidebar-transition
+                                    ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+                                `}
+                                aria-label="Themennavigation"
+                            >
+                                <div className="p-4 border-b border-orange-100 dark:border-slate-700">
+                                    <div className="text-xs font-bold text-orange-600 dark:text-orange-400 uppercase tracking-wider mb-1">Themen</div>
+                                    <div className="text-xs text-slate-400">{completed.size} / {TOPICS.length} abgeschlossen</div>
+                                </div>
+                                <ul className="p-2" role="list">
+                                    {TOPICS.map((t, i) => (
+                                        <li key={t.id} role="listitem">
+                                            <button
+                                                onClick={() => navigateTo(i)}
+                                                className={`
+                                                    w-full text-left px-3 py-3 rounded-xl mb-1 flex items-center gap-3 text-sm font-medium transition
+                                                    ${i === currentIndex
+                                                        ? 'bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300 shadow-sm'
+                                                        : 'text-slate-600 dark:text-slate-400 hover:bg-orange-50 dark:hover:bg-slate-800'
+                                                    }
+                                                `}
+                                                aria-current={i === currentIndex ? 'page' : undefined}
+                                                aria-label={`${t.title}${completed.has(i) ? ' (abgeschlossen)' : ''}`}
+                                            >
+                                                <span className="text-base" aria-hidden="true">{t.icon}</span>
+                                                <span className="flex-1 leading-tight">{t.title}</span>
+                                                {completed.has(i) && (
+                                                    <span className="text-green-500 text-base" aria-hidden="true">✅</span>
+                                                )}
+                                            </button>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </nav>
+
+                            {/* MAIN CONTENT */}
+                            <main
+                                id="main-content"
+                                ref={contentRef}
+                                className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8"
+                                tabIndex={-1}
+                            >
+                                {currentIndex < TOPICS.length ? (
+                                    <div className="max-w-2xl mx-auto">
+                                        {/* Topic card */}
+                                        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg border border-orange-100 dark:border-slate-700 overflow-hidden">
+                                            {/* Card header */}
+                                            <div className="px-6 py-5 border-b border-orange-100 dark:border-slate-700 bg-orange-50 dark:bg-slate-800">
+                                                <div className="flex items-center gap-3">
+                                                    <span className="text-3xl" aria-hidden="true">{topic.icon}</span>
+                                                    <h2 className="text-xl font-extrabold text-slate-800 dark:text-slate-100">{topic.title}</h2>
+                                                </div>
+                                            </div>
+
+                                            {/* Card body */}
+                                            <div className="px-6 py-5">
+                                                {renderContent()}
+
+                                                {/* Quiz */}
+                                                {topic.quiz && (
+                                                    <QuizSection
+                                                        quiz={topic.quiz}
+                                                        topicIndex={currentIndex}
+                                                        completed={isCompleted}
+                                                        onComplete={(correct) => handleQuizComplete(currentIndex, correct)}
+                                                    />
+                                                )}
+
+                                                {/* Next button */}
+                                                {(isCompleted || topic.content === 'minigame') && (
+                                                    <div className="flex justify-end mt-6">
+                                                        <button
+                                                            onClick={handleNext}
+                                                            className="flex items-center gap-2 px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl shadow-lg transition"
+                                                            aria-label={currentIndex < TOPICS.length - 1 ? 'Zum nächsten Thema' : 'Abschluss'}
+                                                        >
+                                                            {currentIndex < TOPICS.length - 1 ? 'Weiter' : 'Abschluss'}
+                                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                                                        </button>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        {/* Topic navigation (bottom) */}
+                                        <div className="flex justify-between mt-4 text-sm">
+                                            {currentIndex > 0 ? (
+                                                <button
+                                                    onClick={() => navigateTo(currentIndex - 1)}
+                                                    className="flex items-center gap-1 text-slate-400 hover:text-orange-500 transition"
+                                                    aria-label="Vorheriges Thema"
+                                                >
+                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true"><path d="M15 19l-7-7 7-7"/></svg>
+                                                    {TOPICS[currentIndex - 1].title}
+                                                </button>
+                                            ) : <span />}
+                                            {currentIndex < TOPICS.length - 1 && (
+                                                <button
+                                                    onClick={() => navigateTo(currentIndex + 1)}
+                                                    className="flex items-center gap-1 text-slate-400 hover:text-orange-500 transition ml-auto"
+                                                    aria-label="Nächstes Thema"
+                                                >
+                                                    {TOPICS[currentIndex + 1].title}
+                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
+                                ) : (
+                                    /* COMPLETION SCREEN */
+                                    <div className="max-w-lg mx-auto">
+                                        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg border border-orange-100 dark:border-slate-700 p-8 text-center">
+                                            <div className="text-6xl mb-4" aria-hidden="true">🎓</div>
+                                            <h2 className="text-2xl font-extrabold text-slate-800 dark:text-slate-100 mb-2">Gratulation!</h2>
+                                            <p className="text-slate-600 dark:text-slate-400 mb-6">Du hast alle Grundlagen zu <strong>Ionen &amp; Salzen</strong> erarbeitet!</p>
+                                            <div className="bg-orange-50 dark:bg-orange-950 rounded-xl p-6 mb-6">
+                                                <div className="text-4xl font-black text-orange-500 mb-1">{score}</div>
+                                                <div className="text-sm text-slate-500 dark:text-slate-400">Punkte gesamt</div>
+                                                <div className="mt-3 text-sm text-slate-600 dark:text-slate-400">
+                                                    {completed.size} / {TOPICS.length} Themen abgeschlossen
+                                                </div>
+                                            </div>
+                                            <button
+                                                onClick={resetApp}
+                                                className="px-8 py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl shadow-lg transition"
+                                                aria-label="App neu starten und nochmal üben"
+                                            >
+                                                Nochmal üben 🔁
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+                            </main>
+                        </div>
+
+                        {/* FOOTER */}
+                        <footer className="w-full py-3 border-t border-orange-200 dark:border-slate-700 bg-white/60 dark:bg-slate-900/60 backdrop-blur">
+                            <div className="max-w-screen-xl mx-auto px-4 text-center text-xs text-slate-400">
+                                <span className="font-medium">Johannes-Scharrer-Gymnasium</span> · Zollfrank · Ionen &amp; Salze Trainer
+                            </div>
+                        </footer>
+                    </div>
+
+                    {/* TOAST */}
+                    <Toast message={toast} onDismiss={() => setToast(null)} />
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
