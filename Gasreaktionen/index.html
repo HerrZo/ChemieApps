@@ -63,7 +63,15 @@
     </style>
 </head>
 <body class="bg-gradient-to-br from-chem-50 to-chem-100 min-h-screen text-slate-800">
-    <div id="root"></div>
+    <div id="root">
+        <div style="display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:Inter,sans-serif;color:#ea580c;">
+            <div style="text-align:center">
+                <div style="width:40px;height:40px;border:4px solid #fed7aa;border-top-color:#ea580c;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 12px"></div>
+                <p style="font-size:14px;color:#9a3412">Lade Chemie-App…</p>
+            </div>
+        </div>
+        <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
+    </div>
 
     <script type="text/babel">
         const { useState, useEffect, useMemo } = React;
@@ -89,14 +97,30 @@
 
         // Reactions data
         const reactions = [
-            { id: 1, reactants: [{f:'H2', n:1}, {f:'Cl2', n:1}], products: [{f:'HCl', n:2}], info: "Chlorwasserstoff-Bildung" },
-            { id: 2, reactants: [{f:'H2', n:2}, {f:'O2', n:1}], products: [{f:'H2O', n:2}], info: "Wasserbildung" },
-            { id: 3, reactants: [{f:'N2', n:1}, {f:'H2', n:3}], products: [{f:'NH3', n:2}], info: "Ammoniaksynthese" },
-            { id: 4, reactants: [{f:'CO', n:2}, {f:'O2', n:1}], products: [{f:'CO2', n:2}], info: "CO-Verbrennung" },
-            { id: 5, reactants: [{f:'CH4', n:1}, {f:'O2', n:2}], products: [{f:'CO2', n:1}, {f:'H2O', n:2}], info: "Methan-Verbrennung" },
-            { id: 6, reactants: [{f:'C2H4', n:1}, {f:'O2', n:3}], products: [{f:'CO2', n:2}, {f:'H2O', n:2}], info: "Ethen-Verbrennung" },
-            { id: 7, reactants: [{f:'H2', n:1}, {f:'F2', n:1}], products: [{f:'HF', n:2}], info: "Fluorwasserstoff" },
-            { id: 8, reactants: [{f:'C3H8', n:1}, {f:'O2', n:5}], products: [{f:'CO2', n:3}, {f:'H2O', n:4}], info: "Propan-Verbrennung" }
+            { id: 1, reactants: [{f:'H2', n:1}, {f:'Cl2', n:1}], products: [{f:'HCl', n:2}], info: "Chlorwasserstoff-Bildung",
+              hint: "Ein H₂ und ein Cl₂ reagieren. Zähle die Atome: 2 H + 2 Cl → 2 HCl." },
+            { id: 2, reactants: [{f:'H2', n:2}, {f:'O2', n:1}], products: [{f:'H2O', n:2}], info: "Wasserbildung",
+              hint: "4 H-Atome + 2 O-Atome müssen ausgeglichen werden. 2 H₂ + O₂ → 2 H₂O." },
+            { id: 3, reactants: [{f:'N2', n:1}, {f:'H2', n:3}], products: [{f:'NH3', n:2}], info: "Ammoniaksynthese (Haber-Bosch)",
+              hint: "NH₃ hat 3 H-Atome, daher braucht man 3 H₂ für 2 NH₃ (= 6 H). N₂ liefert 2 N." },
+            { id: 4, reactants: [{f:'CO', n:2}, {f:'O2', n:1}], products: [{f:'CO2', n:2}], info: "CO-Verbrennung",
+              hint: "2 CO brauchen 1 O₂ (= 2 O-Atome) → 2 CO₂. Das Volumenverhältnis ist 2:1→2." },
+            { id: 5, reactants: [{f:'CH4', n:1}, {f:'O2', n:2}], products: [{f:'CO2', n:1}, {f:'H2O', n:2}], info: "Methan-Verbrennung",
+              hint: "CH₄ hat 4 H → 2 H₂O. Das C ergibt 1 CO₂. Dann: 1 CO₂ + 2 H₂O = 4 O → 2 O₂." },
+            { id: 6, reactants: [{f:'C2H4', n:1}, {f:'O2', n:3}], products: [{f:'CO2', n:2}, {f:'H2O', n:2}], info: "Ethen-Verbrennung",
+              hint: "C₂H₄: 2 C → 2 CO₂, 4 H → 2 H₂O. Produkte enthalten 4+2=6 O-Atome → 3 O₂." },
+            { id: 7, reactants: [{f:'H2', n:1}, {f:'F2', n:1}], products: [{f:'HF', n:2}], info: "Fluorwasserstoff-Bildung",
+              hint: "Analogie zu HCl: 1 H₂ + 1 F₂ → 2 HF. Das Volumenverhältnis ist 1:1→2." },
+            { id: 8, reactants: [{f:'C3H8', n:1}, {f:'O2', n:5}], products: [{f:'CO2', n:3}, {f:'H2O', n:4}], info: "Propan-Verbrennung",
+              hint: "C₃H₈: 3 C → 3 CO₂, 8 H → 4 H₂O. Produkte: 6+4=10 O-Atome → 5 O₂." },
+            { id: 9, reactants: [{f:'N2', n:1}, {f:'O2', n:1}], products: [{f:'NO', n:2}], info: "Stickstoffmonoxid-Bildung",
+              hint: "N₂ + O₂ → 2 NO. Jedes NO enthält 1 N und 1 O, daher je 1 Volumen Edukt." },
+            { id: 10, reactants: [{f:'NO', n:2}, {f:'O2', n:1}], products: [{f:'NO2', n:2}], info: "Stickstoffdioxid-Bildung",
+              hint: "2 NO + O₂ → 2 NO₂. Das O₂ liefert das zweite O-Atom pro NO₂-Molekül." },
+            { id: 11, reactants: [{f:'H2', n:1}, {f:'Br2', n:1}], products: [{f:'HBr', n:2}], info: "Bromwasserstoff-Bildung",
+              hint: "Wie bei HCl und HF: 1:1→2. Das Muster für zweiatomige Halogene ist immer gleich." },
+            { id: 12, reactants: [{f:'C2H2', n:2}, {f:'O2', n:5}], products: [{f:'CO2', n:4}, {f:'H2O', n:2}], info: "Acetylen-Verbrennung",
+              hint: "C₂H₂: 2 C → 2 CO₂, 2 H → 1 H₂O. Pro Molekül: 4+1=5 O → 2,5 O₂. Für ganze Zahlen: alles ×2." }
         ];
 
         // Icons
@@ -119,7 +143,18 @@
             </span>
         );
 
-        // Molecule SVG
+        // Molecule SVG — mit realistischen Geometrien für häufige Moleküle
+        const MOLECULE_GEOMETRY = {
+            'H2O': [{x:50,y:35,el:'O'},{x:28,y:65,el:'H'},{x:72,y:65,el:'H'}],
+            'NH3': [{x:50,y:30,el:'N'},{x:25,y:65,el:'H'},{x:50,y:72,el:'H'},{x:75,y:65,el:'H'}],
+            'CO2': [{x:20,y:50,el:'O'},{x:50,y:50,el:'C'},{x:80,y:50,el:'O'}],
+            'HCl': [{x:35,y:50,el:'H'},{x:65,y:50,el:'Cl'}],
+            'HF':  [{x:35,y:50,el:'H'},{x:65,y:50,el:'F'}],
+            'HBr': [{x:35,y:50,el:'H'},{x:65,y:50,el:'Br'}],
+            'NO':  [{x:35,y:50,el:'N'},{x:65,y:50,el:'O'}],
+            'NO2': [{x:50,y:30,el:'N'},{x:25,y:65,el:'O'},{x:75,y:65,el:'O'}],
+        };
+
         const MoleculeSVG = ({ formula, size = 50 }) => {
             const comp = useMemo(() => parseFormula(formula), [formula]);
             const atoms = [];
@@ -128,9 +163,9 @@
             });
 
             const getPositions = () => {
+                if (MOLECULE_GEOMETRY[formula]) return MOLECULE_GEOMETRY[formula];
                 if (atoms.length === 1) return [{ x: 50, y: 50, el: atoms[0] }];
                 if (atoms.length === 2) return [{ x: 35, y: 50, el: atoms[0] }, { x: 65, y: 50, el: atoms[1] }];
-                
                 const positions = [{ x: 50, y: 50, el: atoms[0] }];
                 const radius = 25;
                 for (let i = 1; i < atoms.length; i++) {
@@ -141,16 +176,18 @@
             };
 
             const positions = getPositions();
+            // Bonds: connect first atom to all others (for simple molecules)
+            const bonds = positions.length > 1 ? positions.slice(1).map((a, i) => ({x1: positions[0].x, y1: positions[0].y, x2: a.x, y2: a.y})) : [];
 
             return (
                 <svg width={size} height={size} viewBox="0 0 100 100">
-                    {positions.length > 1 && positions.slice(1).map((atom, i) => (
-                        <line key={i} x1={positions[0].x} y1={positions[0].y} x2={atom.x} y2={atom.y} stroke="#94a3b8" strokeWidth="3" strokeLinecap="round"/>
+                    {bonds.map((b, i) => (
+                        <line key={i} x1={b.x1} y1={b.y1} x2={b.x2} y2={b.y2} stroke="#94a3b8" strokeWidth="3" strokeLinecap="round"/>
                     ))}
                     {positions.map((atom, i) => (
                         <g key={i}>
                             <circle cx={atom.x} cy={atom.y} r={12} fill={ATOM_COLORS[atom.el] || '#64748b'} stroke="#1e293b" strokeWidth="1.5"/>
-                            <text x={atom.x} y={atom.y + 4} textAnchor="middle" fontSize="10" fontWeight="bold" fill={['H', 'C', 'S'].includes(atom.el) ? '#1e293b' : '#fff'}>{atom.el}</text>
+                            <text x={atom.x} y={atom.y + 4} textAnchor="middle" fontSize="10" fontWeight="bold" fill={['H','C','S'].includes(atom.el) ? '#1e293b' : '#fff'}>{atom.el}</text>
                         </g>
                     ))}
                 </svg>
@@ -249,6 +286,7 @@
             const [status, setStatus] = useState(null);
             const [showMass, setShowMass] = useState(false);
             const [errorDetails, setErrorDetails] = useState([]);
+            const [showHint, setShowHint] = useState(false);
 
             useEffect(() => {
                 const init = {};
@@ -257,6 +295,7 @@
                 setCoefs(init);
                 setStatus(null);
                 setErrorDetails([]);
+                setShowHint(false);
             }, [reaction]);
 
             const updateCoef = (formula, val) => {
@@ -293,12 +332,21 @@
                         <span className="text-xs text-slate-500 italic">{reaction.info}</span>
                     </div>
 
-                    <div className="flex justify-end mb-4">
+                    <div className="flex flex-wrap justify-between items-center mb-4 gap-2">
+                        <button onClick={() => setShowHint(!showHint)}
+                            className="text-sm text-chem-600 hover:text-chem-800 border border-chem-200 px-3 py-1.5 rounded-lg transition hover:bg-chem-50">
+                            💡 {showHint ? 'Tipp ausblenden' : 'Tipp anzeigen'}
+                        </button>
                         <label className="flex items-center gap-2 text-sm text-slate-600 cursor-pointer">
                             <input type="checkbox" checked={showMass} onChange={e => setShowMass(e.target.checked)} className="w-4 h-4 text-chem-500 rounded" aria-label="Massenverhältnisse anzeigen" />
                             Massenverhältnisse anzeigen
                         </label>
                     </div>
+                    {showHint && (
+                        <div className="mb-4 bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded-lg text-sm animate-fade-in" role="note">
+                            <span className="font-bold">Tipp: </span>{reaction.hint}
+                        </div>
+                    )}
 
                     <div className="flex flex-col xl:flex-row items-center justify-center gap-4 xl:gap-8 mb-8" role="group" aria-label="Reaktionsgleichung">
                         <div className="flex flex-wrap justify-center gap-3">
