@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Energiestufenmodell | ChemieApps</title>
+    <meta name="description" content="Interaktive Lern-App für die 9. Klasse: Elektronenkonfiguration, Energiestufenmodell, Edelgaskonfiguration und Ionenbildung." />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: { extend: {} }
+        }
+    </script>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pop { 0% { transform: translateY(-50%) scale(0); } 60% { transform: translateY(-50%) scale(1.2); } 100% { transform: translateY(-50%) scale(1); } }
+        .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        .electron-dot { animation: pop 0.3s ease; }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #fff7ed; }
+        ::-webkit-scrollbar-thumb { background: #ea580c; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #c2410c; }
+
+        /* Dark Mode overrides */
+        html.dark body { background-color: #1a1208 !important; color: #f1f5f9; }
+        html.dark .bg-white { background-color: #1e1812 !important; }
+        html.dark .bg-orange-50 { background-color: #1a1208 !important; }
+        html.dark .bg-orange-100 { background-color: #2d2010 !important; }
+        html.dark .bg-orange-100\/50 { background-color: rgba(45,32,16,0.5) !important; }
+        html.dark .bg-gray-50 { background-color: #252019 !important; }
+        html.dark .bg-gray-100 { background-color: #1e1812 !important; }
+        html.dark .bg-yellow-50 { background-color: #1c1800 !important; }
+        html.dark .bg-green-50 { background-color: #051a0a !important; }
+        html.dark .bg-red-50 { background-color: #1c0505 !important; }
+        html.dark .bg-amber-50 { background-color: #1c1600 !important; }
+        html.dark .text-gray-800 { color: #f1f5f9 !important; }
+        html.dark .text-gray-700 { color: #e2e8f0 !important; }
+        html.dark .text-gray-600 { color: #cbd5e1 !important; }
+        html.dark .text-gray-500 { color: #94a3b8 !important; }
+        html.dark .text-gray-400 { color: #64748b !important; }
+        html.dark .text-slate-800 { color: #f1f5f9 !important; }
+        html.dark .text-slate-700 { color: #e2e8f0 !important; }
+        html.dark .text-slate-600 { color: #cbd5e1 !important; }
+        html.dark .text-slate-500 { color: #94a3b8 !important; }
+        html.dark .text-slate-400 { color: #64748b !important; }
+        html.dark .border-gray-200 { border-color: #3d3020 !important; }
+        html.dark .border-gray-100 { border-color: #2d2010 !important; }
+        html.dark .border-orange-200 { border-color: #4d3a20 !important; }
+        html.dark .border-orange-100 { border-color: #3d2c18 !important; }
+        html.dark .border-slate-100 { border-color: #2d2010 !important; }
+        html.dark .border-slate-200 { border-color: #3d3020 !important; }
+        html.dark .border-yellow-200 { border-color: #3d3200 !important; }
+        html.dark .text-yellow-800 { color: #fde68a !important; }
+        html.dark .text-amber-800 { color: #fde68a !important; }
+        html.dark .text-amber-700 { color: #fcd34d !important; }
+        html.dark .border-amber-200 { border-color: #3d3200 !important; }
+        html.dark .bg-green-100 { background-color: #052e16 !important; }
+        html.dark .border-green-500 { border-color: #22c55e !important; }
+        html.dark .text-green-800 { color: #86efac !important; }
+        html.dark .bg-red-100 { background-color: #2d0a0a !important; }
+        html.dark .border-red-500 { border-color: #ef4444 !important; }
+        html.dark .text-red-800 { color: #fca5a5 !important; }
+        html.dark .text-red-700 { color: #f87171 !important; }
+        html.dark .border-red-200 { border-color: #7f1d1d !important; }
+        html.dark ::-webkit-scrollbar-track { background: #1a1208; }
+        html.dark footer { color: #64748b !important; }
+        html.dark .tab-inactive { color: #94a3b8 !important; }
+        html.dark .tab-active-border { border-color: #fb923c !important; color: #fb923c !important; }
+        html.dark .level-line-default { background: #4d3820 !important; }
+    </style>
+</head>
+<body class="bg-orange-50 text-gray-800 min-h-screen" style="font-family: 'Inter', system-ui, sans-serif;">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // ===== ICONS =====
+        const IconAtom = ({className}) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10"/><ellipse cx="12" cy="12" rx="10" ry="4"/></svg>;
+        const IconBook = ({className}) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>;
+        const IconFlask = ({className}) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 2v7.31"/><path d="M14 2v7.31"/><path d="M8.5 2h7"/><path d="M14 9.3a6.5 6.5 0 1 1-4 0"/></svg>;
+        const IconStar = ({className}) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>;
+        const IconCheck = ({className}) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>;
+        const IconX = ({className}) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>;
+        const IconHome = ({className}) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>;
+
+        // ===== ELEMENT DATA =====
+        const ELEMENT_NAMES = {
+            0:'–', 1:'Wasserstoff (H)', 2:'Helium (He)', 3:'Lithium (Li)', 4:'Beryllium (Be)',
+            5:'Bor (B)', 6:'Kohlenstoff (C)', 7:'Stickstoff (N)', 8:'Sauerstoff (O)',
+            9:'Fluor (F)', 10:'Neon (Ne)', 11:'Natrium (Na)', 12:'Magnesium (Mg)',
+            13:'Aluminium (Al)', 14:'Silicium (Si)', 15:'Phosphor (P)', 16:'Schwefel (S)',
+            17:'Chlor (Cl)', 18:'Argon (Ar)', 19:'Kalium (K)', 20:'Calcium (Ca)'
+        };
+        const QUICK_ELEMENTS = [
+            {n:1,s:'H'},{n:2,s:'He'},{n:3,s:'Li'},{n:6,s:'C'},{n:7,s:'N'},{n:8,s:'O'},
+            {n:11,s:'Na'},{n:13,s:'Al'},{n:16,s:'S'},{n:17,s:'Cl'},{n:18,s:'Ar'},{n:20,s:'Ca'}
+        ];
+
+        function getLevelCounts(n) {
+            let rem = n;
+            const c = [0,0,0,0];
+            for (let lv=1; lv<=3; lv++) {
+                const max = 2*lv*lv;
+                if (rem<=0) break;
+                c[lv] = Math.min(rem, max);
+                rem -= c[lv];
+            }
+            return c;
+        }
+
+        function getShorthand(n) {
+            const c = getLevelCounts(n);
+            let s = '';
+            for (let lv=1; lv<=3; lv++) if (c[lv]>0) s += lv + '·' + c[lv];
+            return s || '–';
+        }
+
+        // ===== TAB 1: THEORIE =====
+        const TheorySection = () => {
+            const [openCard, setOpenCard] = useState(null);
+            const cards = [
+                {
+                    id:'energiestufen',
+                    icon:'⚡',
+                    title:'Energiestufen',
+                    sub:'Aufbau der Atomhülle',
+                    content:'Elektronen sind gruppenweise den Energiestufen in der Atomhülle zugeordnet. Die Energiestufen werden mit dem Buchstaben n gekennzeichnet und nach aufsteigendem Energiegehalt nummeriert (n=1, n=2, n=3, ...).',
+                    rule:'Merke: Je größer n, desto höher der Energiegehalt der Stufe.'
+                },
+                {
+                    id:'formel',
+                    icon:'📐',
+                    title:'2n²-Regel',
+                    sub:'Maximale Elektronenzahl',
+                    content:'Die maximal mögliche Elektronenzahl pro Energiestufe berechnet sich mit der Formel 2n². Für n=1: 2·1²=2 Elektronen. Für n=2: 2·2²=8 Elektronen. Für n=3: 2·3²=18 Elektronen.',
+                    rule:'Formel: max. Elektronen = 2n²'
+                },
+                {
+                    id:'minimum',
+                    icon:'🎯',
+                    title:'Energieminimum',
+                    sub:'Reihenfolge der Besetzung',
+                    content:'Die Besetzung der Energiestufen mit Elektronen erfolgt nach dem Prinzip des Energieminimums: von der niedrigsten zur höchsten Energiestufe. Elektronen "wollen" immer möglichst wenig Energie haben.',
+                    rule:'Merke: Zuerst n=1 füllen, dann n=2, dann n=3 usw.'
+                },
+                {
+                    id:'kurzschreibweise',
+                    icon:'✏️',
+                    title:'Kurzschreibweise',
+                    sub:'Kompakte Darstellung',
+                    content:'In der Kurzschreibweise werden die Nummern der Energiestufen normal und die Zahl der enthaltenen Elektronen hochgestellt angegeben. Für Aluminium (OZ 13): Al 1² 2⁸ 3³. Die Summe der hochgestellten Zahlen ergibt die Ordnungszahl.',
+                    rule:'Beispiel: Al (OZ 13) → 1² 2⁸ 3³ (2+8+3=13 ✓)'
+                }
+            ];
+
+            return (
+                <div className="space-y-6 animate-fade-in">
+                    {/* Formel-Banner */}
+                    <div className="bg-orange-600 text-white rounded-2xl p-6 text-center shadow-lg">
+                        <p className="text-orange-200 text-sm mb-1">Wichtigste Formel</p>
+                        <p className="text-4xl font-bold mb-1">2n²</p>
+                        <p className="text-orange-200 text-sm">Maximale Elektronen je Energiestufe n</p>
+                    </div>
+
+                    {/* Stufen-Übersicht */}
+                    <div className="grid grid-cols-3 gap-3">
+                        {[[1,2],[2,8],[3,18]].map(([n, max]) => (
+                            <div key={n} className="bg-white rounded-xl p-3 shadow-sm border border-orange-100 text-center">
+                                <div className="text-xl font-bold text-orange-600">n={n}</div>
+                                <div className="text-sm text-gray-600 mt-1">max. <strong>{max}</strong> e⁻</div>
+                                <div className="text-xs text-gray-400">2·{n}²={max}</div>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Klappbare Karten */}
+                    <h2 className="text-xl font-bold text-orange-800 text-center">Klicke auf ein Thema</h2>
+                    <div className="grid md:grid-cols-2 gap-4">
+                        {cards.map(card => (
+                            <div key={card.id}
+                                onClick={() => setOpenCard(openCard===card.id ? null : card.id)}
+                                className={`cursor-pointer transition-all duration-300 rounded-xl p-5 border-2 ${
+                                    openCard===card.id
+                                    ? 'bg-orange-600 text-white border-orange-600 shadow-xl'
+                                    : 'bg-white text-gray-700 border-orange-200 hover:border-orange-400 shadow-md'
+                                }`}
+                            >
+                                <div className="text-3xl mb-3 text-center">{card.icon}</div>
+                                <h3 className="text-lg font-bold text-center mb-1">{card.title}</h3>
+                                <p className={`text-center text-sm font-medium ${openCard===card.id ? 'text-orange-200' : 'text-orange-600'}`}>{card.sub}</p>
+                                {openCard===card.id ? (
+                                    <div className="mt-4 pt-4 border-t border-orange-500 text-sm leading-relaxed animate-fade-in">
+                                        <p className="mb-3">{card.content}</p>
+                                        <div className="bg-orange-700/50 p-3 rounded-lg font-bold">👉 {card.rule}</div>
+                                    </div>
+                                ) : (
+                                    <p className="mt-3 text-center text-xs text-gray-400 uppercase tracking-wide">Klicken für Details</p>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Tabelle */}
+                    <div className="bg-white rounded-2xl shadow-sm border border-orange-100 overflow-hidden">
+                        <div className="bg-orange-50 px-5 py-3 border-b border-orange-100">
+                            <h3 className="font-bold text-orange-800">Kurzschreibweisen – Beispiele</h3>
+                        </div>
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-sm text-center">
+                                <thead><tr className="text-gray-500 border-b border-gray-100">
+                                    <th className="py-2 px-3 text-left">Element (OZ)</th>
+                                    <th className="py-2">n=1</th><th className="py-2">n=2</th><th className="py-2">n=3</th>
+                                    <th className="py-2">Kurzschreibweise</th>
+                                </tr></thead>
+                                <tbody>
+                                    {[['H',1,[1,0,0]],['He',2,[2,0,0]],['C',6,[2,4,0]],['N',7,[2,5,0]],['O',8,[2,6,0]],['Na',11,[2,8,1]],['Al',13,[2,8,3]],['S',16,[2,8,6]]].map(([sym,oz,lvs]) => (
+                                        <tr key={sym} className="border-b border-gray-50 hover:bg-orange-50 transition-colors">
+                                            <td className="py-2 px-3 font-semibold text-left">{sym} ({oz})</td>
+                                            {lvs.map((v,i) => <td key={i} className="py-2">{v||'–'}</td>)}
+                                            <td className="py-2 font-mono font-bold text-orange-700">
+                                                {lvs.map((v,i) => v>0 ? <span key={i}>{i+1}<sup>{v}</sup></span> : null)}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    {/* Merksatz */}
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-5">
+                        <h3 className="font-bold text-yellow-800 mb-2">💡 Merksatz</h3>
+                        <p className="text-yellow-800 text-sm leading-relaxed">
+                            Elektronen sind <em>faul</em> – sie besetzen immer zuerst die Energiestufe mit dem <strong>niedrigsten Energiegehalt</strong>, bevor sie auf eine höhere wechseln. Die Ordnungszahl eines ungeladenen Atoms = Anzahl der Elektronen.
+                        </p>
+                    </div>
+                </div>
+            );
+        };
+
+        // ===== TAB 2: SIMULATION =====
+        const SimulationSection = () => {
+            const [electrons, setElectrons] = useState(0);
+            const counts = getLevelCounts(electrons);
+
+            const add = () => setElectrons(e => Math.min(e+1, 20));
+            const rem = () => setElectrons(e => Math.max(e-1, 0));
+
+            const shorthandParts = [];
+            for (let lv=1; lv<=3; lv++) if (counts[lv]>0) shorthandParts.push({lv, n: counts[lv]});
+
+            return (
+                <div className="animate-fade-in">
+                    <div className="flex flex-col md:flex-row gap-5">
+                        {/* Controls */}
+                        <div className="md:w-60 flex-shrink-0 space-y-4">
+                            <div className="bg-white rounded-2xl p-5 shadow-sm border border-orange-100 space-y-4">
+                                <h2 className="font-bold text-gray-800">Elektronen steuern</h2>
+                                <div className="flex items-center justify-center gap-4">
+                                    <button onClick={rem}
+                                        className="w-11 h-11 rounded-full bg-red-500 hover:bg-red-600 text-white text-2xl font-bold shadow transition flex items-center justify-center"
+                                        aria-label="Elektron entfernen">−</button>
+                                    <div className="text-center">
+                                        <div className="text-3xl font-bold text-orange-700">{electrons}</div>
+                                        <div className="text-xs text-gray-500">Elektronen</div>
+                                    </div>
+                                    <button onClick={add}
+                                        className="w-11 h-11 rounded-full bg-orange-600 hover:bg-orange-700 text-white text-2xl font-bold shadow transition flex items-center justify-center"
+                                        aria-label="Elektron hinzufügen">+</button>
+                                </div>
+
+                                <div className="border-t border-orange-100 pt-3">
+                                    <p className="text-xs text-gray-500 mb-2">Schnellwahl:</p>
+                                    <div className="grid grid-cols-3 gap-1">
+                                        {QUICK_ELEMENTS.map(({n,s}) => (
+                                            <button key={n} onClick={() => setElectrons(n)}
+                                                className={`text-xs rounded px-1 py-1.5 transition-colors font-medium ${electrons===n ? 'bg-orange-600 text-white' : 'bg-orange-50 hover:bg-orange-100 text-gray-700'}`}>
+                                                {s} ({n})
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className="bg-orange-50 rounded-xl p-3 text-center">
+                                    <p className="text-xs text-gray-500 mb-1">Kurzschreibweise</p>
+                                    <p className="font-mono font-bold text-orange-700 text-lg">
+                                        {shorthandParts.length ? shorthandParts.map(({lv,n}) => <span key={lv}>{lv}<sup>{n}</sup></span>) : '–'}
+                                    </p>
+                                </div>
+                                <div className="bg-gray-50 rounded-xl p-3 text-center">
+                                    <p className="text-xs text-gray-500 mb-1">Element</p>
+                                    <p className="font-semibold text-gray-700 text-sm">{ELEMENT_NAMES[electrons] || `${electrons} (unbekannt)`}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Diagram */}
+                        <div className="flex-1 bg-white rounded-2xl p-5 shadow-sm border border-orange-100">
+                            <h2 className="font-bold text-gray-800 mb-4">Energiestufendiagramm</h2>
+                            <div className="flex flex-col items-center gap-1 py-3">
+                                {/* Energy arrow */}
+                                <div className="self-start flex items-center gap-2 mb-3 text-xs text-gray-500">
+                                    <div className="flex flex-col items-center">
+                                        <span>▲</span>
+                                        <div className="w-0.5 h-14 bg-gradient-to-b from-orange-400 to-orange-200 my-1"></div>
+                                        <span>▼</span>
+                                    </div>
+                                    <div className="flex flex-col justify-between h-20 text-xs text-gray-400">
+                                        <span>höhere Energie</span>
+                                        <span>niedrigere Energie</span>
+                                    </div>
+                                </div>
+
+                                {/* Levels n=3 to n=1 */}
+                                {[3,2,1].map(lv => {
+                                    const max = 2*lv*lv;
+                                    const cnt = counts[lv];
+                                    const full = cnt >= max;
+                                    return (
+                                        <div key={lv} className="w-full max-w-md">
+                                            <div className="flex items-center gap-3 py-2">
+                                                <span className="text-xs font-bold text-gray-500 w-8 text-right">n={lv}</span>
+                                                <div className="flex-1 relative" style={{height:'32px'}}>
+                                                    {/* Level line */}
+                                                    <div className={`absolute top-1/2 -translate-y-1/2 w-full h-0.5 rounded ${full ? 'bg-orange-500' : 'bg-orange-200'}`}></div>
+                                                    {/* Electrons */}
+                                                    {Array(cnt).fill(0).map((_,i) => {
+                                                        const spacing = Math.min(30, 280 / (max+1));
+                                                        return (
+                                                            <div key={i}
+                                                                className="electron-dot absolute top-1/2 -translate-y-1/2 w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold shadow-sm"
+                                                                style={{
+                                                                    left: `${(i+1)*spacing}px`,
+                                                                    background: 'radial-gradient(circle at 35% 35%, #fbbf24, #f59e0b)',
+                                                                    border: '1.5px solid #d97706',
+                                                                    color: '#92400e'
+                                                                }}>e</div>
+                                                        );
+                                                    })}
+                                                </div>
+                                                <span className={`text-xs w-10 text-right font-mono ${full ? 'text-orange-600 font-bold' : 'text-gray-400'}`}>{cnt}/{max}</span>
+                                            </div>
+                                            {lv > 1 && <div className="flex justify-start ml-11"><div className="w-0.5 h-4 border-l-2 border-dashed border-gray-200 ml-0.5"></div></div>}
+                                        </div>
+                                    );
+                                })}
+
+                                {/* Dashed line to nucleus */}
+                                <div className="flex justify-start w-full max-w-md ml-11">
+                                    <div className="w-0.5 h-5 border-l-2 border-dashed border-gray-200 ml-0.5"></div>
+                                </div>
+
+                                {/* Nucleus */}
+                                <div className="relative flex flex-col items-center">
+                                    <div className="w-16 h-16 rounded-full flex flex-col items-center justify-center shadow-lg"
+                                        style={{background:'radial-gradient(circle at 35% 35%, #f87171, #dc2626)', border:'3px solid #991b1b', boxShadow:'0 0 20px rgba(220,38,38,0.35)'}}>
+                                        <span className="text-white font-bold text-xl leading-none">{electrons}</span>
+                                        <span className="text-red-200 text-xs">p⁺</span>
+                                    </div>
+                                    <p className="text-xs text-gray-500 mt-1">Atomkern</p>
+                                </div>
+                            </div>
+
+                            {electrons > 0 && (
+                                <div className="mt-4 bg-orange-50 rounded-xl p-3 text-sm text-gray-700 border border-orange-100">
+                                    <strong>Erklärung:</strong> {ELEMENT_NAMES[electrons]} hat {electrons} Elektron{electrons!==1?'en':''}.
+                                    {' '}Auf n=1: {counts[1]} e⁻{counts[2]>0?`, n=2: ${counts[2]} e⁻`:''}
+                                    {counts[3]>0?`, n=3: ${counts[3]} e⁻`:''}. {counts[3]>0?`Die äußerste Schale (n=3) ist${counts[3]===18?' voll':' nicht voll'}.`:counts[2]>0?`Die äußerste Schale (n=2) ist${counts[2]===8?' voll':' nicht voll'}.`:`Die einzige besetzte Schale (n=1) ist${counts[1]===2?' voll':' nicht voll'}.`}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // ===== TAB 3: EDELGASE =====
+        const NOBLE_GASES = [
+            {
+                symbol:'He', name:'Helium', oz:2, config:[2,0,0],
+                color:'bg-purple-100 text-purple-800 border-purple-300',
+                cations:[
+                    {sym:'Li⁺', name:'Lithium-Ion', info:'1 e⁻ abgegeben (OZ 3)'},
+                    {sym:'Be²⁺', name:'Beryllium-Ion', info:'2 e⁻ abgegeben (OZ 4)'},
+                    {sym:'B³⁺', name:'Bor-Ion', info:'3 e⁻ abgegeben (OZ 5)'}
+                ],
+                anions:[{sym:'H⁻', name:'Hydrid-Ion', info:'H nimmt 1 Elektron auf (OZ 1)'}],
+                note:'Li⁺, Be²⁺, B³⁺ und H⁻ haben alle 2 Elektronen (1²) – isoelektronisch zu Helium.'
+            },
+            {
+                symbol:'Ne', name:'Neon', oz:10, config:[2,8,0],
+                color:'bg-blue-100 text-blue-800 border-blue-300',
+                cations:[
+                    {sym:'Na⁺', name:'Natrium-Ion', info:'1 e⁻ abgegeben (OZ 11)'},
+                    {sym:'Mg²⁺', name:'Magnesium-Ion', info:'2 e⁻ abgegeben (OZ 12)'},
+                    {sym:'Al³⁺', name:'Aluminium-Ion', info:'3 e⁻ abgegeben (OZ 13)'}
+                ],
+                anions:[
+                    {sym:'F⁻', name:'Fluorid-Ion', info:'1 e⁻ aufgenommen (OZ 9)'},
+                    {sym:'O²⁻', name:'Oxid-Ion', info:'2 e⁻ aufgenommen (OZ 8)'},
+                    {sym:'N³⁻', name:'Nitrid-Ion', info:'3 e⁻ aufgenommen (OZ 7)'}
+                ],
+                note:'Alle diese Ionen haben 10 Elektronen (1²2⁸) – isoelektronisch zu Neon.'
+            },
+            {
+                symbol:'Ar', name:'Argon', oz:18, config:[2,8,8],
+                color:'bg-green-100 text-green-800 border-green-300',
+                cations:[
+                    {sym:'K⁺', name:'Kalium-Ion', info:'1 e⁻ abgegeben (OZ 19)'},
+                    {sym:'Ca²⁺', name:'Calcium-Ion', info:'2 e⁻ abgegeben (OZ 20)'},
+                    {sym:'Ga³⁺', name:'Gallium-Ion', info:'3 e⁻ abgegeben (OZ 31)'}
+                ],
+                anions:[
+                    {sym:'Cl⁻', name:'Chlorid-Ion', info:'1 e⁻ aufgenommen (OZ 17)'},
+                    {sym:'S²⁻', name:'Sulfid-Ion', info:'2 e⁻ aufgenommen (OZ 16)'},
+                    {sym:'P³⁻', name:'Phosphid-Ion', info:'3 e⁻ aufgenommen (OZ 15)'}
+                ],
+                note:'Alle diese Ionen haben 18 Elektronen (1²2⁸3⁸) – isoelektronisch zu Argon.'
+            }
+        ];
+
+        const MiniDiagram = ({config}) => {
+            return (
+                <div className="space-y-1">
+                    {[3,2,1].map(lv => {
+                        const max = 2*lv*lv;
+                        const cnt = config[lv-1];
+                        return (
+                            <div key={lv} className="flex items-center gap-2">
+                                <span className="text-xs text-gray-500 w-7 text-right font-semibold">n={lv}</span>
+                                <div className="relative flex-1" style={{height:'22px'}}>
+                                    <div className={`absolute top-1/2 -translate-y-1/2 w-full h-0.5 rounded ${cnt>=max ? 'bg-orange-400' : 'bg-orange-200'}`}></div>
+                                    {Array(cnt).fill(0).map((_,i) => (
+                                        <div key={i} className="absolute top-1/2 -translate-y-1/2 w-4 h-4 rounded-full"
+                                            style={{left:`${(i+1)*22}px`, background:'radial-gradient(circle at 35% 35%, #fbbf24, #f59e0b)', border:'1.5px solid #d97706'}}></div>
+                                    ))}
+                                </div>
+                                <span className="text-xs text-gray-400 w-8">{cnt}/{max}</span>
+                            </div>
+                        );
+                    })}
+                </div>
+            );
+        };
+
+        const NobleGasSection = () => {
+            const [selected, setSelected] = useState(1); // default Neon
+            const g = NOBLE_GASES[selected];
+            const shorthand = g.config.map((v,i) => v>0 ? <span key={i}>{i+1}<sup>{v}</sup></span> : null);
+
+            return (
+                <div className="animate-fade-in flex flex-col md:flex-row gap-5">
+                    {/* Noble gas selector */}
+                    <div className="md:w-52 flex-shrink-0">
+                        <div className="bg-white rounded-2xl p-4 shadow-sm border border-orange-100">
+                            <h2 className="font-bold text-gray-800 mb-3 text-sm">Edelgas wählen:</h2>
+                            <div className="flex flex-col gap-2">
+                                {NOBLE_GASES.map((gas, i) => (
+                                    <button key={gas.symbol} onClick={() => setSelected(i)}
+                                        className={`w-full text-left p-3 rounded-xl border-2 transition-all font-semibold ${
+                                            selected===i
+                                            ? 'bg-orange-600 text-white border-orange-600 shadow-md'
+                                            : `${gas.color} border-2 hover:shadow-md`
+                                        }`}>
+                                        <div className="text-lg">{gas.symbol}</div>
+                                        <div className="text-xs font-normal opacity-80">{gas.name} · OZ {gas.oz}</div>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Details */}
+                    <div className="flex-1 space-y-4">
+                        <div className="bg-white rounded-2xl p-5 shadow-sm border border-orange-100">
+                            <div className="flex items-center gap-4 mb-4">
+                                <div className={`w-14 h-14 rounded-2xl border-2 flex items-center justify-center text-2xl font-bold flex-shrink-0 ${g.color}`}>{g.symbol}</div>
+                                <div>
+                                    <h2 className="text-xl font-bold text-gray-800">{g.name}</h2>
+                                    <p className="text-gray-500 text-sm">OZ {g.oz} · stabile Edelgaskonfiguration</p>
+                                </div>
+                            </div>
+                            <div className="grid sm:grid-cols-2 gap-3">
+                                <div className="bg-orange-50 rounded-xl p-3">
+                                    <p className="text-xs text-gray-500 mb-1">Kurzschreibweise</p>
+                                    <p className="font-mono font-bold text-orange-700 text-base">{shorthand}</p>
+                                </div>
+                                <div className="bg-gray-50 rounded-xl p-3">
+                                    <p className="text-xs text-gray-500 mb-2">Energiestufendiagramm</p>
+                                    <MiniDiagram config={g.config} />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="bg-white rounded-2xl p-5 shadow-sm border border-orange-100">
+                            <h3 className="font-bold text-gray-800 mb-3">Isoelektronische Ionen zu {g.name}</h3>
+                            {g.cations.length > 0 && (
+                                <div className="mb-4">
+                                    <p className="text-xs font-semibold text-orange-700 uppercase tracking-wide mb-2">
+                                        Kationen – Elektronen abgegeben (Metalle)
+                                    </p>
+                                    <div className="flex flex-wrap gap-2">
+                                        {g.cations.map(ion => (
+                                            <div key={ion.sym} className="bg-orange-50 border border-orange-200 rounded-xl p-3 text-sm">
+                                                <div className="text-lg font-bold text-orange-800">{ion.sym}</div>
+                                                <div className="font-semibold text-gray-700">{ion.name}</div>
+                                                <div className="text-xs text-gray-500">{ion.info}</div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                            {g.anions.length > 0 && (
+                                <div>
+                                    <p className="text-xs font-semibold text-blue-700 uppercase tracking-wide mb-2">
+                                        Anionen – Elektronen aufgenommen (Nichtmetalle)
+                                    </p>
+                                    <div className="flex flex-wrap gap-2">
+                                        {g.anions.map(ion => (
+                                            <div key={ion.sym} className="bg-blue-50 border border-blue-200 rounded-xl p-3 text-sm">
+                                                <div className="text-lg font-bold text-blue-800">{ion.sym}</div>
+                                                <div className="font-semibold text-gray-700">{ion.name}</div>
+                                                <div className="text-xs text-gray-500">{ion.info}</div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                            {g.cations.length === 0 && g.anions.length === 0 && (
+                                <p className="text-gray-400 text-sm italic">Keine typischen Ionen bei diesem Edelgas.</p>
+                            )}
+                            <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-3 mt-4">
+                                <p className="text-yellow-800 text-xs">💡 <strong>Isoelektronizität:</strong> {g.note}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // ===== TAB 4: QUIZ =====
+        const QUIZ_QUESTIONS = [
+            {
+                q: 'Wie viele Elektronen passen maximal auf die Energiestufe n=2?',
+                opts: ['2', '4', '8', '18'],
+                correct: 2,
+                expl: 'Formel: 2n² → 2·2²=8 Elektronen.'
+            },
+            {
+                q: 'Wie lautet die Kurzschreibweise für Natrium (Na, OZ 11)?',
+                opts: ['1²2⁸3¹', '1²2⁹', '1³2⁸', '1²2⁶3³'],
+                correct: 0,
+                expl: 'Na: 2 (n=1) + 8 (n=2) + 1 (n=3) = 11 → 1²2⁸3¹'
+            },
+            {
+                q: 'Welches Prinzip bestimmt die Reihenfolge der Stufenbesetzung?',
+                opts: ['Prinzip des Energiemaximums', 'Oktettregel', 'Prinzip des Energieminimums', 'Pauli-Prinzip'],
+                correct: 2,
+                expl: 'Das Prinzip des Energieminimums: zuerst die energetisch niedrigste Stufe besetzen.'
+            },
+            {
+                q: 'Wie viele Elektronen hat Aluminium (OZ 13) auf der dritten Energiestufe?',
+                opts: ['1', '2', '3', '8'],
+                correct: 2,
+                expl: 'Al: 2 (n=1) + 8 (n=2) + 3 (n=3) = 13. Auf n=3: 3 Elektronen.'
+            },
+            {
+                q: 'Welches Ion ist isoelektronisch zu Neon (OZ 10)?',
+                opts: ['Na²⁺', 'Na⁺', 'K⁺', 'Li⁺'],
+                correct: 1,
+                expl: 'Na⁺ hat 11−1=10 Elektronen, genauso wie Ne. Konfiguration: 1²2⁸.'
+            },
+            {
+                q: 'Welche Elektronenkonfiguration hat Schwefel (S, OZ 16)?',
+                opts: ['1²2⁸3⁶', '1²2⁶3⁸', '1²2⁸3⁸', '1²2⁴3¹⁰'],
+                correct: 0,
+                expl: 'S: 2 (n=1) + 8 (n=2) + 6 (n=3) = 16 → 1²2⁸3⁶'
+            },
+            {
+                q: 'Welche maximale Elektronenzahl hat n=1?',
+                opts: ['1', '2', '4', '8'],
+                correct: 1,
+                expl: '2n² = 2·1² = 2. Die erste Energiestufe fasst maximal 2 Elektronen.'
+            },
+            {
+                q: 'Ein Ion hat die Elektronenkonfiguration 1²2⁸. Welches könnte es sein?',
+                opts: ['K⁺', 'Na⁺', 'Ca²⁺', 'Cl⁻'],
+                correct: 1,
+                expl: 'Na⁺ hat 10 Elektronen (1²2⁸). K⁺ hat 18, Ca²⁺ hat 18, Cl⁻ hat 18.'
+            }
+        ];
+
+        const QuizSection = () => {
+            const [idx, setIdx] = useState(0);
+            const [score, setScore] = useState(0);
+            const [selected, setSelected] = useState(null);
+            const [answered, setAnswered] = useState(false);
+            const [done, setDone] = useState(false);
+
+            const q = QUIZ_QUESTIONS[idx];
+
+            const submit = () => {
+                if (selected === null) return;
+                setAnswered(true);
+                if (selected === q.correct) setScore(s => s+1);
+            };
+
+            const next = () => {
+                if (idx+1 >= QUIZ_QUESTIONS.length) {
+                    setDone(true);
+                } else {
+                    setIdx(i => i+1);
+                    setSelected(null);
+                    setAnswered(false);
+                }
+            };
+
+            const restart = () => {
+                setIdx(0); setScore(0); setSelected(null); setAnswered(false); setDone(false);
+            };
+
+            if (done) {
+                const pct = score/QUIZ_QUESTIONS.length;
+                const [emoji, title, msg] =
+                    pct >= 0.875 ? ['🏆','Ausgezeichnet!','Perfekt – du hast alles drauf!'] :
+                    pct >= 0.625 ? ['👍','Gut gemacht!','Fast perfekt – noch ein bisschen üben!'] :
+                    pct >= 0.375 ? ['📚','Weiter üben!','Schau nochmal in die Theorie- und Simulations-Tabs.'] :
+                    ['💪','Nicht aufgeben!','Lies die Theorie nochmal durch und probiere es erneut.'];
+                return (
+                    <div className="animate-fade-in bg-white rounded-2xl p-8 shadow-sm border border-orange-100 text-center">
+                        <div className="text-6xl mb-4">{emoji}</div>
+                        <h2 className="text-2xl font-bold text-gray-800 mb-2">{title}</h2>
+                        <p className="text-gray-600 mb-1"><strong>{score} von {QUIZ_QUESTIONS.length}</strong> Fragen richtig.</p>
+                        <p className="text-gray-500 text-sm mb-6">{msg}</p>
+                        <button onClick={restart} className="bg-orange-600 hover:bg-orange-700 text-white font-semibold px-8 py-3 rounded-xl transition-colors shadow">
+                            Nochmal versuchen
+                        </button>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="animate-fade-in space-y-4">
+                    {/* Progress */}
+                    <div className="flex items-center gap-3">
+                        <span className="text-sm text-gray-500">{idx+1}/{QUIZ_QUESTIONS.length}</span>
+                        <div className="flex-1 h-2 rounded-full bg-orange-100 overflow-hidden">
+                            <div className="h-full bg-orange-500 rounded-full transition-all duration-500"
+                                style={{width:`${(idx+1)/QUIZ_QUESTIONS.length*100}%`}}></div>
+                        </div>
+                        <span className="text-sm font-semibold text-orange-700">{score} ✓</span>
+                    </div>
+
+                    <div className="bg-white rounded-2xl p-5 shadow-sm border border-orange-100">
+                        <p className="font-semibold text-gray-800 mb-4 text-base leading-relaxed">{q.q}</p>
+                        <div className="space-y-2">
+                            {q.opts.map((opt, i) => {
+                                let cls = 'w-full text-left px-4 py-3 rounded-xl border-2 text-sm font-medium transition-all ';
+                                if (!answered) {
+                                    cls += selected===i
+                                        ? 'border-orange-500 bg-orange-50 text-orange-800'
+                                        : 'border-gray-200 bg-white text-gray-700 hover:border-orange-300 hover:bg-orange-50 cursor-pointer';
+                                } else {
+                                    if (i === q.correct) cls += 'border-green-500 bg-green-50 text-green-800';
+                                    else if (i === selected && selected !== q.correct) cls += 'border-red-500 bg-red-50 text-red-800';
+                                    else cls += 'border-gray-100 bg-gray-50 text-gray-400 cursor-not-allowed';
+                                }
+                                return (
+                                    <button key={i} onClick={() => !answered && setSelected(i)} className={cls} disabled={answered}>
+                                        <span className="font-mono text-gray-400 mr-2">{String.fromCharCode(65+i)})</span>
+                                        {opt}
+                                        {answered && i===q.correct && <span className="float-right"><IconCheck className="w-4 h-4 inline text-green-600"/></span>}
+                                        {answered && i===selected && selected!==q.correct && <span className="float-right"><IconX className="w-4 h-4 inline text-red-600"/></span>}
+                                    </button>
+                                );
+                            })}
+                        </div>
+
+                        {answered && (
+                            <div className={`mt-4 p-4 rounded-xl text-sm ${selected===q.correct ? 'bg-green-50 border border-green-200 text-green-800' : 'bg-red-50 border border-red-200 text-red-800'}`}>
+                                {selected===q.correct ? '✅' : '❌'} <strong>{selected===q.correct ? 'Richtig!' : 'Falsch.'}</strong> {q.expl}
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="flex gap-3">
+                        {!answered
+                            ? <button onClick={submit} disabled={selected===null}
+                                className={`flex-1 font-semibold py-3 rounded-xl transition-colors shadow ${selected!==null ? 'bg-orange-600 hover:bg-orange-700 text-white' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`}>
+                                Antwort prüfen
+                              </button>
+                            : <button onClick={next}
+                                className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 rounded-xl transition-colors">
+                                {idx+1 < QUIZ_QUESTIONS.length ? 'Nächste Frage →' : 'Auswertung anzeigen →'}
+                              </button>
+                        }
+                    </div>
+                </div>
+            );
+        };
+
+        // ===== MAIN APP =====
+        const TABS = [
+            {id:'theory',  label:'📚 Theorie',    component: TheorySection},
+            {id:'sim',     label:'⚛️ Simulation',  component: SimulationSection},
+            {id:'noble',   label:'🔮 Edelgas',     component: NobleGasSection},
+            {id:'quiz',    label:'🧪 Wissenstest', component: QuizSection},
+        ];
+
+        const App = () => {
+            const [tab, setTab] = useState('theory');
+            const [darkMode, setDarkMode] = useState(() => localStorage.getItem('energiestufenDarkMode') === 'true');
+
+            useEffect(() => {
+                document.documentElement.classList.toggle('dark', darkMode);
+                localStorage.setItem('energiestufenDarkMode', darkMode);
+            }, [darkMode]);
+
+            const ActiveComponent = TABS.find(t => t.id===tab)?.component || TheorySection;
+
+            return (
+                <div className="max-w-4xl mx-auto min-h-screen flex flex-col pb-8">
+                    {/* Header */}
+                    <header className="bg-orange-600 text-white p-4 shadow-lg flex justify-between items-center rounded-b-2xl mb-6 z-50 relative">
+                        <div className="flex items-center gap-3">
+                            <div className="bg-white/20 p-2 rounded-lg backdrop-blur-sm">
+                                <IconAtom className="w-6 h-6" />
+                            </div>
+                            <div>
+                                <h1 className="text-xl font-bold tracking-tight leading-none">Energiestufenmodell</h1>
+                                <p className="text-xs text-orange-200 opacity-90">Elektronenkonfiguration · Klasse 9</p>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <button
+                                onClick={() => setDarkMode(!darkMode)}
+                                aria-label={darkMode ? 'Light Mode aktivieren' : 'Dark Mode aktivieren'}
+                                className="w-9 h-9 rounded-full bg-orange-700/60 hover:bg-orange-700 text-white border border-orange-500/30 shadow transition flex items-center justify-center text-base"
+                            >
+                                {darkMode ? '☀️' : '🌙'}
+                            </button>
+                            <a href="../index.html"
+                                className="flex items-center gap-1.5 text-sm bg-orange-800/50 hover:bg-orange-800 px-3 py-1.5 rounded-lg transition border border-orange-500/30">
+                                <IconHome className="w-4 h-4" /> Sammlung
+                            </a>
+                        </div>
+                    </header>
+
+                    {/* Tab Navigation */}
+                    <nav className="px-4 mb-6">
+                        <div className="bg-white rounded-2xl shadow-sm border border-orange-100 flex overflow-x-auto">
+                            {TABS.map(t => (
+                                <button key={t.id} onClick={() => setTab(t.id)}
+                                    className={`flex-1 min-w-0 px-3 py-3 text-xs sm:text-sm font-medium whitespace-nowrap transition-all border-b-2 rounded-t-xl ${
+                                        tab===t.id
+                                        ? 'border-orange-500 text-orange-700 bg-orange-50'
+                                        : 'border-transparent text-gray-500 hover:text-orange-600 hover:bg-orange-50'
+                                    }`}>
+                                    {t.label}
+                                </button>
+                            ))}
+                        </div>
+                    </nav>
+
+                    {/* Main Content */}
+                    <main className="flex-grow px-4">
+                        <ActiveComponent key={tab} />
+                    </main>
+
+                    {/* Footer */}
+                    <footer className="mt-12 text-center text-gray-400 text-xs">
+                        <p>Entwickelt für das JSG.</p>
+                        <p>© 2025 Zollfrank</p>
+                    </footer>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
