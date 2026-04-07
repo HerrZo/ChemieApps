@@ -2,7 +2,37 @@
   --primary: #f97316;
   --accent: #0891b2;
   --neutral-50: #f9fafb;
+  --neutral-100: #f3f4f6;
+  --neutral-200: #e5e7eb;
+  --neutral-500: #6b7280;
   --neutral-900: #111827;
+  --bg-card: white;
+}
+
+[data-theme="dark"] {
+  --neutral-50: #0f172a;
+  --neutral-100: #1e293b;
+  --neutral-200: #334155;
+  --neutral-500: #94a3b8;
+  --neutral-900: #f8fafc;
+  --bg-card: #1e293b;
+}
+
+[data-theme="dark"] .polarity-app {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+}
+
+[data-theme="dark"] .app-header,
+[data-theme="dark"] .nav-tabs,
+[data-theme="dark"] .app-footer {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+[data-theme="dark"] .tab {
+  background: #334155;
+  border-color: #475569;
+  color: #cbd5e1;
 }
 
 * { box-sizing: border-box; }

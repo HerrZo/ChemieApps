@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { GuideMode } from './components/GuideMode'
 import { TrainerMode } from './components/TrainerMode'
 import { PracticeMode } from './components/PracticeMode'
+import { useTheme } from './hooks/useTheme'
 import './App.css'
 
 type AppMode = 'guide' | 'trainer' | 'practice'
@@ -16,6 +17,7 @@ interface AppState {
 }
 
 export function App() {
+  const { isDark, toggle } = useTheme()
   const [state, setState] = useState<AppState>({
     mode: 'guide',
     carbonCount: 3,
@@ -38,6 +40,13 @@ export function App() {
           <p>Guide · Trainer · Praxis-Quiz</p>
         </div>
         <div className="header-stats">
+          <button
+            className="theme-toggle-btn"
+            onClick={toggle}
+            aria-label={isDark ? 'Helles Design aktivieren' : 'Dunkles Design aktivieren'}
+          >
+            {isDark ? '☀️' : '🌙'}
+          </button>
           <div className="stat">
             <span className="label">Level</span>
             <span className="value">{state.level}</span>
@@ -56,22 +65,25 @@ export function App() {
       </header>
 
       {/* Mode Tabs */}
-      <nav className="mode-tabs">
+      <nav className="mode-tabs" aria-label="Lernmodi">
         <button
           className={`tab-button ${state.mode === 'guide' ? 'active' : ''}`}
           onClick={() => updateState({ mode: 'guide' })}
+          aria-current={state.mode === 'guide' ? 'page' : undefined}
         >
           📖 Guide
         </button>
         <button
           className={`tab-button ${state.mode === 'trainer' ? 'active' : ''}`}
           onClick={() => updateState({ mode: 'trainer' })}
+          aria-current={state.mode === 'trainer' ? 'page' : undefined}
         >
           🎯 Trainer
         </button>
         <button
           className={`tab-button ${state.mode === 'practice' ? 'active' : ''}`}
           onClick={() => updateState({ mode: 'practice' })}
+          aria-current={state.mode === 'practice' ? 'page' : undefined}
         >
           💪 Praxis-Quiz
         </button>

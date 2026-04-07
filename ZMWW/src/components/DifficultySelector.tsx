@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { motion } from 'framer-motion'
 import type { Difficulty } from '@/types'
 
@@ -13,7 +14,7 @@ const options: { value: Difficulty | 'alle'; label: string }[] = [
   { value: 'schwer', label: '⭐⭐⭐ Schwer' },
 ]
 
-export function DifficultySelector({ value, onChange }: Props) {
+export const DifficultySelector = memo(function DifficultySelector({ value, onChange }: Props) {
   return (
     <div className="flex gap-2 flex-wrap">
       {options.map((opt) => (
@@ -32,4 +33,4 @@ export function DifficultySelector({ value, onChange }: Props) {
       ))}
     </div>
   )
-}
+})

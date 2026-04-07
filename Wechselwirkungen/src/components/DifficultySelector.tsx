@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { motion } from 'framer-motion'
 
 type Difficulty = 'leicht' | 'mittel' | 'schwer'
@@ -13,7 +14,7 @@ const options: { value: Difficulty; label: string }[] = [
   { value: 'schwer', label: '⭐⭐⭐ Schwer' },
 ]
 
-export function DifficultySelector({ current, onChange }: Props) {
+export const DifficultySelector = memo(function DifficultySelector({ current, onChange }: Props) {
   return (
     <div className="difficulty-selector">
       {options.map((opt) => (
@@ -28,4 +29,4 @@ export function DifficultySelector({ current, onChange }: Props) {
       ))}
     </div>
   )
-}
+})

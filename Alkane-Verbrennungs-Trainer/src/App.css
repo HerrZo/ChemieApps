@@ -6,9 +6,32 @@
   --neutral-50: #f9fafb;
   --neutral-100: #f3f4f6;
   --neutral-200: #e5e7eb;
+  --neutral-300: #d1d5db;
+  --neutral-400: #9ca3af;
   --neutral-500: #6b7280;
+  --neutral-600: #4b5563;
+  --neutral-700: #374151;
   --neutral-800: #1f2937;
   --neutral-900: #111827;
+  --bg-card: white;
+  --bg-body: var(--neutral-50);
+  --text-muted: var(--neutral-500);
+}
+
+[data-theme="dark"] {
+  --neutral-50: #1a1a2e;
+  --neutral-100: #16213e;
+  --neutral-200: #0f3460;
+  --neutral-300: #1e3a5f;
+  --neutral-400: #4a6fa5;
+  --neutral-500: #94a3b8;
+  --neutral-600: #cbd5e1;
+  --neutral-700: #e2e8f0;
+  --neutral-800: #f1f5f9;
+  --neutral-900: #f8fafc;
+  --bg-card: #1e293b;
+  --bg-body: #0f172a;
+  --text-muted: #94a3b8;
 }
 
 * {
@@ -24,8 +47,68 @@ html, body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background: linear-gradient(135deg, var(--neutral-50) 0%, #fff5f0 100%);
+  background: linear-gradient(135deg, var(--neutral-50) 0%, var(--bg-body) 100%);
   font-family: 'Inter', system-ui, sans-serif;
+  color: var(--neutral-800);
+}
+
+[data-theme="dark"] .alkane-app {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+}
+
+[data-theme="dark"] .app-header,
+[data-theme="dark"] .mode-tabs,
+[data-theme="dark"] .app-footer {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+[data-theme="dark"] .alkan-selector,
+[data-theme="dark"] .step-explanation,
+[data-theme="dark"] .atom-balance,
+[data-theme="dark"] .practice-mode {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+[data-theme="dark"] .tab-button {
+  background: #334155;
+  border-color: #475569;
+  color: #cbd5e1;
+}
+
+[data-theme="dark"] .tab-button:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: #2d3748;
+}
+
+[data-theme="dark"] .balance-row {
+  background: #2d3748;
+}
+
+[data-theme="dark"] .count {
+  background: #334155;
+  color: #e2e8f0;
+}
+
+.theme-toggle-btn {
+  padding: 8px 12px;
+  background: var(--neutral-100);
+  border: 2px solid var(--neutral-200);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1.1rem;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--neutral-700);
+}
+
+.theme-toggle-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
 }
 
 /* Header */

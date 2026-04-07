@@ -5,11 +5,20 @@ import { ReactionDisplay } from './ReactionDisplay'
 const getAlkaneFormula = (n: number) => ({ c: n, h: 2 * n + 2 })
 const ALKANE_NAMES = ['', 'Methan', 'Ethan', 'Propan', 'Butan', 'Pentan', 'Hexan', 'Heptan', 'Oktan', 'Nonan', 'Decan']
 
+interface AppStateUpdate {
+  score?: number
+  total?: number
+  streak?: number
+  mode?: string
+  carbonCount?: number
+  level?: number
+}
+
 interface TrainerModeProps {
   score: number
   total: number
   streak: number
-  onUpdate: (updates: any) => void
+  onUpdate: (updates: AppStateUpdate) => void
 }
 
 interface TrainerState {
