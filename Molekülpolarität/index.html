@@ -172,29 +172,41 @@
             return (
                 <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} className="mx-auto">
                     {/* Bonds */}
-                    {atoms.filter(a => !a.isCenter).map((atom, i) => (
-                        <line key={`bond-${i}`} x1={centerX} y1={centerY} x2={atom.x} y2={atom.y} stroke="#94a3b8" strokeWidth="4" strokeLinecap="round"/>
-                    ))}
+                    {atoms.reduce((acc, atom) => {
+                        if (!atom.isCenter) {
+                            acc.push(
+                                <line key={`bond-${acc.length}`} x1={centerX} y1={centerY} x2={atom.x} y2={atom.y} stroke="#94a3b8" strokeWidth="4" strokeLinecap="round"/>
+                            );
+                        }
+                        return acc;
+                    }, [])}
                     
                     {/* Bond vectors */}
-                    {showBondVectors && atoms.filter(a => !a.isCenter).map((atom, i) => {
-                        const enDiff = ATOMS[atom.symbol].en - ATOMS[center].en;
-                        if (Math.abs(enDiff) < 0.1) return null;
-                        const isPointsToAtom = enDiff > 0;
-                        return (
-                            <g key={`vec-${i}`} opacity="0.5">
-                                <line 
-                                    x1={isPointsToAtom ? centerX : atom.x}
-                                    y1={isPointsToAtom ? centerY : atom.y}
-                                    x2={isPointsToAtom ? atom.x : centerX}
-                                    y2={isPointsToAtom ? atom.y : centerY}
-                                    stroke="#64748b"
-                                    strokeWidth="3"
-                                    markerEnd="url(#arrowhead)"
-                                />
-                            </g>
-                        );
-                    })}
+                    {showBondVectors && atoms.reduce((acc, atom) => {
+                        if (!atom.isCenter) {
+                            const i = acc.length;
+                            const enDiff = ATOMS[atom.symbol].en - ATOMS[center].en;
+                            if (Math.abs(enDiff) >= 0.1) {
+                                const isPointsToAtom = enDiff > 0;
+                                acc.push(
+                                    <g key={`vec-${i}`} opacity="0.5">
+                                        <line
+                                            x1={isPointsToAtom ? centerX : atom.x}
+                                            y1={isPointsToAtom ? centerY : atom.y}
+                                            x2={isPointsToAtom ? atom.x : centerX}
+                                            y2={isPointsToAtom ? atom.y : centerY}
+                                            stroke="#64748b"
+                                            strokeWidth="3"
+                                            markerEnd="url(#arrowhead)"
+                                        />
+                                    </g>
+                                );
+                            } else {
+                                acc.push(null);
+                            }
+                        }
+                        return acc;
+                    }, [])}
 
                     {/* Net dipole */}
                     {showNetDipole && netDipole && netDipole.magnitude > 0.3 && (
