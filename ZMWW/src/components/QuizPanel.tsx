@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { shuffle } from '@shared/utils/shuffle'
 import { molecules, forceLabels } from '@/data/molecules'
 import type { Difficulty, ForceType } from '@/types'
 import { DifficultySelector } from './DifficultySelector'
@@ -21,7 +22,7 @@ export function QuizPanel() {
     () => difficulty === 'alle' ? molecules : molecules.filter((m) => m.difficulty === difficulty),
     [difficulty]
   )
-  const shuffled = useMemo(() => [...pool].sort(() => Math.random() - 0.5), [pool])
+  const shuffled = useMemo(() => shuffle(pool), [pool])
   const current = shuffled[index % shuffled.length]
 
   function handleAnswer(force: ForceType) {
