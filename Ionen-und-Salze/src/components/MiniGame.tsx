@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react'
+import { shuffle } from '@shared/utils/shuffle'
 import { SALT_ITEMS } from '../data'
 import type { GameQuestion } from '../types'
 
@@ -9,7 +10,7 @@ interface MiniGameProps {
 }
 
 function buildQuestions(): GameQuestion[] {
-  const shuffled = [...SALT_ITEMS].sort(() => Math.random() - 0.5)
+  const shuffled = shuffle(SALT_ITEMS)
   return shuffled.map((item, i) => ({
     ...item,
     mode: i < 6 ? ('name-to-formula' as const) : ('formula-to-name' as const),

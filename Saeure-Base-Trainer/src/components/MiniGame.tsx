@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react'
+import { shuffle } from '@shared/utils/shuffle'
 import { GAME_ITEMS } from '../data'
 
 interface MiniGameProps {
@@ -7,12 +8,8 @@ interface MiniGameProps {
   onToast: (msg: string) => void
 }
 
-function shuffleArray<T>(arr: T[]): T[] {
-  return [...arr].sort(() => Math.random() - 0.5)
-}
-
 export function MiniGame({ onScore, onComplete, onToast }: MiniGameProps) {
-  const [questions] = useState(() => shuffleArray(GAME_ITEMS))
+  const [questions] = useState(() => shuffle(GAME_ITEMS))
   const [index, setIndex] = useState(0)
   const [gameScore, setGameScore] = useState(0)
   const [flash, setFlash] = useState<'correct' | 'wrong' | null>(null)

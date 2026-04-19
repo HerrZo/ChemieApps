@@ -1,12 +1,9 @@
 import { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, Cell, ResponsiveContainer } from 'recharts'
+import { shuffle } from '@shared/utils/shuffle'
 import { molecules } from '@/data/molecules'
 import type { Molecule } from '@/types'
-
-function shuffle<T>(arr: T[]): T[] {
-  return [...arr].sort(() => Math.random() - 0.5)
-}
 
 export function RankingLab() {
   const [pool] = useState<Molecule[]>(() => shuffle(molecules).slice(0, 4))
