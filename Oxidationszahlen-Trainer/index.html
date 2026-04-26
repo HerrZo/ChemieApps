@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oxidationszahlen-Trainer | ChemieApps</title>
+    <meta name="description" content="Interaktive Lern-App für die 10. Klasse: Oxidationszahlen bestimmen, Regeln und Übungen." />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        orange: {
+                            50: '#fff7ed', 100: '#ffedd5', 200: '#fed7aa', 300: '#fdba74',
+                            400: '#fb923c', 500: '#f97316', 600: '#ea580c', 700: '#c2410c',
+                            800: '#9a3412', 900: '#7c2d12'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #ea580c; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #c2410c; }
+
+        body { font-family: 'Inter', system-ui, sans-serif; }
+        
+        .content-prose p { margin-bottom: 0.75rem; line-height: 1.6; }
+        .content-prose ul { list-style-type: disc; margin-left: 1.5rem; margin-bottom: 0.75rem; }
+        .content-prose li { margin-bottom: 0.25rem; }
+        .content-prose h3 { font-size: 1.125rem; font-weight: 700; margin-top: 1.5rem; margin-bottom: 0.5rem; color: #c2410c; }
+
+        html.dark body { background-color: #1a1208; color: #f1f5f9; }
+        html.dark .bg-white { background-color: #1e1812; }
+        html.dark .bg-orange-50 { background-color: #1a1208; }
+        html.dark .bg-orange-100 { background-color: #2d2010; }
+        html.dark .bg-gray-50 { background-color: #252019; }
+        html.dark .bg-gray-100 { background-color: #1e1812; }
+        html.dark .bg-yellow-50 { background-color: #1c1800; }
+        html.dark .text-gray-800, html.dark .text-gray-900 { color: #f1f5f9; }
+        html.dark .text-gray-700 { color: #e2e8f0; }
+        html.dark .text-gray-600 { color: #cbd5e1; }
+        html.dark .text-gray-500 { color: #94a3b8; }
+        html.dark .border-gray-200 { border-color: #3d3020; }
+        html.dark .border-orange-100 { border-color: #3d2c18; }
+        html.dark .border-orange-200 { border-color: #4d3a20; }
+        html.dark .content-prose h3 { color: #fb923c; }
+        html.dark .text-orange-800 { color: #fdba74; }
+        html.dark .text-yellow-800 { color: #fde68a; }
+        html.dark .border-yellow-200 { border-color: #3d3200; }
+        html.dark .bg-green-50 { background-color: #051a0a; }
+        html.dark .text-green-800 { color: #86efac; }
+        html.dark .bg-red-50 { background-color: #1c0505; }
+        html.dark .text-red-800 { color: #fca5a5; }
+        html.dark .border-green-200 { border-color: #064e3b; }
+        html.dark .border-red-200 { border-color: #7f1d1d; }
+
+        .callout { padding: 1rem; border-left: 4px solid #f97316; background: #fff7ed; margin: 1rem 0; border-radius: 0 0.5rem 0.5rem 0; }
+        html.dark .callout { background: #2d2010; border-color: #f97316; }
+        .callout-title { font-weight: bold; color: #c2410c; margin-bottom: 0.25rem; display: flex; align-items: center; gap: 0.5rem; }
+        html.dark .callout-title { color: #fb923c; }
+
+        .callout.error { border-left-color: #ef4444; background: #fef2f2; }
+        html.dark .callout.error { background: #2d0a0a; border-color: #ef4444; }
+        .callout.error .callout-title { color: #dc2626; }
+        html.dark .callout.error .callout-title { color: #fca5a5; }
+
+        /* Input specific for Trainer */
+        .ox-input {
+            width: 3.5rem; text-align: center; font-weight: bold; border: 2px solid #fdba74; border-radius: 0.5rem; padding: 0.25rem; outline: none; transition: all 0.2s;
+        }
+        .ox-input:focus { border-color: #ea580c; box-shadow: 0 0 0 2px rgba(234,88,12,0.2); }
+        html.dark .ox-input { background: #1e1812; border-color: #7c2d12; color: white; }
+        html.dark .ox-input:focus { border-color: #fb923c; }
+        .ox-input.correct { border-color: #22c55e; background: #f0fdf4; color: #166534; }
+        html.dark .ox-input.correct { border-color: #22c55e; background: #052e16; color: #4ade80; }
+        .ox-input.wrong { border-color: #ef4444; background: #fef2f2; color: #991b1b; }
+        html.dark .ox-input.wrong { border-color: #ef4444; background: #450a0a; color: #f87171; }
+    </style>
+</head>
+<body class="bg-orange-50 text-gray-800 min-h-screen">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // ===== ICONS =====
+        const IconHome = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>;
+        const IconCheck = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5"><polyline points="20 6 9 17 4 12"/></svg>;
+        const IconX = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>;
+        const IconRefresh = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>;
+
+        const Callout = ({ title, children, type = 'info' }) => (
+            <div className={`callout ${type === 'error' ? 'error' : ''}`}>
+                <div className="callout-title">{title}</div>
+                <div>{children}</div>
+            </div>
+        );
+
+        // ===== UTILS =====
+        const parseOx = (input) => {
+            if (!input) return null;
+            const val = input.trim().toUpperCase();
+            const romanMap = {
+                '+I': 1, '+II': 2, '+III': 3, '+IV': 4, '+V': 5, '+VI': 6, '+VII': 7, '+VIII': 8,
+                '-I': -1, '-II': -2, '-III': -3, '-IV': -4,
+                'I': 1, 'II': 2, 'III': 3, 'IV': 4, 'V': 5, 'VI': 6, 'VII': 7, 'VIII': 8,
+                '0': 0, '+0': 0, '-0': 0, 'O': 0
+            };
+            if (romanMap[val] !== undefined) return romanMap[val];
+            const intVal = parseInt(val.replace('+', ''), 10);
+            if (!isNaN(intVal)) return intVal;
+            return null;
+        };
+
+        const toRoman = (num) => {
+            if (num === 0) return '0';
+            const sign = num > 0 ? '+' : '-';
+            const abs = Math.abs(num);
+            const romans = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII'];
+            return sign + (romans[abs - 1] || abs);
+        };
+
+        // ===== DATA =====
+        const MOLECULES = [
+            // Einfach
+            { id: 'nacl', html: 'NaCl', parts: [{sym: 'Na', count: 1, ox: '+I', rule:'Metall der 1. Hauptgruppe'}, {sym: 'Cl', count: 1, ox: '-I', rule:'Halogenid'}], diff: 1 },
+            { id: 'h2o', html: 'H<sub>2</sub>O', parts: [{sym: 'H', count: 2, ox: '+I', rule:'Regel: Wasserstoff fast immer +I'}, {sym: 'O', count: 1, ox: '-II', rule:'Regel: Sauerstoff fast immer -II'}], diff: 1 },
+            { id: 'co2', html: 'CO<sub>2</sub>', parts: [{sym: 'C', count: 1, ox: '+IV', rule:'Aus Summenregel: x + 2*(-II) = 0'}, {sym: 'O', count: 2, ox: '-II', rule:'Regel: Sauerstoff fast immer -II'}], diff: 1 },
+            { id: 'mgo', html: 'MgO', parts: [{sym: 'Mg', count: 1, ox: '+II', rule:'Erdalkalimetall'}, {sym: 'O', count: 1, ox: '-II', rule:'Regel: Sauerstoff'}], diff: 1 },
+            { id: 'kbr', html: 'KBr', parts: [{sym: 'K', count: 1, ox: '+I', rule:'Alkalimetall'}, {sym: 'Br', count: 1, ox: '-I', rule:'Halogenid'}], diff: 1 },
+            { id: 'caf2', html: 'CaF<sub>2</sub>', parts: [{sym: 'Ca', count: 1, ox: '+II', rule:'Erdalkalimetall'}, {sym: 'F', count: 2, ox: '-I', rule:'Fluor immer -I'}], diff: 1 },
+            { id: 'o2', html: 'O<sub>2</sub>', parts: [{sym: 'O', count: 2, ox: '0', rule:'Elementmolekül'}], diff: 1 },
+            { id: 'fe', html: 'Fe', parts: [{sym: 'Fe', count: 1, ox: '0', rule:'Element'}], diff: 1 },
+            
+            // Mittel
+            { id: 'h2so4', html: 'H<sub>2</sub>SO<sub>4</sub>', parts: [{sym: 'H', count: 2, ox: '+I', rule:'Wasserstoff'}, {sym: 'S', count: 1, ox: '+VI', rule:'Summenregel: 2*(+I) + x + 4*(-II) = 0'}, {sym: 'O', count: 4, ox: '-II', rule:'Sauerstoff'}], diff: 2 },
+            { id: 'hno3', html: 'HNO<sub>3</sub>', parts: [{sym: 'H', count: 1, ox: '+I', rule:'Wasserstoff'}, {sym: 'N', count: 1, ox: '+V', rule:'Summenregel: (+I) + x + 3*(-II) = 0'}, {sym: 'O', count: 3, ox: '-II', rule:'Sauerstoff'}], diff: 2 },
+            { id: 'na2co3', html: 'Na<sub>2</sub>CO<sub>3</sub>', parts: [{sym: 'Na', count: 2, ox: '+I', rule:'Alkalimetall'}, {sym: 'C', count: 1, ox: '+IV', rule:'Summenregel'}, {sym: 'O', count: 3, ox: '-II', rule:'Sauerstoff'}], diff: 2 },
+            { id: 'fe2o3', html: 'Fe<sub>2</sub>O<sub>3</sub>', parts: [{sym: 'Fe', count: 2, ox: '+III', rule:'Summenregel: 2*x + 3*(-II) = 0'}, {sym: 'O', count: 3, ox: '-II', rule:'Sauerstoff'}], diff: 2 },
+            { id: 'nh3', html: 'NH<sub>3</sub>', parts: [{sym: 'N', count: 1, ox: '-III', rule:'Summenregel: x + 3*(+I) = 0'}, {sym: 'H', count: 3, ox: '+I', rule:'Wasserstoff'}], diff: 2 },
+            { id: 'h3po4', html: 'H<sub>3</sub>PO<sub>4</sub>', parts: [{sym: 'H', count: 3, ox: '+I', rule:'Wasserstoff'}, {sym: 'P', count: 1, ox: '+V', rule:'Summenregel'}, {sym: 'O', count: 4, ox: '-II', rule:'Sauerstoff'}], diff: 2 },
+            { id: 'so2', html: 'SO<sub>2</sub>', parts: [{sym: 'S', count: 1, ox: '+IV', rule:'Summenregel: x + 2*(-II) = 0'}, {sym: 'O', count: 2, ox: '-II', rule:'Sauerstoff'}], diff: 2 },
+            
+            // Schwer
+            { id: 'kmno4', html: 'KMnO<sub>4</sub>', parts: [{sym: 'K', count: 1, ox: '+I', rule:'Alkalimetall'}, {sym: 'Mn', count: 1, ox: '+VII', rule:'Summenregel: (+I) + x + 4*(-II) = 0'}, {sym: 'O', count: 4, ox: '-II', rule:'Sauerstoff'}], diff: 3 },
+            { id: 'k2cr2o7', html: 'K<sub>2</sub>Cr<sub>2</sub>O<sub>7</sub>', parts: [{sym: 'K', count: 2, ox: '+I', rule:'Alkalimetall'}, {sym: 'Cr', count: 2, ox: '+VI', rule:'Summenregel: 2*(+I) + 2*x + 7*(-II) = 0'}, {sym: 'O', count: 7, ox: '-II', rule:'Sauerstoff'}], diff: 3 },
+            { id: 'clo3', html: 'ClO<sub>3</sub><sup>-</sup>', charge: -1, parts: [{sym: 'Cl', count: 1, ox: '+V', rule:'Ionen-Summenregel: x + 3*(-II) = -1'}, {sym: 'O', count: 3, ox: '-II', rule:'Sauerstoff'}], diff: 3 },
+            { id: 'so42', html: 'SO<sub>4</sub><sup>2-</sup>', charge: -2, parts: [{sym: 'S', count: 1, ox: '+VI', rule:'Ionen-Summenregel: x + 4*(-II) = -2'}, {sym: 'O', count: 4, ox: '-II', rule:'Sauerstoff'}], diff: 3 },
+            { id: 'mno4', html: 'MnO<sub>4</sub><sup>-</sup>', charge: -1, parts: [{sym: 'Mn', count: 1, ox: '+VII', rule:'Ionen-Summenregel: x + 4*(-II) = -1'}, {sym: 'O', count: 4, ox: '-II', rule:'Sauerstoff'}], diff: 3 },
+            { id: 'h2o2', html: 'H<sub>2</sub>O<sub>2</sub>', parts: [{sym: 'H', count: 2, ox: '+I', rule:'Wasserstoff'}, {sym: 'O', count: 2, ox: '-I', rule:'Sonderfall: Peroxid'}], diff: 3 },
+            { id: 'nah', html: 'NaH', parts: [{sym: 'Na', count: 1, ox: '+I', rule:'Alkalimetall'}, {sym: 'H', count: 1, ox: '-I', rule:'Sonderfall: Metallhydrid'}], diff: 3 },
+            { id: 'of2', html: 'OF<sub>2</sub>', parts: [{sym: 'O', count: 1, ox: '+II', rule:'Sonderfall: Sauerstoff an Fluor (F ist elektronegativer!)'}, {sym: 'F', count: 2, ox: '-I', rule:'Fluor immer -I'}], diff: 3 }
+        ];
+
+        // ===== TAB 1: THEORIE =====
+        const TheorySection = () => {
+            const [openRule, setOpenRule] = useState(null);
+            
+            const rules = [
+                { id: 1, title: '1. Fluor', desc: 'Die Oxidationszahl von Fluor-Atomen in Verbindungen mit anderen Atomen ist stets -I.', ex: 'HF → F = -I' },
+                { id: 2, title: '2. Wasserstoff', desc: 'Die Oxidationszahl von Wasserstoff-Atomen in Verbindungsmolekülen ist +I.', ex: 'H₂O → H = +I' },
+                { id: 3, title: '3. Sauerstoff', desc: 'Die Oxidationszahl von Sauerstoff-Atomen in Verbindungsmolekülen beträgt meist -II.', ex: 'CO₂ → O = -II' },
+                { id: 4, title: '4. Halogene', desc: 'Die Halogen-Atome Chlor, Brom und Iod haben in Verbindungsmolekülen meist die Oxidationszahl -I.', ex: 'NaCl → Cl = -I' },
+                { id: 5, title: '5. Restliche Atome', desc: 'Die Oxidationszahlen aller anderen Atome ergeben sich aus diesen Regeln für einzelne Atomarten und aus der Gesamtladung des Teilchens.', ex: 'H₂SO₄ → S = +VI' }
+            ];
+
+            return (
+                <div className="space-y-6 animate-fade-in content-prose">
+                    <div className="bg-white rounded-2xl p-6 shadow-sm border border-orange-100">
+                        <h2 className="text-xl font-bold text-gray-800 mb-4">Das Prinzip der Valenzstrichformel</h2>
+                        <ol className="list-decimal ml-5 mb-4 text-gray-700 space-y-2">
+                            <li>Formuliere die <strong>Valenzstrichformel</strong> des Moleküls. Denke an die freien Elektronenpaare!</li>
+                            <li>Ordne die Bindungselektronen vollständig dem Atom mit der <strong>größeren Elektronegativität</strong> zu.</li>
+                            <li>Bestimme die Elektronenzahl der Atome im Molekül und vergleiche sie mit der jeweiligen Valenzelektronenzahl des isolierten Atoms.</li>
+                            <li className="font-bold text-orange-700 bg-orange-50 p-2 rounded">
+                                Oxidationszahl = Valenzelektronenzahl – zugeteilte Elektronenzahl
+                            </li>
+                        </ol>
+                        <Callout title="📝 Schreibweise">
+                            Oxidationszahlen werden mit <strong>römischen Zahlen</strong> über dem Atom angegeben. (z.B. I, VI, VII)
+                        </Callout>
+                    </div>
+
+                    <div className="bg-white rounded-2xl p-6 shadow-sm border border-orange-100">
+                        <h2 className="text-xl font-bold text-gray-800 mb-4">Grundregeln</h2>
+                        <ul className="list-disc ml-5 text-gray-700 space-y-2">
+                            <li>Die Oxidationszahl von Atomen und von Atomen in <strong>Elementmolekülen</strong> ist Null. (z.B. H₂)</li>
+                            <li>Die <strong>Summe der Oxidationszahlen</strong> aller Atome eines Moleküls ergibt immer Null, denn ein Molekül ist ungeladen. (z.B. H₂O: 2x H mit +I und 1x O mit -II = insgesamt 0)</li>
+                            <li>Die Oxidationszahl eines <strong>Atom-Ions</strong> entspricht seiner Ladungszahl. (z.B. Br⁻ ist -I)</li>
+                            <li>Die Summe der Oxidationszahlen aller Atome in einem <strong>Molekül-Ion</strong> entspricht der Ladungszahl des Molekül-Ions. (z.B. OH⁻ mit O -II und H +I = insgesamt -1)</li>
+                        </ul>
+                    </div>
+
+                    <h2 className="text-xl font-bold text-orange-800 mt-8 mb-4">Hierarchische Regeln</h2>
+                    <p className="text-sm text-gray-600 mb-4">Diese Regeln sind <strong>streng hierarchisch</strong> anzuwenden! (Regel 1 sticht Regel 2, etc.)</p>
+                    <div className="grid gap-3">
+                        {rules.map(rule => (
+                            <div key={rule.id} 
+                                onClick={() => setOpenRule(openRule === rule.id ? null : rule.id)}
+                                className={`cursor-pointer transition-all duration-200 rounded-xl p-4 border-2 ${
+                                    openRule === rule.id 
+                                    ? 'bg-orange-600 text-white border-orange-600 shadow-md' 
+                                    : 'bg-white text-gray-700 border-orange-200 hover:border-orange-400'
+                                }`}
+                            >
+                                <div className="font-bold text-lg">{rule.title}</div>
+                                {openRule === rule.id && (
+                                    <div className="mt-3 pt-3 border-t border-orange-500 text-sm animate-fade-in">
+                                        <p className="mb-2">{rule.desc}</p>
+                                        <div className="bg-orange-700/50 p-2 rounded text-orange-50 font-mono">Beispiel: {rule.ex}</div>
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+
+                    <div className="bg-white rounded-2xl p-6 shadow-sm border border-orange-100 mt-8">
+                        <h2 className="text-xl font-bold text-gray-800 mb-4">Ausnahmen aufgrund der Hierarchie</h2>
+                        <ul className="list-disc ml-5 text-gray-700 space-y-2">
+                            <li><strong>Sauerstoffdifluorid:</strong> In Verbindungsmolekülen von Sauerstoff mit Fluor geht Regel 1 vor und das Sauerstoff-Atom hat daher <i>nicht</i> die Oxidationszahl -II. Z.B. O<sup>+II</sup>F₂<sup>-I</sup></li>
+                            <li><strong>Peroxid-Moleküle:</strong> In Verbindungsmolekülen, in denen zwei Sauerstoff-Atome direkt miteinander verbunden sind, geht Regel 2 vor und die Sauerstoff-Atome haben jeweils die Oxidationszahl -I. Z.B. H₂<sup>+I</sup>O₂<sup>-I</sup></li>
+                            <li><strong>Halogene mit O/F:</strong> In Verbindungsmolekülen und Molekül-Ionen in denen Chlor-, Brom- oder Iod-Atome mit Sauerstoff- oder Fluor-Atomen verbunden sind, geht Regel 1 bzw. 3 vor. So können Halogen-Atome auch positive Oxidationszahlen haben. Z.B. Br<sup>+I</sup>F<sup>-I</sup></li>
+                        </ul>
+                    </div>
+                </div>
+            );
+        };
+
+        // ===== TAB 2: TRAINER =====
+        const TrainerSection = () => {
+            const [diff, setDiff] = useState(1);
+            const [mol, setMol] = useState(null);
+            const [inputs, setInputs] = useState({});
+            const [feedback, setFeedback] = useState(null);
+            
+            const filteredMols = MOLECULES.filter(m => m.diff === diff);
+
+            const nextMol = () => {
+                const random = filteredMols[Math.floor(Math.random() * filteredMols.length)];
+                setMol(random);
+                setInputs({});
+                setFeedback(null);
+            };
+
+            useEffect(() => {
+                nextMol();
+            }, [diff]);
+
+            const checkAnswers = () => {
+                let allCorrect = true;
+                const newFeedback = [];
+                
+                mol.parts.forEach((part, i) => {
+                    const userVal = parseOx(inputs[i]);
+                    const correctVal = parseOx(part.ox);
+                    
+                    if (userVal === correctVal) {
+                        newFeedback.push({ correct: true, text: `✅ ${part.sym}: ${part.ox} (${part.rule})` });
+                    } else {
+                        allCorrect = false;
+                        newFeedback.push({ correct: false, text: `❌ ${part.sym}: Falsch. Gesucht war ${part.ox}. Tipp: ${part.rule}` });
+                    }
+                });
+
+                setFeedback({ allCorrect, details: newFeedback });
+            };
+
+            if (!mol) return <div>Lade...</div>;
+
+            return (
+                <div className="animate-fade-in max-w-2xl mx-auto">
+                    <div className="flex gap-2 mb-6 p-1 bg-white border border-orange-100 rounded-xl w-fit mx-auto shadow-sm">
+                        {[1, 2, 3].map(d => (
+                            <button key={d} onClick={() => setDiff(d)}
+                                className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${
+                                    diff === d ? 'bg-orange-600 text-white' : 'text-gray-500 hover:bg-orange-50'
+                                }`}>
+                                {d === 1 ? '🟢 Leicht' : d === 2 ? '🟡 Mittel' : '🔴 Schwer'}
+                            </button>
+                        ))}
+                    </div>
+
+                    <div className="bg-white rounded-2xl p-8 shadow-sm border border-orange-100 text-center">
+                        <div className="text-gray-500 text-sm mb-2 font-semibold uppercase tracking-wider">Bestimme die Oxidationszahlen</div>
+                        
+                        <div className="flex justify-center items-end gap-6 my-8 pb-4">
+                            {mol.parts.map((part, i) => {
+                                const isChecked = feedback !== null;
+                                const isCorrect = isChecked && parseOx(inputs[i]) === parseOx(part.ox);
+                                const isWrong = isChecked && !isCorrect;
+                                
+                                return (
+                                    <div key={i} className="flex flex-col items-center gap-2">
+                                        <input 
+                                            type="text" 
+                                            value={inputs[i] || ''} 
+                                            onChange={e => {
+                                                setInputs({...inputs, [i]: e.target.value});
+                                                setFeedback(null);
+                                            }}
+                                            placeholder="z.B. +II"
+                                            className={`ox-input ${isCorrect ? 'correct' : ''} ${isWrong ? 'wrong' : ''}`}
+                                            disabled={isChecked && isCorrect}
+                                        />
+                                        <div className="text-4xl font-semibold text-gray-800">
+                                            {part.sym}
+                                            {part.count > 1 && <sub className="text-xl ml-0.5">{part.count}</sub>}
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                        {mol.charge && (
+                            <div className="text-sm text-gray-500 bg-gray-50 inline-block px-3 py-1 rounded-full border border-gray-200">
+                                Ionenladung: <strong>{mol.charge}</strong>
+                            </div>
+                        )}
+
+                        {feedback && (
+                            <div className={`mt-6 p-4 rounded-xl text-left text-sm ${feedback.allCorrect ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}`}>
+                                {feedback.details.map((f, i) => (
+                                    <div key={i} className={`mb-1 ${f.correct ? 'text-green-800' : 'text-red-800 font-medium'}`}>{f.text}</div>
+                                ))}
+                            </div>
+                        )}
+
+                        <div className="mt-8 flex gap-3 justify-center">
+                            <button onClick={checkAnswers} 
+                                className="bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 px-8 rounded-xl shadow transition-colors">
+                                Prüfen
+                            </button>
+                            <button onClick={nextMol} 
+                                className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 px-5 rounded-xl transition-colors flex items-center gap-2">
+                                <IconRefresh /> Neu
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // ===== TAB 3: QUIZ =====
+        const QUIZ_QUESTIONS = [
+            { q: 'Welche Oxidationszahl hat Sauerstoff in fast allen Verbindungen?', opts: ['-I', '-II', '+I', '0'], correct: 1, expl: 'Sauerstoff hat standardmäßig -II (außer z.B. in Peroxiden oder OF₂).' },
+            { q: 'Welche Oxidationszahl hat Wasserstoff in Wasser (H₂O)?', opts: ['+I', '-I', '+II', '0'], correct: 0, expl: 'Wasserstoff hat fast immer +I (außer in Metallhydriden).' },
+            { q: 'Welche Oxidationszahl hat ein elementarer Stoff wie N₂ oder Fe?', opts: ['+I', '-II', '0', 'Abhängig von der Masse'], correct: 2, expl: 'Elemente haben immer die Oxidationszahl 0.' },
+            { q: 'In welcher Verbindung hat Sauerstoff die Oxidationszahl -I?', opts: ['H₂O (Wasser)', 'H₂O₂ (Wasserstoffperoxid)', 'CO₂ (Kohlenstoffdioxid)', 'OF₂'], correct: 1, expl: 'In Peroxiden sind O-Atome miteinander verbunden, daher OZ -I.' },
+            { q: 'Die Summe aller Oxidationszahlen in einem neutralen Molekül ergibt...', opts: ['Die Anzahl der Atome', 'Immer +I', '0', 'Die Zahl der Außenelektronen'], correct: 2, expl: 'Nach der Summenregel heben sich alle Oxidationszahlen in einem neutralen Molekül exakt zu 0 auf.' },
+            { q: 'Welche Oxidationszahl hat Schwefel in H₂SO₄?', opts: ['+IV', '+VI', '-II', '+VIII'], correct: 1, expl: 'H: 2*(+1)=+2. O: 4*(-2)=-8. Damit die Summe 0 ergibt, muss S = +6 (+VI) haben.' },
+            { q: 'Welches Element hat in seinen Verbindungen IMMER die Oxidationszahl -I?', opts: ['Sauerstoff', 'Chlor', 'Fluor', 'Natrium'], correct: 2, expl: 'Fluor ist das elektronegativste Element (EN=4.0) und zieht Bindungselektronen immer komplett an sich → -I.' },
+            { q: 'Welche Oxidationszahl hat das Eisen-Ion im Fe₂O₃?', opts: ['+II', '+III', '-III', '0'], correct: 1, expl: 'O hat -II (3*(-2) = -6). Damit die Summe 0 ist, müssen die zwei Fe-Atome zusammen +6 haben → 1 Fe = +III.' }
+        ];
+
+        const QuizSection = () => {
+            const [idx, setIdx] = useState(0);
+            const [score, setScore] = useState(0);
+            const [selected, setSelected] = useState(null);
+            const [answered, setAnswered] = useState(false);
+            const [done, setDone] = useState(false);
+
+            const q = QUIZ_QUESTIONS[idx];
+
+            const check = () => {
+                if (selected === null) return;
+                setAnswered(true);
+                if (selected === q.correct) setScore(s => s + 1);
+            };
+
+            const next = () => {
+                if (idx + 1 >= QUIZ_QUESTIONS.length) setDone(true);
+                else { setIdx(i => i + 1); setSelected(null); setAnswered(false); }
+            };
+
+            const restart = () => { setIdx(0); setScore(0); setSelected(null); setAnswered(false); setDone(false); };
+
+            if (done) {
+                return (
+                    <div className="animate-fade-in bg-white rounded-2xl p-8 shadow-sm border border-orange-100 text-center max-w-lg mx-auto">
+                        <div className="text-6xl mb-4">🏆</div>
+                        <h2 className="text-2xl font-bold text-gray-800 mb-2">Quiz beendet!</h2>
+                        <p className="text-gray-600 mb-6">Du hast <strong>{score} von {QUIZ_QUESTIONS.length}</strong> Fragen richtig beantwortet.</p>
+                        <button onClick={restart} className="bg-orange-600 hover:bg-orange-700 text-white font-bold px-8 py-3 rounded-xl transition-colors shadow">Neustart</button>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="animate-fade-in max-w-2xl mx-auto space-y-4">
+                    <div className="flex items-center gap-3">
+                        <span className="text-sm text-gray-500 font-semibold">{idx + 1}/{QUIZ_QUESTIONS.length}</span>
+                        <div className="flex-1 h-2 rounded-full bg-orange-100 overflow-hidden">
+                            <div className="h-full bg-orange-500 transition-all duration-300" style={{ width: `${((idx + 1) / QUIZ_QUESTIONS.length) * 100}%` }}></div>
+                        </div>
+                        <span className="text-sm font-bold text-orange-700">{score} Punkte</span>
+                    </div>
+
+                    <div className="bg-white rounded-2xl p-6 shadow-sm border border-orange-100">
+                        <h3 className="font-bold text-lg text-gray-800 mb-6">{q.q}</h3>
+                        <div className="space-y-3">
+                            {q.opts.map((opt, i) => {
+                                let cls = 'w-full text-left p-4 rounded-xl border-2 font-medium transition-all text-sm sm:text-base flex justify-between items-center ';
+                                if (!answered) {
+                                    cls += selected === i ? 'border-orange-500 bg-orange-50 text-orange-800' : 'border-gray-200 text-gray-700 hover:border-orange-300 hover:bg-orange-50 bg-white';
+                                } else {
+                                    if (i === q.correct) cls += 'border-green-500 bg-green-50 text-green-800';
+                                    else if (i === selected) cls += 'border-red-500 bg-red-50 text-red-800';
+                                    else cls += 'border-gray-100 bg-gray-50 text-gray-400 opacity-50';
+                                }
+                                return (
+                                    <button key={i} onClick={() => !answered && setSelected(i)} className={cls} disabled={answered}>
+                                        <span>{opt}</span>
+                                        {answered && i === q.correct && <IconCheck />}
+                                        {answered && i === selected && i !== q.correct && <IconX />}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                        {answered && (
+                            <div className={`mt-6 p-4 rounded-xl text-sm ${selected === q.correct ? 'bg-green-50 text-green-800 border border-green-200' : 'bg-red-50 text-red-800 border border-red-200'}`}>
+                                <strong>{selected === q.correct ? 'Richtig!' : 'Falsch.'}</strong> {q.expl}
+                            </div>
+                        )}
+                    </div>
+                    <div className="flex justify-end pt-2">
+                        {!answered ? (
+                            <button onClick={check} disabled={selected === null} className={`font-bold py-3 px-8 rounded-xl transition-colors ${selected !== null ? 'bg-orange-600 text-white shadow hover:bg-orange-700' : 'bg-gray-200 text-gray-400'}`}>Antwort prüfen</button>
+                        ) : (
+                            <button onClick={next} className="bg-gray-800 hover:bg-gray-900 text-white font-bold py-3 px-8 rounded-xl shadow transition-colors">Nächste Frage →</button>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        // ===== MAIN APP =====
+        const TABS = [
+            { id: 'theory', label: '📚 Theorie', comp: TheorySection },
+            { id: 'trainer', label: '🧪 Trainer', comp: TrainerSection },
+            { id: 'quiz', label: '🏆 Quiz', comp: QuizSection }
+        ];
+
+        const App = () => {
+            const [tab, setTab] = useState('theory');
+            const [darkMode, setDarkMode] = useState(() => localStorage.getItem('oxDarkMode') === 'true');
+
+            useEffect(() => {
+                document.documentElement.classList.toggle('dark', darkMode);
+                localStorage.setItem('oxDarkMode', darkMode);
+            }, [darkMode]);
+
+            const ActiveComp = TABS.find(t => t.id === tab)?.comp || TheorySection;
+
+            return (
+                <div className="max-w-4xl mx-auto flex flex-col min-h-screen pb-12">
+                    <header className="bg-orange-600 text-white p-4 sm:p-5 shadow-lg flex justify-between items-center rounded-b-2xl mb-6 sticky top-0 z-50">
+                        <div className="flex items-center gap-3">
+                            <div className="bg-white/20 p-2 rounded-lg backdrop-blur-sm flex items-center justify-center font-bold text-lg leading-none w-10 h-10">
+                                ±Z
+                            </div>
+                            <div>
+                                <h1 className="text-lg sm:text-xl font-bold tracking-tight leading-none">Oxidationszahlen</h1>
+                                <p className="text-xs text-orange-200 opacity-90 mt-0.5">Trainer · Chemie 10 SG</p>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-2 sm:gap-3">
+                            <button onClick={() => setDarkMode(!darkMode)} className="w-10 h-10 rounded-full bg-orange-700/60 hover:bg-orange-700 text-white border border-orange-500/30 flex items-center justify-center text-lg transition-colors" title="Dark Mode Toggle">
+                                {darkMode ? '☀️' : '🌙'}
+                            </button>
+                            <a href="../index.html" className="hidden sm:flex items-center gap-2 text-sm bg-orange-800/50 hover:bg-orange-800 px-4 py-2 rounded-xl transition border border-orange-500/30 font-medium">
+                                <IconHome /> Sammlung
+                            </a>
+                        </div>
+                    </header>
+
+                    <nav className="px-4 mb-8">
+                        <div className="bg-white rounded-xl shadow-sm border border-orange-100 flex p-1 overflow-x-auto">
+                            {TABS.map(t => (
+                                <button key={t.id} onClick={() => setTab(t.id)}
+                                    className={`flex-1 min-w-[100px] px-3 py-2.5 text-sm font-semibold rounded-lg transition-all ${
+                                        tab === t.id ? 'bg-orange-100 text-orange-800 shadow-sm' : 'text-gray-500 hover:text-orange-600 hover:bg-orange-50'
+                                    }`}>
+                                    {t.label}
+                                </button>
+                            ))}
+                        </div>
+                    </nav>
+
+                    <main className="flex-grow px-4">
+                        <ActiveComp />
+                    </main>
+                    
+                    <footer className="mt-12 text-center text-gray-400 text-xs px-4">
+                        <p>Chemie Lern-Apps · Johannes-Scharrer-Gymnasium</p>
+                    </footer>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Titrations-Trainer | ChemieApps</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+                    colors: {
+                        chem: {
+                            50: '#fff7ed', 100: '#ffedd5', 200: '#fed7aa', 300: '#fdba74',
+                            400: '#fb923c', 500: '#f97316', 600: '#ea580c', 700: '#c2410c',
+                            800: '#9a3412', 900: '#7c2d12'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { font-family: 'Inter', system-ui, sans-serif; background: #fafafa; color: #1e293b; transition: background-color 0.3s; }
+        .dark body { background: #0f172a; color: #f1f5f9; }
+
+        .beaker {
+            position: relative;
+            width: 140px; height: 180px; 
+            border: 4px solid #94a3b8; border-top: none;
+            border-bottom-left-radius: 12px; border-bottom-right-radius: 12px;
+            background: rgba(255,255,255,0.8);
+            margin: 0 auto;
+            display: flex; flex-direction: column; justify-content: flex-end;
+            overflow: hidden;
+        }
+        .dark .beaker { border-color: #475569; background: rgba(30,41,59,0.8); }
+        
+        .beaker-liquid {
+            width: 100%;
+            transition: height 0.5s ease-out, background-color 0.5s ease-out;
+            display: flex; flex-wrap: wrap; align-content: flex-end; padding: 4px; gap: 2px;
+            position: relative;
+        }
+        .particle { width: 6px; height: 6px; background-color: #2563eb; border-radius: 50%; position: absolute; opacity: 0.6; }
+        .f-n { color: #2563eb; font-weight: bold; }
+        .dark .f-n { color: #60a5fa; }
+        .f-v { color: #059669; font-weight: bold; }
+        .dark .f-v { color: #34d399; }
+        .f-c { color: #ea580c; font-weight: bold; }
+        .dark .f-c { color: #fb923c; }
+        .tab-btn { transition: all 0.2s; border-bottom: 3px solid transparent; }
+        .tab-btn.active { color: #f97316; border-color: #f97316; font-weight: 700; }
+        .fade-in { animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="min-h-screen">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useMemo } = React;
+
+        function Beaker({ nValue, vValue }) {
+            const height = (vValue / 2.0) * 100;
+            const intensity = Math.min(1, (nValue / vValue) / 10);
+            const color = `rgba(249, 115, 22, ${0.1 + intensity * 0.9})`;
+            const particles = useMemo(() => Array.from({ length: Math.min(40, nValue * 2) }).map((_, i) => ({
+                id: i, left: `${Math.random() * 85}%`, top: `${Math.random() * 85}%`
+            })), [nValue]);
+            return (
+                <div className="beaker">
+                    <div className="beaker-liquid" style={{ height: `${height}%`, backgroundColor: color }}>
+                        {particles.map(p => <div key={p.id} className="particle" style={{ left: p.left, top: p.top }} />)}
+                    </div>
+                </div>
+            );
+        }
+
+        function Guide() {
+            const [step, setStep] = useState(0);
+            const [n, setN] = useState(4);
+            const [v, setV] = useState(1.0);
+            const steps = [
+                { title: "Start", content: "Die Stoffmengenkonzentration wird durch das Verhältnis von Stoffmenge zur Lösung bestimmt. Beispiel: 20 mL NaOH titriert mit 10 mL HCl (1,0 mol/L)." },
+                { title: "1. Analyse", content: "Gegeben: V₁ = 20 mL, c₂ = 1,0 mol/L, V₂ = 10 mL. Gesucht: c₁." },
+                { title: "2. Gleichung", content: "NaOH + HCl ⟶ H₂O + NaCl (Verhältnis 1:1)." },
+                { title: "3. Formel", content: "c₁ = (c₂·V₂) / V₁" },
+                { title: "4. Rechnung", content: "c₁ = (1,0·10) / 20 = 0,5 mol/L" },
+                { title: "5. Alternative", content: "A: n = c·V = 10 mmol. B: c = n / V = 10/20 = 0,5 mol/L." }
+            ];
+            return (
+                <div className="grid lg:grid-cols-3 gap-6">
+                    <div className="lg:col-span-2 bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border dark:border-slate-700 min-h-[300px] flex flex-col justify-between">
+                        <div key={step} className="fade-in">
+                            <h2 className="text-xl font-bold mb-4 text-orange-500">Schritt {step+1}: {steps[step].title}</h2>
+                            <p className="leading-relaxed">{steps[step].content}</p>
+                        </div>
+                        <div className="flex justify-between mt-6 pt-4 border-t dark:border-slate-700">
+                            <button onClick={() => setStep(s=>Math.max(0,s-1))} disabled={step===0} className="px-4 py-2 bg-slate-100 dark:bg-slate-700 rounded-lg disabled:opacity-30">Zurück</button>
+                            {step<steps.length-1 ? <button onClick={() => setStep(s=>s+1)} className="px-4 py-2 bg-orange-500 text-white rounded-lg">Weiter</button> : <button onClick={() => setStep(0)} className="px-4 py-2 bg-slate-100 dark:bg-slate-700 rounded-lg">Neu starten</button>}
+                        </div>
+                    </div>
+                    <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border dark:border-slate-700">
+                        <h3 className="font-bold mb-4">Simulator</h3>
+                        <div className="space-y-4">
+                            <input type="range" min="1" max="20" value={n} onChange={e=>setN(parseInt(e.target.value))} className="w-full" />
+                            <input type="range" min="0.2" max="2.0" step="0.1" value={v} onChange={e=>setV(parseFloat(e.target.value))} className="w-full" />
+                            <div className="text-center font-bold text-lg p-2 bg-slate-50 dark:bg-slate-900 rounded">{(n/v).toFixed(1)} mol/L</div>
+                            <Beaker nValue={n} vValue={v} />
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        function Practice() {
+            const tasks = [
+                { id:1, q:"25 mL HCl titriert mit 10 mL NaOH (0,1 mol/L).", a:0.04 },
+                { id:2, q:"20 mL HNO₃ titriert mit 15 mL KOH (0,2 mol/L).", a:0.15 }
+            ];
+            const [idx, setIdx] = useState(0);
+            const [val, setVal] = useState("");
+            const [res, setRes] = useState(null);
+            const check = () => setRes(Math.abs(parseFloat(val.replace(',','.')) - tasks[idx].a) < 0.01 ? 'ok' : 'err');
+            return (
+                <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border dark:border-slate-700">
+                    <p className="mb-4 font-medium">{tasks[idx].q}</p>
+                    <div className="flex gap-2">
+                        <input type="text" value={val} onChange={e=>{setVal(e.target.value); setRes(null);}} className="border p-2 rounded dark:bg-slate-900" placeholder="Ergebnis..." />
+                        <button onClick={check} className="bg-orange-500 text-white px-4 py-2 rounded">Prüfen</button>
+                    </div>
+                    {res==='ok' && <p className="mt-2 text-green-500 font-bold">Richtig!</p>}
+                    {res==='err' && <p className="mt-2 text-red-500 font-bold">Falsch.</p>}
+                </div>
+            );
+        }
+
+        function App() {
+            const [tab, setTab] = useState('guide');
+            const [dark, setDark] = useState(localStorage.getItem('chemDark')==='true');
+            useEffect(()=>{document.documentElement.classList.toggle('dark', dark); localStorage.setItem('chemDark', dark);},[dark]);
+            return (
+                <div className="p-4 sm:p-8 max-w-5xl mx-auto">
+                    <div className="flex justify-between items-center mb-8">
+                        <a href="../index.html" className="text-orange-500 font-bold">← Übersicht</a>
+                        <button onClick={()=>setDark(!dark)} className="p-2 border rounded-full">{dark?'☀️':'🌙'}</button>
+                    </div>
+                    <h1 className="text-3xl font-extrabold mb-2">Titrations‑Trainer</h1>
+                    <div className="flex gap-4 border-b mb-6">
+                        <button onClick={()=>setTab('guide')} className={`pb-2 px-4 ${tab==='guide'?'border-b-4 border-orange-500 font-bold':''}`}>Lernen</button>
+                        <button onClick={()=>setTab('practice')} className={`pb-2 px-4 ${tab==='practice'?'border-b-4 border-orange-500 font-bold':''}`}>Üben</button>
+                    </div>
+                    {tab==='guide'?<Guide/>:<Practice/>}
+                    <footer className="mt-12 text-center text-slate-400 text-sm">Johannes‑Scharrer‑Gymnasium · Zollfrank</footer>
+                </div>
+            );
+        }
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App/>);
+    </script>
+</body>
+</html>

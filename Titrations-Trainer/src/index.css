@@ -1,0 +1,151 @@
+@import "tailwindcss";
+
+@theme {
+    --color-chem-50: #fff7ed;
+    --color-chem-100: #ffedd5;
+    --color-chem-200: #fed7aa;
+    --color-chem-300: #fdba74;
+    --color-chem-400: #fb923c;
+    --color-chem-500: #f97316;
+    --color-chem-600: #ea580c;
+    --color-chem-700: #c2410c;
+    --color-chem-800: #9a3412;
+    --color-chem-900: #7c2d12;
+}
+
+body { 
+    font-family: 'Inter', system-ui, sans-serif; 
+    background: #fafafa; 
+    color: #1e293b; 
+}
+
+.dark body { 
+    background: #0f172a; 
+    color: #f1f5f9; 
+}
+
+/* Dark mode toggles */
+.theme-toggle-btn {
+    position: fixed; top: 1rem; right: 1rem; z-index: 100;
+    width: 40px; height: 40px; border-radius: 50%;
+    background: white; border: 2px solid #f97316;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1); cursor: pointer; transition: all 0.2s;
+}
+.dark .theme-toggle-btn { background: #1e293b; border-color: #f97316; }
+.theme-toggle-btn:hover { transform: scale(1.1); }
+
+/* Skip link */
+.skip-link {
+    position: absolute; left: -9999px; top: 0; z-index: 999;
+    padding: 8px 16px; background: #f97316; color: white; font-weight: 600;
+}
+.skip-link:focus { left: 0; }
+
+.beaker {
+    position: relative;
+    width: 140px; height: 180px; 
+    border: 4px solid #94a3b8; border-top: none;
+    border-bottom-left-radius: 12px; border-bottom-right-radius: 12px;
+    background: rgba(255,255,255,0.8);
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end; /* This ensures child starts at bottom */
+    overflow: hidden;
+}
+.dark .beaker { border-color: #475569; background: rgba(30,41,59,0.8); }
+
+.beaker-liquid {
+    width: 100%;
+    transition: height 0.5s ease-out, background-color 0.5s ease-out;
+    display: flex; flex-wrap: wrap; align-content: flex-end; padding: 4px; gap: 2px;
+    position: relative;
+}
+
+.particle {
+    width: 8px; height: 8px; background-color: #2563eb; border-radius: 50%;
+    animation: float 4s infinite ease-in-out alternate;
+}
+@keyframes float { 0% { transform: translateY(0) translateX(0); } 100% { transform: translateY(-10px) translateX(5px); } }
+
+/* Formula classes */
+.f-n { color: #2563eb; font-weight: bold; }
+.dark .f-n { color: #60a5fa; }
+.f-v { color: #059669; font-weight: bold; }
+.dark .f-v { color: #34d399; }
+.f-c { color: #ea580c; font-weight: bold; }
+.dark .f-c { color: #fb923c; }
+
+.form-input {
+    width: 100%; max-width: 150px;
+    padding: 8px 12px;
+    border: 2px solid #cbd5e1; border-radius: 8px;
+    font-size: 1rem; outline: none; background: white;
+    transition: border-color 0.2s; text-align: center; font-weight: 700;
+}
+.dark .form-input { background: #1e293b; border-color: #475569; color: white; }
+.form-input:focus { border-color: #f97316; }
+.form-input.correct { border-color: #10b981; background: #ecfdf5; color: #047857; }
+.dark .form-input.correct { background: rgba(16, 185, 129, 0.2); }
+.form-input.incorrect { border-color: #ef4444; background: #fef2f2; color: #b91c1c; }
+.dark .form-input.incorrect { background: rgba(239, 68, 68, 0.2); }
+
+.tab-btn { transition: all 0.2s; border-bottom: 3px solid transparent; }
+.tab-btn.active { color: #f97316; border-color: #f97316; font-weight: 700; }
+.dark .tab-btn.active { color: #fb923c; border-color: #fb923c; }
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.guide-mode {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.step-buttons {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1.5rem;
+}
+
+.btn-nav {
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.btn-nav.primary {
+    background: #f97316;
+    color: white;
+}
+
+.btn-nav.primary:hover {
+    background: #ea580c;
+}
+
+.btn-nav.secondary {
+    background: #f1f5f9;
+    color: #475569;
+}
+
+.dark .btn-nav.secondary {
+    background: #334155;
+    color: #e2e8f0;
+}
+
+.btn-nav:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
