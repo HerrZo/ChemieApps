@@ -105,12 +105,20 @@ type TabType = 'sandbox' | 'piston' | 'diffusion' | 'water' | 'quiz';
 export default function App() {
   const [currentTab, setCurrentTab] = useState<TabType>('sandbox');
   const [darkMode, setDarkMode] = useState<boolean>(() => {
-    return localStorage.getItem('teilchenmodell_dark_mode') === 'true';
+    try {
+      const saved = localStorage.getItem('teilchenmodell_dark_mode');
+      if (saved !== null) return saved === 'true';
+      return window.matchMedia('(prefers-color-scheme: dark)').matches;
+    } catch {
+      return false;
+    }
   });
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', darkMode);
-    localStorage.setItem('teilchenmodell_dark_mode', String(darkMode));
+    try {
+      localStorage.setItem('teilchenmodell_dark_mode', String(darkMode));
+    } catch {}
   }, [darkMode]);
 
   return (
@@ -223,9 +231,9 @@ export default function App() {
 
       {/* ACTIVE STATION CONTENT */}
       <main className="flex-grow animate-fade-in">
-        {currentTab === 'sandbox' && <StationSandbox />}
-        {currentTab === 'piston' && <StationPiston />}
-        {currentTab === 'diffusion' && <StationDiffusion />}
+        {currentTab === 'sandbox' && <StationSandbox darkMode={darkMode} />}
+        {currentTab === 'piston' && <StationPiston darkMode={darkMode} />}
+        {currentTab === 'diffusion' && <StationDiffusion darkMode={darkMode} />}
         {currentTab === 'water' && <StationWaterDensity />}
         {currentTab === 'quiz' && <StationQuiz />}
       </main>
@@ -254,7 +262,7 @@ interface Particle {
   color: string;
 }
 
-function StationSandbox() {
+function StationSandbox({ darkMode }: { darkMode: boolean }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [tempCelsius, setTempCelsius] = useState<number>(20);
   const [viewMode, setViewMode] = useState<'micro' | 'macro'>('micro');
@@ -314,7 +322,7 @@ function StationSandbox() {
       ctx.clearRect(0, 0, width, height);
 
       // Background styling
-      const isDark = document.documentElement.classList.contains('dark');
+      const isDark = darkMode;
       ctx.fillStyle = isDark ? '#1a1107' : '#fffaf5';
       ctx.fillRect(0, 0, width, height);
 
@@ -444,7 +452,7 @@ function StationSandbox() {
 
     animId = requestAnimationFrame(render);
     return () => cancelAnimationFrame(animId);
-  }, [tempCelsius, speedMultiplier]);
+  }, [tempCelsius, speedMultiplier, darkMode]);
 
   return (
     <div className="space-y-6">
@@ -742,7 +750,7 @@ function MacroscopicView({ tempCelsius }: { tempCelsius: number }) {
 // ==========================================
 // STATION 2: DRUCKSTEMPEL (BOYLE-MARIOTTE)
 // ==========================================
-function StationPiston() {
+function StationPiston({ darkMode }: { darkMode: boolean }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [pistonHeightPercent, setPistonHeightPercent] = useState<number>(100); // 100% to 30%
   const [impactCount, setImpactCount] = useState<number>(75);
@@ -778,7 +786,7 @@ function StationPiston() {
     const render = () => {
       ctx.clearRect(0, 0, width, height);
 
-      const isDark = document.documentElement.classList.contains('dark');
+      const isDark = darkMode;
       ctx.fillStyle = isDark ? '#1a1107' : '#fffaf5';
       ctx.fillRect(0, 0, width, height);
 
@@ -860,7 +868,7 @@ function StationPiston() {
       cancelAnimationFrame(animId);
       clearInterval(interval);
     };
-  }, [relativeVolume]);
+  }, [relativeVolume, darkMode]);
 
   return (
     <div className="space-y-6">
@@ -1028,7 +1036,7 @@ function StationPiston() {
 // ==========================================
 // STATION 3: DIFFUSIONS-EXPERIMENT
 // ==========================================
-function StationDiffusion() {
+function StationDiffusion({ darkMode }: { darkMode: boolean }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [wallOpen, setWallOpen] = useState<boolean>(false);
   const [diffTemp, setDiffTemp] = useState<number>(25); // 0 to 100 °C
@@ -1113,7 +1121,7 @@ function StationDiffusion() {
     const render = () => {
       ctx.clearRect(0, 0, width, height);
 
-      const isDark = document.documentElement.classList.contains('dark');
+      const isDark = darkMode;
       ctx.fillStyle = isDark ? '#1a1107' : '#fffaf5';
       ctx.fillRect(0, 0, width, height);
 
@@ -1200,7 +1208,7 @@ function StationDiffusion() {
 
     animId = requestAnimationFrame(render);
     return () => cancelAnimationFrame(animId);
-  }, [wallOpen, diffTemp]);
+  }, [wallOpen, diffTemp, darkMode]);
 
   return (
     <div className="space-y-6">
