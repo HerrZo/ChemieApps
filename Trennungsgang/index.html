@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Qualitative Analyse – Bestimmungsschlüssel für Ionen</title>
+  <meta name="description" content="Wissenschaftlich logischer Bestimmungsschlüssel zur qualitativen anorganischen Analyse von Kationen und Anionen im Chemiepraktikum.">
+  
+  <!-- Schriften (Google Fonts Vorladung für optimale Typografie, mit robusten Fallbacks) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Kopfzeile -->
+  <header class="site-header">
+    <a href="#/" class="brand">
+      <span class="brand-title">Qualitative Analyse</span>
+      <span class="brand-subtitle">Anorganisches Praktikum</span>
+    </a>
+
+    <nav class="nav-tabs" aria-label="Hauptnavigation">
+      <a href="../index.html" class="nav-tab nav-tab-back" title="Zurück zur Übersicht aller Chemie-Apps">← ChemieApps</a>
+      <a href="#/" class="nav-tab">Start</a>
+      <a href="#/kationen" class="nav-tab">Kationen <span class="badge">15</span></a>
+      <a href="#/anionen" class="nav-tab">Anionen <span class="badge">10</span></a>
+      <a href="#/katalog" class="nav-tab">Katalog <span class="badge">48</span></a>
+      <a href="#/protokoll" class="nav-tab">Protokoll</a>
+    </nav>
+  </header>
+
+  <!-- Mobil-Fortschrittsleiste -->
+  <div class="mobile-progress-bar" id="mobile-progress-bar">
+    <div id="mobile-step-summary"><strong>Analyse läuft...</strong></div>
+    <button id="mobile-tree-toggle" class="icon-btn" aria-label="Analysebaum öffnen">Baum ▾</button>
+  </div>
+
+  <!-- Haupt-Layout -->
+  <div class="app-layout">
+    <!-- Seitenleiste: Baumdiagramm -->
+    <aside class="tree-sidebar" id="tree-sidebar" aria-label="Analyseweg Baumdiagramm">
+      <div class="sidebar-header">
+        <div class="sidebar-title-group">
+          <span class="sidebar-title">Analyseweg</span>
+        </div>
+        <div class="sidebar-actions">
+          <button id="tree-expand-all" class="icon-btn" title="Alle Zweige ausklappen">⊞</button>
+          <button id="tree-collapse-all" class="icon-btn" title="Alle Zweige einklappen">⊟</button>
+          <button id="sidebar-toggle-btn" class="icon-btn" title="Seitenleiste einklappen">◀</button>
+        </div>
+      </div>
+      <div class="sidebar-body" id="sidebar-body">
+        <!-- Wird dynamisch durch js/app.js befüllt -->
+      </div>
+    </aside>
+
+    <!-- Wiedereinblend-Knopf für eingeklappte Leiste -->
+    <button class="sidebar-open-btn" id="sidebar-open-btn">
+      ▶ Analyseweg einblenden
+    </button>
+
+    <!-- Hauptinhaltsbereich -->
+    <main class="main-content" id="main-content">
+      <!-- Wird dynamisch durch js/app.js befüllt -->
+    </main>
+  </div>
+
+  <!-- Bild-Lightbox Modal -->
+  <div class="lightbox-modal" id="lightbox-modal" role="dialog" aria-modal="true" aria-label="Fotovergrößerung">
+    <div class="lightbox-content">
+      <button class="lightbox-close" id="lightbox-close" aria-label="Schließen">&times;</button>
+      <img src="" alt="" class="lightbox-img" id="lightbox-img">
+      <div class="lightbox-caption" id="lightbox-caption"></div>
+    </div>
+  </div>
+
+  <!-- Skripte -->
+  <script src="js/data/nachweise.js"></script>
+  <script src="js/data/schluessel.js"></script>
+  <script src="js/formula.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
