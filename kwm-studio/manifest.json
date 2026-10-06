@@ -1,0 +1,16 @@
+{
+  "name": "Das Kugelwolkenmodell",
+  "short_name": "Kugelwolken",
+  "description": "Didaktische 3D-Chemie-Visualisierung nach dem Kugelwolkenmodell von André Reinke",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#F5F5F7",
+  "theme_color": "#0A66D8",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}

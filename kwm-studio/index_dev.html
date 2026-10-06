@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Das Kugelwolkenmodell</title>
+  <meta name="description" content="Didaktische 3D-Chemie-Visualisierung nach dem Kugelwolkenmodell von André Reinke" />
+  <link rel="icon" type="image/svg+xml" href="./icon.svg" />
+  <link rel="stylesheet" href="./src/styles/tokens.css" />
+  <link rel="stylesheet" href="./src/styles/base.css" />
+  <link rel="stylesheet" href="./src/styles/components.css" />
+</head>
+<body>
+  <div id="app" class="app-layout">
+    <!-- Header -->
+    <header id="header" class="app-header"></header>
+
+    <!-- Main Workspace -->
+    <main class="app-main">
+      <!-- Left Sidebar (Tools & Periodic Table) -->
+      <aside id="sidebar" class="app-sidebar"></aside>
+
+      <!-- 3D Canvas Stage -->
+      <div id="stage-container" class="stage-container">
+        <canvas id="stage-canvas"></canvas>
+        <div id="camera-controls" class="camera-controls-overlay"></div>
+        <div id="toast-container" class="toast-overlay"></div>
+      </div>
+
+      <!-- Right Inspector -->
+      <aside id="inspector" class="app-inspector"></aside>
+    </main>
+
+    <!-- Modals -->
+    <div id="modal-container" class="modal-layer" hidden></div>
+  </div>
+
+  <script type="module" src="./src/main.ts"></script>
+</body>
+</html>
