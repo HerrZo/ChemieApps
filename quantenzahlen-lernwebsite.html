@@ -1,0 +1,5335 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Interaktive Lernwebsite zu den vier Quantenzahlen, Atommodellen, Spektren, Aufbauprinzip, Zeeman-Effekt und Stern-Gerlach-Versuch.">
+<title>Quantenzahlen – Die Architektur der Atomhülle</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%230f9d8f'/%3E%3Ccircle cx='32' cy='32' r='7' fill='%23fff'/%3E%3Cellipse cx='32' cy='32' rx='25' ry='10' fill='none' stroke='%23fff' stroke-width='3'/%3E%3Cellipse cx='32' cy='32' rx='25' ry='10' fill='none' stroke='%23fff' stroke-width='3' transform='rotate(60 32 32)'/%3E%3Cellipse cx='32' cy='32' rx='25' ry='10' fill='none' stroke='%23fff' stroke-width='3' transform='rotate(120 32 32)'/%3E%3C/svg%3E">
+<script>
+try {
+  var storedTheme = localStorage.getItem('qz-theme');
+  if (storedTheme) document.documentElement.dataset.theme = storedTheme;
+} catch (error) {}
+</script>
+<style>
+:root {
+  --bg: #f5f7fb;
+  --bg-2: #edf1f8;
+  --surface: #ffffff;
+  --surface-2: #f9fafc;
+  --text: #101828;
+  --muted: #5a6475;
+  --line: rgba(16, 24, 40, 0.09);
+  --line-strong: rgba(16, 24, 40, 0.17);
+  --header-bg: rgba(245, 247, 251, 0.84);
+  --accent: #0f9d8f;
+  --accent-strong: #0b7c72;
+  --accent-2: #6d5bd0;
+  --accent-3: #a86400;
+  --red: #d64545;
+  --green: #128a5a;
+  --on-accent: #04211d;
+  --accent-soft: rgba(15, 157, 143, 0.1);
+  --violet-soft: rgba(109, 91, 208, 0.1);
+  --amber-soft: rgba(168, 100, 0, 0.12);
+  --rose-soft: rgba(214, 69, 69, 0.1);
+  --green-soft: rgba(18, 138, 90, 0.1);
+  --shadow-sm: 0 8px 24px rgba(16, 24, 40, 0.05);
+  --shadow: 0 24px 60px rgba(16, 24, 40, 0.08);
+  --glow-1: rgba(15, 157, 143, 0.14);
+  --glow-2: rgba(109, 91, 208, 0.13);
+  --glow-3: rgba(168, 100, 0, 0.1);
+  --s-bg: #d8f3ee;
+  --s-border: #86d9cd;
+  --s-text: #0b6b61;
+  --p-bg: #e8e3fb;
+  --p-border: #b9aaf0;
+  --p-text: #4c3ba8;
+  --d-bg: #fdeccd;
+  --d-border: #f0c879;
+  --d-text: #8a5a00;
+  --f-bg: #fadfe4;
+  --f-border: #eda9b6;
+  --f-text: #9b2c42;
+  --radius: 24px;
+  --radius-sm: 14px;
+  --max-width: 1180px;
+}
+[data-theme="dark"] {
+  --bg: #070b14;
+  --bg-2: #0a101c;
+  --surface: #0e1524;
+  --surface-2: #111a2c;
+  --text: #eef2ff;
+  --muted: #9aa7bf;
+  --line: rgba(255, 255, 255, 0.09);
+  --line-strong: rgba(255, 255, 255, 0.18);
+  --header-bg: rgba(7, 11, 20, 0.8);
+  --accent: #2dd4bf;
+  --accent-strong: #14b8a6;
+  --accent-2: #a78bfa;
+  --accent-3: #fbbf24;
+  --red: #f87171;
+  --green: #34d399;
+  --accent-soft: rgba(45, 212, 191, 0.12);
+  --violet-soft: rgba(167, 139, 250, 0.13);
+  --amber-soft: rgba(251, 191, 36, 0.12);
+  --rose-soft: rgba(248, 113, 113, 0.12);
+  --green-soft: rgba(52, 211, 153, 0.12);
+  --shadow-sm: 0 8px 24px rgba(0, 0, 0, 0.25);
+  --shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+  --glow-1: rgba(45, 212, 191, 0.1);
+  --glow-2: rgba(167, 139, 250, 0.12);
+  --glow-3: rgba(251, 191, 36, 0.07);
+  --s-bg: rgba(45, 212, 191, 0.13);
+  --s-border: rgba(45, 212, 191, 0.32);
+  --s-text: #5eead4;
+  --p-bg: rgba(167, 139, 250, 0.14);
+  --p-border: rgba(167, 139, 250, 0.34);
+  --p-text: #c4b5fd;
+  --d-bg: rgba(251, 191, 36, 0.13);
+  --d-border: rgba(251, 191, 36, 0.32);
+  --d-text: #fcd34d;
+  --f-bg: rgba(248, 113, 113, 0.12);
+  --f-border: rgba(248, 113, 113, 0.3);
+  --f-text: #fca5a5;
+}
+* {
+  box-sizing: border-box;
+}
+html {
+  scroll-behavior: smooth;
+}
+body {
+  margin: 0;
+  font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.62;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(900px 600px at 12% -5%, var(--glow-1), transparent 65%),
+    radial-gradient(900px 650px at 88% 12%, var(--glow-2), transparent 62%),
+    radial-gradient(700px 500px at 50% 100%, var(--glow-3), transparent 70%);
+}
+::selection {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+a {
+  color: var(--accent-strong);
+}
+[data-theme="dark"] main a:not(.btn):not(.path-card) {
+  color: var(--accent);
+}
+h1, h2, h3, h4 {
+  line-height: 1.14;
+  letter-spacing: -0.025em;
+  margin: 0;
+}
+p {
+  margin: 0;
+}
+button, input, select {
+  font: inherit;
+}
+button {
+  color: inherit;
+}
+[hidden] {
+  display: none !important;
+}
+.svg-sprite {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+.icon {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  display: inline-block;
+  vertical-align: middle;
+}
+.container {
+  width: min(var(--max-width), calc(100% - 40px));
+  margin-inline: auto;
+}
+.skip-link {
+  position: fixed;
+  left: 16px;
+  top: -80px;
+  z-index: 200;
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  color: var(--text);
+  text-decoration: none;
+}
+.skip-link:focus {
+  top: 12px;
+}
+:focus-visible {
+  outline: 3px solid var(--accent-2);
+  outline-offset: 3px;
+  border-radius: 8px;
+}
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 60;
+  background: var(--header-bg);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-bottom: 1px solid var(--line);
+}
+.header-inner {
+  height: 68px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: var(--text);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+.brand-mark {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  color: #ffffff;
+  box-shadow: 0 8px 20px rgba(15, 157, 143, 0.25);
+}
+.brand-mark .icon {
+  width: 22px;
+  height: 22px;
+}
+.brand small {
+  display: block;
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.main-nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  overflow-x: auto;
+  scrollbar-width: none;
+  max-width: 62%;
+}
+.main-nav::-webkit-scrollbar {
+  display: none;
+}
+.main-nav a {
+  display: inline-block;
+  padding: 8px 10px;
+  border-radius: 999px;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.8rem;
+  font-weight: 650;
+  white-space: nowrap;
+  transition: color 0.2s, background 0.2s;
+}
+.main-nav a:hover {
+  color: var(--text);
+  background: var(--surface-2);
+}
+.main-nav a.active {
+  color: var(--text);
+  background: var(--accent-soft);
+}
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.progress-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 11px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.progress-pill strong {
+  color: var(--accent-strong);
+  font-size: 0.78rem;
+}
+[data-theme="dark"] .progress-pill strong {
+  color: var(--accent);
+}
+.icon-button {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  cursor: pointer;
+  transition: transform 0.2s, border-color 0.2s, background 0.2s;
+}
+.icon-button:hover {
+  transform: translateY(-1px);
+  border-color: var(--line-strong);
+}
+.nav-home-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: transform 0.2s, border-color 0.2s, background 0.2s, color 0.2s;
+}
+.nav-home-btn:hover {
+  transform: translateY(-1px);
+  border-color: var(--line-strong);
+  color: var(--accent-strong);
+  background: var(--surface-2);
+}
+[data-theme="dark"] .nav-home-btn:hover {
+  color: var(--accent);
+}
+.nav-home-btn .icon {
+  width: 15px;
+  height: 15px;
+  color: var(--accent-strong);
+}
+[data-theme="dark"] .nav-home-btn .icon {
+  color: var(--accent);
+}
+@media (max-width: 520px) {
+  .nav-home-btn span {
+    display: none;
+  }
+  .nav-home-btn {
+    padding: 0;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    justify-content: center;
+  }
+}
+.progress-track {
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: transparent;
+}
+.progress-fill {
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2), var(--accent-3));
+  border-radius: 0 3px 3px 0;
+  transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.hero {
+  padding: 82px 0 68px;
+}
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1.04fr 0.96fr;
+  gap: 52px;
+  align-items: center;
+}
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 13px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  border: 1px solid color-mix(in srgb, var(--accent) 24%, transparent);
+  color: var(--accent-strong);
+  font-size: 0.76rem;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+[data-theme="dark"] .eyebrow {
+  color: var(--accent);
+}
+.eyebrow .icon {
+  width: 15px;
+  height: 15px;
+}
+.hero h1 {
+  margin: 20px 0 22px;
+  font-size: clamp(2.55rem, 5.1vw, 4.45rem);
+  letter-spacing: -0.055em;
+}
+.gradient-text {
+  background: linear-gradient(115deg, var(--accent) 10%, var(--accent-2) 55%, var(--accent-3) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.hero-lead {
+  max-width: 57ch;
+  color: var(--muted);
+  font-size: 1.1rem;
+}
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 30px;
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 12px 21px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-size: 0.93rem;
+  font-weight: 750;
+  line-height: 1.2;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s, background 0.2s, border-color 0.2s;
+}
+.btn:hover {
+  transform: translateY(-1px);
+}
+.btn:active {
+  transform: translateY(0);
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+  color: var(--on-accent);
+  box-shadow: 0 12px 28px rgba(15, 157, 143, 0.24);
+}
+[data-theme="dark"] .btn-primary {
+  background: linear-gradient(135deg, #2dd4bf, #14b8a6);
+}
+.btn-ghost {
+  background: var(--surface);
+  border-color: var(--line-strong);
+  color: var(--text);
+}
+.btn-ghost:hover {
+  border-color: var(--accent);
+}
+.btn-sm {
+  padding: 9px 15px;
+  font-size: 0.83rem;
+}
+.hero-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 24px;
+  margin-top: 34px;
+  padding-top: 26px;
+  border-top: 1px solid var(--line);
+}
+.hero-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.hero-stat strong {
+  font-size: 1.18rem;
+  letter-spacing: -0.02em;
+}
+.hero-stat span {
+  font-size: 0.76rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  font-weight: 650;
+}
+.hero-hint {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 18px;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+.hero-hint .icon {
+  width: 15px;
+  height: 15px;
+  color: var(--green);
+}
+.atom-wrap {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 460px;
+}
+.atom-halo {
+  position: absolute;
+  width: min(100%, 470px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--accent-soft) 0%, transparent 66%);
+  filter: blur(6px);
+}
+.atom-art {
+  position: relative;
+  width: min(100%, 470px);
+  height: auto;
+  filter: drop-shadow(0 26px 44px rgba(15, 157, 143, 0.13));
+}
+.orbit-group {
+  transform-origin: 220px 220px;
+  animation: orbitSpin 22s linear infinite;
+}
+.orbit-group.reverse {
+  animation-direction: reverse;
+  animation-duration: 28s;
+}
+.orbit-group.slow {
+  animation-duration: 34s;
+}
+@keyframes orbitSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.atom-badge {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 46px;
+  height: 46px;
+  padding: 0 10px;
+  border-radius: 14px;
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  box-shadow: var(--shadow-sm);
+  font-family: Georgia, "Times New Roman", serif;
+  font-style: italic;
+  font-weight: 700;
+  font-size: 1.1rem;
+  animation: floatBadge 5.2s ease-in-out infinite;
+}
+.atom-badge.n {
+  top: 8%;
+  left: 7%;
+  color: var(--accent-strong);
+}
+.atom-badge.l {
+  top: 16%;
+  right: 3%;
+  color: var(--accent-2);
+  animation-delay: -1.4s;
+}
+.atom-badge.ml {
+  bottom: 14%;
+  left: 1%;
+  color: var(--accent-3);
+  animation-delay: -2.8s;
+}
+.atom-badge.s {
+  bottom: 6%;
+  right: 8%;
+  color: var(--red);
+  animation-delay: -4.1s;
+}
+[data-theme="dark"] .atom-badge.n {
+  color: var(--accent);
+}
+@keyframes floatBadge {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-9px);
+  }
+}
+.section {
+  padding: 88px 0;
+  scroll-margin-top: 90px;
+}
+.section-tight {
+  padding-top: 52px;
+}
+.section-head {
+  max-width: 780px;
+  margin-bottom: 36px;
+}
+.kicker {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--accent-strong);
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+[data-theme="dark"] .kicker {
+  color: var(--accent);
+}
+.kicker::before {
+  content: "";
+  width: 26px;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+}
+.section-head h2 {
+  font-size: clamp(1.9rem, 3.5vw, 2.85rem);
+  letter-spacing: -0.04em;
+}
+.section-head p {
+  margin-top: 14px;
+  color: var(--muted);
+  font-size: 1.02rem;
+  max-width: 72ch;
+}
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+}
+.card-pad {
+  padding: 26px;
+}
+.subsection-title {
+  font-size: 1.16rem;
+  font-weight: 800;
+  margin-bottom: 14px;
+}
+.muted {
+  color: var(--muted);
+}
+.small {
+  font-size: 0.82rem;
+}
+.path-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(255px, 1fr));
+  gap: 16px;
+}
+.path-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 24px;
+  border-radius: 20px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  text-decoration: none;
+  color: var(--text);
+  overflow: hidden;
+  transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
+}
+.path-card::after {
+  content: "";
+  position: absolute;
+  inset: auto -30px -40px auto;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  opacity: 0.7;
+  transition: transform 0.3s;
+}
+.path-card:hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--accent) 38%, var(--line));
+  box-shadow: var(--shadow);
+}
+.path-card:hover::after {
+  transform: scale(1.25);
+}
+.path-number {
+  font-size: 0.73rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: var(--accent-strong);
+  text-transform: uppercase;
+}
+[data-theme="dark"] .path-number {
+  color: var(--accent);
+}
+.path-card h3 {
+  font-size: 1.04rem;
+  font-weight: 800;
+  padding-right: 34px;
+}
+.path-card p {
+  color: var(--muted);
+  font-size: 0.87rem;
+}
+.path-arrow {
+  position: absolute;
+  right: 20px;
+  top: 20px;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  transition: background 0.25s, color 0.25s, transform 0.25s;
+}
+.path-card:hover .path-arrow {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--on-accent);
+  transform: translateX(2px);
+}
+.path-check {
+  display: none;
+  position: absolute;
+  right: 20px;
+  top: 20px;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--green-soft);
+  color: var(--green);
+}
+.path-card.done .path-check {
+  display: grid;
+}
+.path-card.done .path-arrow {
+  display: none;
+}
+.path-card.done {
+  border-color: color-mix(in srgb, var(--green) 28%, var(--line));
+}
+.timeline-wrap {
+  margin-bottom: 18px;
+}
+.timeline {
+  position: relative;
+  display: flex;
+  gap: 8px;
+  padding: 8px 0 16px;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+.timeline::before {
+  content: "";
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  top: 38px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2), var(--accent-3));
+  opacity: 0.28;
+}
+.tl-node {
+  position: relative;
+  flex: 1 0 130px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 10px 12px 34px;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 12px;
+  transition: background 0.2s;
+}
+.tl-node:hover {
+  background: var(--surface-2);
+}
+.tl-year {
+  font-size: 0.73rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+.tl-name {
+  font-size: 0.94rem;
+  font-weight: 800;
+}
+.tl-caption {
+  font-size: 0.73rem;
+  color: var(--muted);
+}
+.tl-dot {
+  position: absolute;
+  left: 12px;
+  bottom: 17px;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 2px solid var(--line-strong);
+  transition: background 0.25s, border-color 0.25s, box-shadow 0.25s;
+}
+.tl-node.active .tl-dot {
+  background: var(--accent);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 6px var(--accent-soft);
+}
+.tl-node.active .tl-name {
+  color: var(--accent-strong);
+}
+[data-theme="dark"] .tl-node.active .tl-name {
+  color: var(--accent);
+}
+.model-panel {
+  display: grid;
+  grid-template-columns: minmax(240px, 330px) 1fr;
+  gap: 32px;
+  align-items: center;
+  padding: 28px;
+  margin-top: 8px;
+  min-height: 300px;
+}
+.model-art {
+  display: grid;
+  place-items: center;
+  border-radius: 18px;
+  background: radial-gradient(circle at 50% 45%, var(--surface-2), transparent 72%);
+  padding: 12px;
+}
+.model-art svg {
+  width: 100%;
+  max-width: 300px;
+  height: auto;
+  display: block;
+}
+.model-year {
+  display: inline-block;
+  margin-bottom: 6px;
+  color: var(--accent-strong);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+[data-theme="dark"] .model-year {
+  color: var(--accent);
+}
+.model-copy h3 {
+  font-size: 1.55rem;
+  margin-bottom: 10px;
+}
+.model-quote {
+  padding-left: 16px;
+  border-left: 3px solid var(--accent);
+  color: var(--text);
+  font-style: italic;
+  font-size: 0.98rem;
+  margin: 12px 0 16px;
+}
+.model-points {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 7px;
+}
+.model-points li {
+  position: relative;
+  padding-left: 22px;
+  color: var(--muted);
+  font-size: 0.91rem;
+}
+.model-points li::before {
+  content: "";
+  position: absolute;
+  left: 3px;
+  top: 0.58em;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+.model-limit {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--amber-soft);
+  color: var(--text);
+  font-size: 0.85rem;
+}
+.model-limit strong {
+  color: var(--accent-3);
+  white-space: nowrap;
+}
+.model-limit .icon {
+  color: var(--accent-3);
+  margin-top: 2px;
+}
+.myth-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 14px;
+  margin-top: 22px;
+}
+.myth {
+  padding: 20px;
+  border-radius: 18px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
+.myth-tag {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: var(--rose-soft);
+  color: var(--red);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.myth h4 {
+  font-size: 0.96rem;
+  margin-bottom: 6px;
+}
+.myth p {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+.callout {
+  display: flex;
+  gap: 14px;
+  padding: 18px 20px;
+  border-radius: 18px;
+  background: var(--accent-soft);
+  border: 1px solid color-mix(in srgb, var(--accent) 22%, transparent);
+  margin-top: 20px;
+}
+.callout .callout-icon {
+  color: var(--accent-strong);
+  margin-top: 2px;
+}
+[data-theme="dark"] .callout .callout-icon {
+  color: var(--accent);
+}
+.callout strong {
+  display: block;
+  margin-bottom: 3px;
+  font-size: 0.92rem;
+}
+.callout p {
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: var(--violet-soft);
+  color: var(--accent-2);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+.tag-math {
+  text-transform: none;
+  letter-spacing: 0.01em;
+  font-family: Georgia, "Times New Roman", serif;
+  font-style: italic;
+  font-size: 0.8rem;
+}
+.spektren-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.mini-process {
+  padding: 20px 22px;
+}
+.process-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.process-head .icon {
+  color: var(--accent-strong);
+}
+[data-theme="dark"] .process-head .icon {
+  color: var(--accent);
+}
+.process-head h3 {
+  font-size: 0.98rem;
+}
+.mini-process p {
+  color: var(--muted);
+  font-size: 0.87rem;
+}
+.process-arrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  font-size: 0.78rem;
+  font-weight: 750;
+  color: var(--accent-strong);
+}
+[data-theme="dark"] .process-arrow {
+  color: var(--accent);
+}
+.hydrogen-demo {
+  padding: 26px;
+  display: grid;
+  grid-template-columns: minmax(280px, 0.9fr) 1.1fr;
+  gap: 28px;
+  align-items: start;
+}
+.h-ladder {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.h-level {
+  stroke: var(--line-strong);
+  stroke-width: 2;
+}
+.h-level.target {
+  stroke: var(--accent);
+  stroke-width: 3;
+}
+.h-level-label {
+  fill: var(--text);
+  font-size: 12.5px;
+  font-weight: 700;
+}
+.h-energy {
+  fill: var(--muted);
+  font-size: 9.5px;
+}
+.h-axis {
+  stroke: var(--line);
+  stroke-width: 1.5;
+}
+#hTransition {
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+#hElectron {
+  transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.h-caption {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 0.74rem;
+  text-align: center;
+}
+.transition-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.transition-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  font-size: 0.8rem;
+  font-weight: 750;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, transform 0.2s;
+}
+.transition-btn:hover {
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+.transition-btn.active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.transition-btn .swatch {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  flex: 0 0 auto;
+}
+.spectrum-box {
+  margin-top: 16px;
+}
+.spectrum-bar {
+  position: relative;
+  height: 68px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: linear-gradient(90deg, #4c1d95 0%, #4338ca 9%, #1d4ed8 19%, #0e7490 30%, #047857 41%, #65a30d 51%, #ca8a04 61%, #f59e0b 70%, #ea580c 79%, #dc2626 89%, #7f1d1d 100%);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.16);
+}
+.spectrum-bar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.22), transparent 38%, rgba(0, 0, 0, 0.3));
+  pointer-events: none;
+}
+.spectrum-lines {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+}
+.spectrum-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  border-radius: 3px;
+  transform: translateX(-50%);
+  animation: lineIn 0.45s ease-out;
+}
+@keyframes lineIn {
+  from {
+    transform: translateX(-50%) scaleY(0);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(-50%) scaleY(1);
+    opacity: 1;
+  }
+}
+.spectrum-scale {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 0.68rem;
+}
+.h-reading {
+  margin-top: 16px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  min-height: 92px;
+}
+.h-reading .reading-top {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-weight: 800;
+  font-size: 0.94rem;
+}
+.reading-dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  flex: 0 0 auto;
+}
+.h-reading p {
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+.formula-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+.formula {
+  padding: 9px 14px;
+  border-radius: 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  font-family: Georgia, "Times New Roman", serif;
+  font-style: italic;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+.formula strong {
+  font-family: "Segoe UI", system-ui, sans-serif;
+  font-style: normal;
+  font-weight: 700;
+}
+.flame-card {
+  display: grid;
+  grid-template-columns: 130px 1fr;
+  gap: 22px;
+  align-items: center;
+  padding: 22px;
+  margin-top: 20px;
+}
+.flame-stage {
+  position: relative;
+  width: 110px;
+  height: 130px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+.flame-shape {
+  position: relative;
+  width: 62px;
+  height: 96px;
+  border-radius: 50% 50% 46% 46% / 64% 64% 36% 36%;
+  background: radial-gradient(circle at 50% 72%, var(--flame-inner, #fff7cc) 0%, var(--flame-outer, #facc15) 53%, transparent 74%);
+  filter: blur(0.4px);
+  animation: flameFlicker 2.6s ease-in-out infinite;
+}
+.flame-base {
+  position: absolute;
+  bottom: 8px;
+  width: 74px;
+  height: 18px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, transparent, rgba(15, 23, 42, 0.18));
+  filter: blur(3px);
+}
+@keyframes flameFlicker {
+  0%, 100% {
+    transform: scale(1) rotate(-1deg);
+    opacity: 0.95;
+  }
+  50% {
+    transform: scale(1.04, 0.97) rotate(1.5deg);
+    opacity: 1;
+  }
+}
+.flame-copy h3 {
+  font-size: 1rem;
+  margin-bottom: 5px;
+}
+.flame-copy p {
+  color: var(--muted);
+  font-size: 0.84rem;
+  min-height: 42px;
+}
+.flame-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 12px;
+}
+.flame-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 11px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  font-size: 0.76rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+.flame-btn .swatch {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}
+.flame-btn.active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.qz-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+.qz-card {
+  position: relative;
+  overflow: hidden;
+  padding: 22px;
+  border-radius: 20px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-top: 4px solid var(--qz);
+}
+.qz-card::after {
+  content: "";
+  position: absolute;
+  right: -28px;
+  top: -34px;
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  background: var(--qz-soft);
+}
+.qz-n {
+  --qz: var(--accent);
+  --qz-soft: var(--accent-soft);
+}
+.qz-l {
+  --qz: var(--accent-2);
+  --qz-soft: var(--violet-soft);
+}
+.qz-ml {
+  --qz: var(--accent-3);
+  --qz-soft: var(--amber-soft);
+}
+.qz-s {
+  --qz: var(--red);
+  --qz-soft: var(--rose-soft);
+}
+.qz-symbol {
+  position: relative;
+  z-index: 1;
+  font-family: Georgia, "Times New Roman", serif;
+  font-style: italic;
+  font-size: 2.5rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--qz);
+}
+.qz-name {
+  position: relative;
+  z-index: 1;
+  margin: 6px 0 12px;
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+.qz-fact {
+  position: relative;
+  z-index: 1;
+  margin-top: 10px;
+}
+.qz-fact .fact-label {
+  display: block;
+  font-size: 0.64rem;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 2px;
+}
+.qz-fact p {
+  font-size: 0.82rem;
+  color: var(--text);
+}
+.qz-fact .muted {
+  color: var(--muted);
+}
+.qz-values {
+  font-family: Georgia, "Times New Roman", serif;
+  font-style: italic;
+  font-size: 0.95rem;
+}
+.explorer {
+  margin-top: 22px;
+  padding: 26px;
+}
+.explorer-grid {
+  display: grid;
+  grid-template-columns: 0.88fr 1.12fr;
+  gap: 28px;
+  align-items: start;
+}
+.control-row {
+  margin-bottom: 16px;
+}
+.control-label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.chip {
+  min-width: 36px;
+  padding: 7px 11px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  color: var(--muted);
+  font-size: 0.81rem;
+  font-weight: 750;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s, transform 0.2s;
+}
+.chip:hover {
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+.chip.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--on-accent);
+}
+.chip[data-l="0"].active,
+.chip[data-l="1"].active,
+.chip[data-l="2"].active,
+.chip[data-l="3"].active {
+  background: var(--accent-2);
+  border-color: var(--accent-2);
+  color: #ffffff;
+}
+.explorer-result {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: 20px;
+  padding: 18px;
+  border-radius: 16px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+}
+.explorer-preview {
+  display: grid;
+  place-items: center;
+  min-height: 150px;
+  border-radius: 14px;
+  background: radial-gradient(circle, var(--surface), transparent 73%);
+}
+.explorer-preview svg {
+  width: 136px;
+  height: 136px;
+}
+.orbital-name {
+  font-family: Georgia, "Times New Roman", serif;
+  font-style: italic;
+  font-size: 2.5rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--accent-strong);
+}
+[data-theme="dark"] .orbital-name {
+  color: var(--accent);
+}
+.explorer-text p {
+  margin-top: 8px;
+  font-size: 0.87rem;
+  color: var(--muted);
+}
+.mini-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+.mini-facts span {
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+.orbital-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+}
+.orbital-item {
+  width: 90px;
+  padding: 7px;
+  border-radius: 13px;
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  text-align: center;
+  transition: border-color 0.2s, transform 0.2s, background 0.2s;
+}
+.orbital-item.active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  transform: translateY(-2px);
+}
+.orbital-item svg {
+  width: 100%;
+  height: 58px;
+  display: block;
+}
+.orbital-item span {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.66rem;
+  font-weight: 750;
+  color: var(--muted);
+}
+.orbital-item.active span {
+  color: var(--text);
+}
+.orbital-item .orbital-sub {
+  margin-top: 1px;
+  font-size: 0.58rem;
+  font-weight: 650;
+  letter-spacing: 0;
+  color: var(--muted);
+}
+.orbital-item.active .orbital-sub {
+  color: var(--accent-strong);
+}
+[data-theme="dark"] .orbital-item.active .orbital-sub {
+  color: var(--accent);
+}
+.orb-preview {
+  width: 140px;
+  height: 140px;
+}
+.orb-svg {
+  overflow: visible;
+}
+.rule-check {
+  margin-top: 20px;
+  padding: 18px;
+  border-radius: 16px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+}
+.rule-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 10px;
+}
+.rule-controls label {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-style: italic;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--muted);
+}
+.rule-controls select {
+  min-width: 74px;
+  padding: 7px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--line-strong);
+  background: var(--surface);
+  color: var(--text);
+}
+.rule-result {
+  margin-top: 12px;
+  font-size: 0.87rem;
+  font-weight: 650;
+}
+.rule-result.ok {
+  color: var(--green);
+}
+.rule-result.bad {
+  color: var(--red);
+}
+.table-card {
+  margin-top: 22px;
+  overflow: hidden;
+}
+.table-wrap {
+  overflow-x: auto;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.87rem;
+}
+caption {
+  caption-side: top;
+  text-align: left;
+  padding: 18px 20px 6px;
+  font-weight: 800;
+  font-size: 0.95rem;
+}
+th {
+  text-align: left;
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: var(--surface-2);
+}
+th, td {
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+tbody tr:last-child td {
+  border-bottom: 0;
+}
+tbody tr:hover {
+  background: var(--surface-2);
+}
+td strong {
+  font-weight: 800;
+}
+.chart-card {
+  padding: 22px;
+}
+.chart-wrap {
+  position: relative;
+}
+.chart-svg {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.chart-grid {
+  stroke: var(--line);
+  stroke-width: 1;
+}
+.chart-axis {
+  stroke: var(--line-strong);
+  stroke-width: 1.4;
+}
+.chart-label {
+  fill: var(--muted);
+  font-size: 10.5px;
+}
+.chart-symbol {
+  fill: var(--muted);
+  font-size: 9.5px;
+  font-weight: 650;
+}
+.chart-line {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2.4;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.chart-area {
+  opacity: 0.85;
+}
+.ion-point {
+  cursor: pointer;
+}
+.ion-point .dot {
+  fill: var(--accent);
+  transition: fill 0.2s, stroke-width 0.2s;
+}
+.ion-point:hover .dot,
+.ion-point:focus .dot {
+  fill: var(--accent-3);
+}
+.ion-point:focus {
+  outline: none;
+}
+.ion-point:focus .dot {
+  stroke: var(--accent-2);
+  stroke-width: 3px;
+}
+.ion-point.selected .dot {
+  fill: var(--accent-3);
+  stroke: var(--surface);
+  stroke-width: 2.5px;
+}
+.ion-point .hit {
+  fill: transparent;
+}
+.chart-tip {
+  position: absolute;
+  z-index: 5;
+  padding: 8px 11px;
+  border-radius: 10px;
+  background: var(--text);
+  color: var(--bg);
+  font-size: 0.76rem;
+  font-weight: 650;
+  line-height: 1.35;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, -125%);
+  transition: opacity 0.15s;
+  white-space: nowrap;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+}
+.chart-tip.show {
+  opacity: 1;
+}
+.chart-tip span {
+  display: block;
+  opacity: 0.8;
+  font-weight: 500;
+}
+.ion-readout {
+  margin-top: 16px;
+  padding: 18px;
+  border-radius: 16px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  min-height: 105px;
+}
+.ion-readout h4 {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 0.95rem;
+  margin-bottom: 5px;
+}
+.ion-readout p {
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+.ion-readout .big-value {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--text);
+}
+.insight-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 14px;
+  margin-top: 18px;
+}
+.insight {
+  padding: 20px;
+}
+.insight h4 {
+  font-size: 0.94rem;
+  margin: 7px 0 6px;
+}
+.insight p {
+  color: var(--muted);
+  font-size: 0.83rem;
+}
+.aufbau-grid {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 18px;
+  align-items: start;
+}
+.element-panel {
+  padding: 24px;
+  position: sticky;
+  top: 88px;
+}
+.element-tile {
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  border-radius: 20px;
+  background: linear-gradient(140deg, color-mix(in srgb, var(--accent) 92%, #000), color-mix(in srgb, var(--accent-2) 78%, #000));
+  color: #ffffff;
+  text-align: center;
+  box-shadow: 0 18px 40px rgba(15, 157, 143, 0.2);
+}
+.element-z {
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  opacity: 0.9;
+}
+.element-sym {
+  font-size: 3.7rem;
+  font-weight: 850;
+  line-height: 1;
+  margin: 4px 0;
+}
+.element-name {
+  font-size: 1rem;
+  font-weight: 700;
+}
+.element-config {
+  margin-top: 16px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  font-family: "Cascadia Code", "Consolas", monospace;
+  font-size: 0.82rem;
+  overflow-wrap: anywhere;
+}
+.element-meta {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+.aufbau-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+.aufbau-controls .btn {
+  flex: 0 0 auto;
+}
+.sublevel-scale {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 2px 0 7px;
+  color: var(--muted);
+  font-size: 0.66rem;
+  font-weight: 750;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.sublevel-scale span:last-child {
+  text-align: right;
+}
+.sublevel-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.sublevel-row {
+  display: grid;
+  grid-template-columns: 48px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 10px;
+  border-radius: 11px;
+  border: 1px solid transparent;
+  transition: background 0.2s, border-color 0.2s;
+}
+.sublevel-row.occupied {
+  background: var(--surface-2);
+}
+.sublevel-row.next {
+  border-color: color-mix(in srgb, var(--accent) 38%, transparent);
+  background: var(--accent-soft);
+}
+.sublevel-name {
+  font-weight: 800;
+  font-size: 0.82rem;
+}
+.orbital-boxes {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+.orbital-box {
+  width: 29px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  border: 1px dashed var(--line-strong);
+  border-radius: 7px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.orbital-box.filled {
+  border-style: solid;
+  background: var(--surface);
+  color: var(--accent-strong);
+  border-color: color-mix(in srgb, var(--accent) 38%, var(--line));
+}
+[data-theme="dark"] .orbital-box.filled {
+  color: var(--accent);
+}
+.sublevel-count {
+  font-size: 0.68rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.aufbau-note {
+  display: flex;
+  gap: 9px;
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 11px;
+  background: var(--amber-soft);
+  font-size: 0.78rem;
+  color: var(--text);
+}
+.aufbau-note .icon {
+  color: var(--accent-3);
+  flex: 0 0 auto;
+  margin-top: 2px;
+}
+.exception-note {
+  background: var(--rose-soft);
+}
+.exception-note .icon {
+  color: var(--red);
+}
+.pse-card {
+  margin-top: 22px;
+  padding: 22px;
+}
+.pse-scroll {
+  overflow-x: auto;
+  padding-bottom: 8px;
+  scrollbar-width: thin;
+}
+.pse-grid {
+  display: grid;
+  grid-template-columns: 24px repeat(18, minmax(36px, 1fr));
+  grid-template-rows: 22px repeat(4, minmax(36px, 1fr));
+  gap: 4px;
+  min-width: 780px;
+}
+.pse-label {
+  display: grid;
+  place-items: center;
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: var(--muted);
+}
+.pse-cell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  padding: 2px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  background: var(--surface-2);
+  color: var(--text);
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+}
+.pse-cell:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 6px 16px rgba(16, 24, 40, 0.12);
+  z-index: 2;
+}
+.pse-cell .z {
+  font-size: 0.48rem;
+  line-height: 1.1;
+  color: var(--muted);
+}
+.pse-cell .sym {
+  font-size: 0.78rem;
+  font-weight: 800;
+  line-height: 1.15;
+}
+.pse-cell.block-s {
+  background: var(--s-bg);
+  border-color: var(--s-border);
+  color: var(--s-text);
+}
+.pse-cell.block-p {
+  background: var(--p-bg);
+  border-color: var(--p-border);
+  color: var(--p-text);
+}
+.pse-cell.block-d {
+  background: var(--d-bg);
+  border-color: var(--d-border);
+  color: var(--d-text);
+}
+.pse-cell.block-f {
+  background: var(--f-bg);
+  border-color: var(--f-border);
+  color: var(--f-text);
+}
+.pse-cell.block-s .z,
+.pse-cell.block-p .z,
+.pse-cell.block-d .z,
+.pse-cell.block-f .z {
+  color: currentColor;
+  opacity: 0.72;
+}
+.pse-cell.selected {
+  border-color: var(--text);
+  box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--text);
+  z-index: 3;
+}
+.pse-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin-top: 14px;
+  font-size: 0.74rem;
+  color: var(--muted);
+}
+.pse-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+.legend-dot.s {
+  background: var(--s-bg);
+  border: 1px solid var(--s-border);
+}
+.legend-dot.p {
+  background: var(--p-bg);
+  border: 1px solid var(--p-border);
+}
+.legend-dot.d {
+  background: var(--d-bg);
+  border: 1px solid var(--d-border);
+}
+.legend-dot.f {
+  background: var(--f-bg);
+  border: 1px solid var(--f-border);
+}
+.f-block-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+  min-width: 780px;
+}
+.f-block-label {
+  width: 74px;
+  flex: 0 0 auto;
+  font-size: 0.62rem;
+  color: var(--muted);
+  font-weight: 700;
+  line-height: 1.25;
+}
+.f-block-strip {
+  display: grid;
+  grid-template-columns: repeat(14, 1fr);
+  gap: 3px;
+  flex: 1;
+}
+.f-cell {
+  padding: 4px 2px;
+  border-radius: 5px;
+  background: var(--f-bg);
+  border: 1px solid var(--f-border);
+  color: var(--f-text);
+  text-align: center;
+  font-size: 0.56rem;
+  font-weight: 700;
+}
+.pse-info {
+  margin-top: 16px;
+  padding: 18px;
+  border-radius: 16px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+}
+.pse-info-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 10px;
+}
+.pse-big-sym {
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  font-size: 1.3rem;
+  font-weight: 850;
+  flex: 0 0 auto;
+}
+.pse-info-head strong {
+  display: block;
+  font-size: 1.05rem;
+}
+.pse-info-head span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.76rem;
+}
+.pse-info p {
+  color: var(--muted);
+  font-size: 0.84rem;
+  margin-bottom: 10px;
+}
+.config-line {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  font-family: "Cascadia Code", "Consolas", monospace;
+  font-size: 0.8rem;
+  margin-bottom: 12px;
+  overflow-wrap: anywhere;
+}
+.zeeman-layout {
+  display: grid;
+  grid-template-columns: 1.08fr 0.92fr;
+  gap: 18px;
+  align-items: start;
+}
+.zeeman-demo {
+  padding: 24px;
+}
+.demo-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+.demo-top h3 {
+  font-size: 1rem;
+}
+.field-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 12px 7px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--line-strong);
+  background: var(--surface-2);
+  cursor: pointer;
+  font-size: 0.78rem;
+  font-weight: 750;
+  transition: border-color 0.2s, background 0.2s;
+}
+.field-toggle .switch {
+  position: relative;
+  width: 38px;
+  height: 22px;
+  border-radius: 999px;
+  background: var(--line-strong);
+  transition: background 0.25s;
+}
+.field-toggle .knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--surface);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  transition: transform 0.25s;
+}
+.field-toggle[aria-pressed="true"] {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.field-toggle[aria-pressed="true"] .switch {
+  background: var(--accent);
+}
+.field-toggle[aria-pressed="true"] .knob {
+  transform: translateX(16px);
+}
+.zeeman-field {
+  position: relative;
+  padding: 30px 22px;
+  border-radius: 18px;
+  background: radial-gradient(circle at 50% 40%, #111a33, #080d19 72%);
+  overflow: hidden;
+}
+.zeeman-field::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 28px 28px;
+  opacity: 0.7;
+}
+.zeeman-band {
+  position: relative;
+  height: 76px;
+  border-radius: 10px;
+  background: linear-gradient(90deg, #172554, #1e1b4b 20%, #1e3a8a 48%, #0c4a6e 72%, #134e4a);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+  z-index: 1;
+}
+.z-line {
+  position: absolute;
+  top: -8px;
+  bottom: -8px;
+  width: 3px;
+  border-radius: 3px;
+  background: #fde047;
+  box-shadow: 0 0 14px #fde047, 0 0 30px rgba(253, 224, 71, 0.45);
+  transition: left 0.55s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.4s;
+}
+.z-line-center {
+  left: 50%;
+  transform: translateX(-50%);
+}
+.z-line-left {
+  left: 43%;
+  transform: translateX(-50%);
+  opacity: 0;
+}
+.z-line-right {
+  left: 57%;
+  transform: translateX(-50%);
+  opacity: 0;
+}
+.field-on .z-line-left,
+.field-on .z-line-right {
+  opacity: 1;
+}
+.field-labels {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+  color: #cbd5e1;
+  font-size: 0.68rem;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+}
+.field-labels span {
+  transition: opacity 0.4s, transform 0.4s;
+}
+.field-labels .side-label {
+  opacity: 0.2;
+  transform: translateY(4px);
+}
+.field-on .field-labels .side-label {
+  opacity: 1;
+  transform: translateY(0);
+}
+.field-status {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 18px;
+  color: #e2e8f0;
+  font-size: 0.78rem;
+}
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.16);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #94a3b8;
+  transition: background 0.3s, box-shadow 0.3s;
+}
+.field-on .status-dot {
+  background: #fde047;
+  box-shadow: 0 0 8px #fde047;
+}
+.shadow-demo {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 18px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  color: #e2e8f0;
+  font-size: 0.76rem;
+}
+.shadow-orb {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(8, 13, 25, 0.9);
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.9);
+  transition: opacity 0.45s, box-shadow 0.45s;
+  flex: 0 0 auto;
+}
+.field-on .shadow-orb {
+  opacity: 0.18;
+}
+.zeeman-copy {
+  padding: 24px;
+}
+.zeeman-copy h3 {
+  font-size: 1.08rem;
+  margin-bottom: 10px;
+}
+.zeeman-copy p {
+  color: var(--muted);
+  font-size: 0.88rem;
+  margin-bottom: 10px;
+}
+.orientation-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+}
+.orientation {
+  flex: 1;
+  padding: 10px 8px;
+  border-radius: 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  text-align: center;
+  transition: transform 0.4s, border-color 0.4s, background 0.4s;
+}
+.orientation svg {
+  width: 48px;
+  height: 48px;
+}
+.orientation span {
+  display: block;
+  margin-top: 3px;
+  font-size: 0.66rem;
+  font-weight: 750;
+  color: var(--muted);
+}
+.field-on .orientation:nth-child(1) {
+  transform: translateY(-5px);
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.field-on .orientation:nth-child(3) {
+  transform: translateY(5px);
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.field-on .orientation:nth-child(2) {
+  border-color: var(--accent-2);
+  background: var(--violet-soft);
+}
+.spin-layout {
+  display: grid;
+  gap: 18px;
+}
+.sg-card {
+  padding: 24px;
+}
+.sg-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.sg-tab {
+  padding: 8px 13px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  font-size: 0.76rem;
+  font-weight: 750;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+.sg-tab.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--on-accent);
+}
+.sg-stage {
+  border-radius: 18px;
+  background: radial-gradient(circle at 50% 50%, var(--surface-2), var(--surface) 78%);
+  border: 1px solid var(--line);
+  padding: 8px;
+  overflow: hidden;
+}
+.sg-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+.sg-group {
+  transition: opacity 0.4s;
+}
+.sg-stage[data-mode="classical"] .sg-quantum {
+  opacity: 0;
+  pointer-events: none;
+}
+.sg-stage[data-mode="quantum"] .sg-classical {
+  opacity: 0;
+  pointer-events: none;
+}
+.sg-beam {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2;
+  stroke-dasharray: 7 8;
+  animation: beamDash 1.6s linear infinite;
+}
+.sg-classical .sg-beam {
+  stroke: var(--muted);
+  opacity: 0.44;
+  stroke-width: 1.5;
+}
+.sg-label {
+  fill: var(--muted);
+  font-size: 12px;
+  font-weight: 650;
+}
+.sg-label-strong {
+  fill: var(--text);
+  font-size: 13px;
+  font-weight: 750;
+}
+@keyframes beamDash {
+  to {
+    stroke-dashoffset: -30;
+  }
+}
+.sg-notes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+.sg-note {
+  padding: 14px 16px;
+  border-radius: 13px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+}
+.sg-note strong {
+  display: block;
+  font-size: 0.76rem;
+  margin-bottom: 3px;
+  color: var(--accent-strong);
+}
+[data-theme="dark"] .sg-note strong {
+  color: var(--accent);
+}
+.sg-note p {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+.spin-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 18px;
+  align-items: start;
+}
+.doublet-card {
+  padding: 24px;
+}
+.doublet-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.doublet-head h3 {
+  font-size: 1.05rem;
+}
+.doublet-spectrum {
+  position: relative;
+  height: 64px;
+  border-radius: 10px;
+  background: linear-gradient(90deg, #1e1b4b, #111827 40%, #111827 60%, #1e1b4b);
+  overflow: hidden;
+  border: 1px solid var(--line);
+}
+.d-line {
+  position: absolute;
+  top: -6px;
+  bottom: -6px;
+  width: 3px;
+  border-radius: 3px;
+  background: #fde047;
+  box-shadow: 0 0 12px #fde047;
+  transition: left 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.d-line.one {
+  left: 48.5%;
+}
+.d-line.two {
+  left: 51.5%;
+}
+.doublet-spectrum.zoomed .d-line.one {
+  left: 32%;
+}
+.doublet-spectrum.zoomed .d-line.two {
+  left: 68%;
+}
+.doublet-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 0.7rem;
+}
+.doublet-caption {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 0.73rem;
+}
+.spin-visual {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+.spin-arrow {
+  flex: 1;
+  padding: 14px 10px;
+  border-radius: 13px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  text-align: center;
+}
+.spin-arrow .arrow-big {
+  display: block;
+  font-size: 1.9rem;
+  line-height: 1;
+  color: var(--accent);
+}
+.spin-arrow:nth-child(2) .arrow-big {
+  color: var(--accent-2);
+}
+.spin-arrow strong {
+  display: block;
+  margin-top: 6px;
+  font-size: 0.78rem;
+}
+.spin-arrow span {
+  color: var(--muted);
+  font-size: 0.7rem;
+}
+.spin-summary {
+  padding: 24px;
+}
+.spin-summary h3 {
+  font-size: 1.05rem;
+  margin-bottom: 10px;
+}
+.spin-summary p {
+  color: var(--muted);
+  font-size: 0.88rem;
+  margin-bottom: 10px;
+}
+.timeline-mini {
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+}
+.timeline-mini-item {
+  display: grid;
+  grid-template-columns: 46px 1fr;
+  gap: 10px;
+  align-items: start;
+  padding: 10px 12px;
+  border-radius: 11px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+}
+.timeline-mini-item strong {
+  font-size: 0.8rem;
+  color: var(--accent-strong);
+}
+[data-theme="dark"] .timeline-mini-item strong {
+  color: var(--accent);
+}
+.timeline-mini-item span {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+.quiz-shell {
+  max-width: 840px;
+  margin: 0 auto;
+  padding: 30px;
+}
+.quiz-start {
+  text-align: center;
+  padding: 16px;
+}
+.quiz-start-icon {
+  width: 74px;
+  height: 74px;
+  display: grid;
+  place-items: center;
+  margin: 0 auto 18px;
+  border-radius: 24px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  color: #ffffff;
+  box-shadow: 0 16px 36px rgba(15, 157, 143, 0.24);
+}
+.quiz-start-icon .icon {
+  width: 34px;
+  height: 34px;
+}
+.quiz-start h3 {
+  font-size: 1.45rem;
+  margin-bottom: 8px;
+}
+.quiz-start p {
+  max-width: 52ch;
+  margin: 0 auto;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+.quiz-best {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin: 18px 0;
+  padding: 7px 13px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  font-size: 0.78rem;
+  font-weight: 750;
+  color: var(--accent-strong);
+}
+[data-theme="dark"] .quiz-best {
+  color: var(--accent);
+}
+.quiz-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.quiz-meta {
+  display: flex;
+  gap: 14px;
+  font-size: 0.76rem;
+  font-weight: 750;
+  color: var(--muted);
+}
+.quiz-meta .score {
+  color: var(--accent-strong);
+}
+[data-theme="dark"] .quiz-meta .score {
+  color: var(--accent);
+}
+.quiz-progress {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--line);
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+.quiz-progress span {
+  display: block;
+  height: 100%;
+  width: 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  transition: width 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.quiz-question {
+  font-size: 1.22rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-bottom: 18px;
+}
+.quiz-options {
+  display: grid;
+  gap: 9px;
+}
+.quiz-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  width: 100%;
+  padding: 13px 15px;
+  border-radius: 13px;
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  text-align: left;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, transform 0.2s;
+}
+.quiz-option:hover:not(:disabled) {
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+.quiz-option:disabled {
+  cursor: default;
+}
+.option-letter {
+  width: 24px;
+  height: 24px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border-radius: 7px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: var(--muted);
+}
+.quiz-option.correct {
+  border-color: var(--green);
+  background: var(--green-soft);
+}
+.quiz-option.correct .option-letter {
+  background: var(--green);
+  border-color: var(--green);
+  color: #ffffff;
+}
+.quiz-option.wrong {
+  border-color: var(--red);
+  background: var(--rose-soft);
+}
+.quiz-option.wrong .option-letter {
+  background: var(--red);
+  border-color: var(--red);
+  color: #ffffff;
+}
+.quiz-feedback {
+  margin-top: 16px;
+  padding: 15px 17px;
+  border-radius: 13px;
+  background: var(--accent-soft);
+  border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
+}
+.feedback-head {
+  font-weight: 800;
+  font-size: 0.9rem;
+  margin-bottom: 3px;
+}
+.quiz-feedback p {
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+.quiz-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 18px;
+}
+.quiz-result {
+  text-align: center;
+  padding: 10px;
+}
+.score-ring {
+  --score: 0;
+  position: relative;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  margin: 0 auto 18px;
+  background: conic-gradient(var(--accent) calc(var(--score) * 1%), var(--line) 0);
+  display: grid;
+  place-items: center;
+}
+.score-ring::before {
+  content: "";
+  position: absolute;
+  inset: 10px;
+  border-radius: 50%;
+  background: var(--surface);
+}
+.score-value {
+  position: relative;
+  z-index: 1;
+  font-size: 2rem;
+  font-weight: 850;
+  letter-spacing: -0.04em;
+}
+.score-value small {
+  display: block;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.quiz-result h3 {
+  font-size: 1.45rem;
+  margin-bottom: 6px;
+}
+.quiz-result > p {
+  color: var(--muted);
+  font-size: 0.9rem;
+  max-width: 50ch;
+  margin: 0 auto;
+}
+.result-actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 20px;
+}
+.result-topics {
+  margin: 18px auto 0;
+  max-width: 54ch;
+  padding: 12px 15px;
+  border-radius: 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  font-size: 0.82rem;
+  color: var(--muted);
+  text-align: left;
+}
+.result-topics strong {
+  color: var(--text);
+}
+.spickzettel {
+  padding: 0;
+  overflow: hidden;
+  margin-bottom: 22px;
+}
+.summary-rules {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0 20px 20px;
+}
+.summary-rule {
+  padding: 7px 11px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  font-family: Georgia, "Times New Roman", serif;
+  font-style: italic;
+  font-size: 0.85rem;
+}
+.glossary-tools {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.search-box {
+  position: relative;
+  flex: 1;
+  max-width: 420px;
+}
+.search-box .icon {
+  position: absolute;
+  left: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted);
+}
+.search-box input {
+  width: 100%;
+  padding: 11px 14px 11px 38px;
+  border-radius: 999px;
+  border: 1px solid var(--line-strong);
+  background: var(--surface);
+  color: var(--text);
+}
+.glossary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.glossary-item {
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  overflow: hidden;
+}
+.glossary-item summary {
+  position: relative;
+  display: block;
+  padding: 14px 44px 14px 16px;
+  cursor: pointer;
+  font-weight: 750;
+  font-size: 0.9rem;
+  list-style: none;
+}
+.glossary-item summary::-webkit-details-marker {
+  display: none;
+}
+.glossary-item summary::after {
+  content: "+";
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--muted);
+  transition: transform 0.2s;
+}
+.glossary-item[open] summary::after {
+  transform: translateY(-50%) rotate(45deg);
+}
+.glossary-item p {
+  padding: 0 16px 15px;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+.glossary-empty {
+  color: var(--muted);
+  font-size: 0.88rem;
+  padding: 8px 2px;
+}
+.sources {
+  margin-top: 28px;
+  padding: 18px 20px;
+  border-radius: 14px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+.sources strong {
+  color: var(--text);
+}
+.site-footer {
+  border-top: 1px solid var(--line);
+  padding: 34px 0 40px;
+}
+.footer-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.footer-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+.footer-brand .icon {
+  color: var(--accent-strong);
+}
+[data-theme="dark"] .footer-brand .icon {
+  color: var(--accent);
+}
+.footer-note {
+  color: var(--muted);
+  font-size: 0.76rem;
+}
+.footer-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  z-index: 120;
+  transform: translateX(-50%) translateY(20px);
+  padding: 11px 18px;
+  border-radius: 999px;
+  background: var(--text);
+  color: var(--bg);
+  font-size: 0.82rem;
+  font-weight: 650;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s, transform 0.3s;
+  white-space: nowrap;
+  box-shadow: var(--shadow);
+}
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+.reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.reveal.in {
+  opacity: 1;
+  transform: translateY(0);
+}
+@media (max-width: 1020px) {
+  .main-nav {
+    max-width: 54%;
+  }
+  .hero-grid {
+    gap: 30px;
+  }
+  .qz-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .explorer-grid {
+    grid-template-columns: 1fr;
+  }
+  .aufbau-grid {
+    grid-template-columns: 280px 1fr;
+  }
+  .element-panel {
+    position: static;
+  }
+  .spin-grid,
+  .zeeman-layout {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 880px) {
+  .main-nav {
+    display: none;
+  }
+  .header-actions {
+    margin-left: auto;
+  }
+  .hero {
+    padding-top: 56px;
+  }
+  .hero-grid {
+    grid-template-columns: 1fr;
+  }
+  .atom-wrap {
+    min-height: 380px;
+    order: -1;
+  }
+  .atom-art {
+    width: min(82vw, 380px);
+  }
+  .atom-halo {
+    width: min(78vw, 360px);
+  }
+  .model-panel {
+    grid-template-columns: 1fr;
+  }
+  .model-art {
+    max-width: 330px;
+    margin: 0 auto;
+  }
+  .hydrogen-demo {
+    grid-template-columns: 1fr;
+  }
+  .h-ladder {
+    max-width: 430px;
+    margin: 0 auto;
+  }
+  .spektren-grid {
+    grid-template-columns: 1fr;
+  }
+  .aufbau-grid {
+    grid-template-columns: 1fr;
+  }
+  .element-panel {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 16px;
+    align-items: center;
+  }
+  .element-config {
+    margin-top: 0;
+  }
+  .element-meta,
+  .aufbau-controls {
+    grid-column: 2;
+  }
+  .glossary-grid {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 620px) {
+  .container {
+    width: calc(100% - 28px);
+  }
+  .section {
+    padding: 64px 0;
+  }
+  .hero {
+    padding: 40px 0 48px;
+  }
+  .hero h1 {
+    font-size: clamp(2.25rem, 11vw, 3.1rem);
+  }
+  .hero-lead {
+    font-size: 1rem;
+  }
+  .hero-meta {
+    gap: 12px 18px;
+  }
+  .qz-grid {
+    grid-template-columns: 1fr;
+  }
+  .explorer-result {
+    grid-template-columns: 1fr;
+  }
+  .explorer-preview {
+    min-height: 130px;
+  }
+  .orbital-item {
+    width: 74px;
+  }
+  .hydrogen-demo,
+  .chart-card,
+  .explorer,
+  .quiz-shell,
+  .zeeman-demo,
+  .zeeman-copy,
+  .sg-card,
+  .doublet-card,
+  .spin-summary {
+    padding: 18px;
+  }
+  .transition-grid {
+    grid-template-columns: 1fr;
+  }
+  .flame-card {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+  }
+  .flame-buttons {
+    justify-content: center;
+  }
+  .element-panel {
+    grid-template-columns: 1fr;
+  }
+  .element-meta,
+  .aufbau-controls {
+    grid-column: auto;
+  }
+  .sublevel-row {
+    grid-template-columns: 42px 1fr auto;
+    gap: 6px;
+    padding: 6px;
+  }
+  .orbital-box {
+    width: 25px;
+    height: 25px;
+    font-size: 11px;
+  }
+  .pse-card {
+    padding: 14px;
+  }
+  .footer-inner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .hero-badge.ml {
+    left: 0;
+  }
+  .quiz-start {
+    padding: 4px;
+  }
+  .doublet-head {
+    flex-direction: column;
+  }
+  .glossary-tools {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .search-box {
+    width: 100%;
+    max-width: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Zum Inhalt springen</a>
+<svg class="svg-sprite" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+  <symbol id="icon-home" viewBox="0 0 24 24">
+    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+    <polyline points="9 22 9 12 15 12 15 22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></polyline>
+  </symbol>
+  <symbol id="icon-atom" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="1.8" fill="currentColor" stroke="none"></circle>
+    <ellipse cx="12" cy="12" rx="9" ry="3.6" fill="none" stroke="currentColor" stroke-width="1.5"></ellipse>
+    <ellipse cx="12" cy="12" rx="9" ry="3.6" fill="none" stroke="currentColor" stroke-width="1.5" transform="rotate(60 12 12)"></ellipse>
+    <ellipse cx="12" cy="12" rx="9" ry="3.6" fill="none" stroke="currentColor" stroke-width="1.5" transform="rotate(120 12 12)"></ellipse>
+  </symbol>
+  <symbol id="icon-arrow" viewBox="0 0 24 24">
+    <path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+  </symbol>
+  <symbol id="icon-check" viewBox="0 0 24 24">
+    <path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+  </symbol>
+  <symbol id="icon-x" viewBox="0 0 24 24">
+    <path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"></path>
+  </symbol>
+  <symbol id="icon-sun" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.7"></circle>
+    <path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path>
+  </symbol>
+  <symbol id="icon-moon" viewBox="0 0 24 24">
+    <path d="M20 14.2A8.2 8.2 0 1 1 9.8 4a6.5 6.5 0 0 0 10.2 10.2z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"></path>
+  </symbol>
+  <symbol id="icon-info" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.7"></circle>
+    <path d="M12 11v5M12 7.6v.1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+  </symbol>
+  <symbol id="icon-bulb" viewBox="0 0 24 24">
+    <path d="M9 18h6M10 21h4M8.2 14.5A6 6 0 1 1 15.8 14.5C15 15.2 14.7 16 14.6 17H9.4c-.1-1-.4-1.8-1.2-2.5z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path>
+  </symbol>
+  <symbol id="icon-reset" viewBox="0 0 24 24">
+    <path d="M4 11a8 8 0 1 1 2.3 5.7M4 5v6h6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+  </symbol>
+  <symbol id="icon-plus" viewBox="0 0 24 24">
+    <path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+  </symbol>
+  <symbol id="icon-minus" viewBox="0 0 24 24">
+    <path d="M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+  </symbol>
+  <symbol id="icon-play" viewBox="0 0 24 24">
+    <path d="M8 5.5v13l11-6.5-11-6.5z" fill="currentColor" stroke="none"></path>
+  </symbol>
+  <symbol id="icon-magnet" viewBox="0 0 24 24">
+    <path d="M5 4v7a7 7 0 0 0 14 0V4h-4v7a3 3 0 0 1-6 0V4H5z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"></path>
+    <path d="M5 7h4M15 7h4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path>
+  </symbol>
+  <symbol id="icon-target" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.6"></circle>
+    <circle cx="12" cy="12" r="4.7" fill="none" stroke="currentColor" stroke-width="1.6"></circle>
+    <circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none"></circle>
+  </symbol>
+  <symbol id="icon-chart" viewBox="0 0 24 24">
+    <path d="M4 20V4M4 20h16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path>
+    <path d="M7 15l3.5-4 3 2.5L20 7" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path>
+  </symbol>
+  <symbol id="icon-search" viewBox="0 0 24 24">
+    <circle cx="10.5" cy="10.5" r="6" fill="none" stroke="currentColor" stroke-width="1.8"></circle>
+    <path d="M15 15l5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+  </symbol>
+  <linearGradient id="orbTeal" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#2dd4bf"></stop>
+    <stop offset="1" stop-color="#0f766e"></stop>
+  </linearGradient>
+  <linearGradient id="orbViolet" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#a78bfa"></stop>
+    <stop offset="1" stop-color="#6d28d9"></stop>
+  </linearGradient>
+  <linearGradient id="orbAmber" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#fcd34d"></stop>
+    <stop offset="1" stop-color="#d97706"></stop>
+  </linearGradient>
+  <linearGradient id="orbRose" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#fb7185"></stop>
+    <stop offset="1" stop-color="#be123c"></stop>
+  </linearGradient>
+</svg>
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="brand" href="#top" aria-label="Zur Startseite">
+      <span class="brand-mark"><svg class="icon" aria-hidden="true"><use href="#icon-atom"></use></svg></span>
+      <span>Quantenzahlen<small>Chemie Oberstufe</small></span>
+    </a>
+    <nav class="main-nav" aria-label="Hauptnavigation">
+      <a href="#modelle">Modelle</a>
+      <a href="#spektren">Spektren</a>
+      <a href="#quantenzahlen">QZ</a>
+      <a href="#ionisierung">Ionisierung</a>
+      <a href="#aufbau">Aufbau</a>
+      <a href="#zeeman">Magnetfeld</a>
+      <a href="#spin">Spin</a>
+      <a href="#quiz">Quiz</a>
+      <a href="#glossar">Glossar</a>
+    </nav>
+    <div class="header-actions">
+      <a class="nav-home-btn" href="index.html" title="Zurück zur App-Sammlung" aria-label="Zurück zur App-Sammlung">
+        <svg class="icon" aria-hidden="true"><use href="#icon-home"></use></svg>
+        <span>Sammlung</span>
+      </a>
+      <span class="progress-pill" title="Besuchte Lernstationen"><svg class="icon" aria-hidden="true"><use href="#icon-target"></use></svg><strong id="progressLabel">0 %</strong></span>
+      <button class="icon-button" id="themeToggle" type="button" aria-label="Design wechseln"><svg class="icon" aria-hidden="true"><use href="#icon-moon"></use></svg></button>
+    </div>
+  </div>
+  <div class="progress-track" id="progressTrack" role="progressbar" aria-label="Lernfortschritt" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+    <div class="progress-fill" id="progressFill"></div>
+  </div>
+</header>
+<main id="main">
+  <section class="hero" id="top">
+    <div class="container hero-grid">
+      <div>
+        <span class="eyebrow"><svg class="icon" aria-hidden="true"><use href="#icon-atom"></use></svg>Quantenmechanik im Atom</span>
+        <h1>Die Architektur der <span class="gradient-text">Atomhülle</span></h1>
+        <p class="hero-lead">Vier Quantenzahlen erklären, warum Elektronen nur bestimmte Zustände einnehmen – und warum Natrium gelb leuchtet. Eine interaktive Lernreise von den Atommodellen bis zum Stern-Gerlach-Versuch.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#lernpfad">Lernreise starten<svg class="icon" aria-hidden="true"><use href="#icon-arrow"></use></svg></a>
+          <a class="btn btn-ghost" href="#quiz">Direkt zum Quiz<svg class="icon" aria-hidden="true"><use href="#icon-target"></use></svg></a>
+        </div>
+        <div class="hero-meta">
+          <div class="hero-stat"><strong>4</strong><span>Quantenzahlen</span></div>
+          <div class="hero-stat"><strong>20</strong><span>Elemente im Chart</span></div>
+          <div class="hero-stat"><strong>14</strong><span>Quizfragen</span></div>
+        </div>
+        <div class="hero-hint"><svg class="icon" aria-hidden="true"><use href="#icon-check"></use></svg>Keine Anmeldung nötig · Fortschritt wird lokal gespeichert</div>
+      </div>
+      <div class="atom-wrap" aria-hidden="true">
+        <div class="atom-halo"></div>
+        <svg class="atom-art" viewBox="0 0 440 440">
+          <defs>
+            <radialGradient id="nucleusGrad" cx="35%" cy="30%" r="75%">
+              <stop offset="0" stop-color="#fff7d6"></stop>
+              <stop offset="45%" stop-color="#fbbf24"></stop>
+              <stop offset="100%" stop-color="#f97316"></stop>
+            </radialGradient>
+            <linearGradient id="orbitGradA" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#14b8a6"></stop>
+              <stop offset="1" stop-color="#8b5cf6" stop-opacity="0.3"></stop>
+            </linearGradient>
+            <filter id="softGlow">
+              <feGaussianBlur stdDeviation="5" result="blur"></feGaussianBlur>
+              <feMerge>
+                <feMergeNode in="blur"></feMergeNode>
+                <feMergeNode in="SourceGraphic"></feMergeNode>
+              </feMerge>
+            </filter>
+          </defs>
+          <circle cx="220" cy="220" r="178" fill="none" stroke="var(--line)" stroke-dasharray="3 10"></circle>
+          <circle cx="220" cy="220" r="132" fill="none" stroke="var(--line)" stroke-dasharray="2 12"></circle>
+          <g class="orbit-group">
+            <ellipse cx="220" cy="220" rx="176" ry="66" fill="none" stroke="url(#orbitGradA)" stroke-width="2"></ellipse>
+            <circle cx="396" cy="220" r="8" fill="#14b8a6" filter="url(#softGlow)"></circle>
+            <circle cx="44" cy="220" r="4.5" fill="#8b5cf6"></circle>
+          </g>
+          <g class="orbit-group reverse">
+            <ellipse cx="220" cy="220" rx="176" ry="66" fill="none" stroke="url(#orbitGradA)" stroke-width="2" transform="rotate(60 220 220)"></ellipse>
+            <circle cx="220" cy="44" r="7" fill="#a78bfa" filter="url(#softGlow)" transform="rotate(60 220 220)"></circle>
+          </g>
+          <g class="orbit-group slow">
+            <ellipse cx="220" cy="220" rx="176" ry="66" fill="none" stroke="url(#orbitGradA)" stroke-width="2" transform="rotate(120 220 220)"></ellipse>
+            <circle cx="220" cy="396" r="7" fill="#fbbf24" filter="url(#softGlow)" transform="rotate(120 220 220)"></circle>
+          </g>
+          <circle cx="220" cy="220" r="50" fill="url(#nucleusGrad)" filter="url(#softGlow)"></circle>
+          <circle cx="205" cy="207" r="11" fill="rgba(255, 255, 255, 0.5)"></circle>
+          <circle cx="236" cy="231" r="8" fill="rgba(255, 255, 255, 0.36)"></circle>
+          <circle cx="225" cy="202" r="5" fill="rgba(255, 255, 255, 0.45)"></circle>
+        </svg>
+        <span class="atom-badge n">n</span>
+        <span class="atom-badge l">l</span>
+        <span class="atom-badge ml">m<sub>l</sub></span>
+        <span class="atom-badge s">s</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section-tight" id="lernpfad" aria-labelledby="lernpfad-title">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="kicker">Dein Lernpfad</span>
+        <h2 id="lernpfad-title">In acht Stationen vom Modell zur Quantenzahl</h2>
+        <p>Du kannst der Reihe folgen oder gezielt ein Thema ansteuern. Sobald du eine Station besuchst, wächst dein Fortschritt oben im Kopfbereich.</p>
+      </div>
+      <div class="path-grid">
+        <a class="path-card reveal" href="#modelle" data-target="modelle">
+          <span class="path-number">01 · Atommodelle</span>
+          <h3>Von Dalton bis Schrödinger</h3>
+          <p>Warum das Schalenmodell nicht mehr reicht und was die Wellenfunktion erklärt.</p>
+          <span class="path-arrow" aria-hidden="true"><svg class="icon"><use href="#icon-arrow"></use></svg></span>
+          <span class="path-check" aria-hidden="true"><svg class="icon"><use href="#icon-check"></use></svg></span>
+        </a>
+        <a class="path-card reveal" href="#spektren" data-target="spektren">
+          <span class="path-number">02 · Spektren</span>
+          <h3>Energiestufen sichtbar machen</h3>
+          <p>Absorption, Emission und das interaktive Wasserstoffspektrum.</p>
+          <span class="path-arrow" aria-hidden="true"><svg class="icon"><use href="#icon-arrow"></use></svg></span>
+          <span class="path-check" aria-hidden="true"><svg class="icon"><use href="#icon-check"></use></svg></span>
+        </a>
+        <a class="path-card reveal" href="#quantenzahlen" data-target="quantenzahlen">
+          <span class="path-number">03 · Quantenzahlen</span>
+          <h3>Vier Zahlen, ein Zustand</h3>
+          <p>n, l, m<sub>l</sub> und s im Überblick – mit Explorer und Orbitalformen.</p>
+          <span class="path-arrow" aria-hidden="true"><svg class="icon"><use href="#icon-arrow"></use></svg></span>
+          <span class="path-check" aria-hidden="true"><svg class="icon"><use href="#icon-check"></use></svg></span>
+        </a>
+        <a class="path-card reveal" href="#ionisierung" data-target="ionisierung">
+          <span class="path-number">04 · Ionisierung</span>
+          <h3>Was die Sprünge verraten</h3>
+          <p>Das Ionisierungsenergie-Diagramm als Beweis für Unterschalen.</p>
+          <span class="path-arrow" aria-hidden="true"><svg class="icon"><use href="#icon-arrow"></use></svg></span>
+          <span class="path-check" aria-hidden="true"><svg class="icon"><use href="#icon-check"></use></svg></span>
+        </a>
+        <a class="path-card reveal" href="#aufbau" data-target="aufbau">
+          <span class="path-number">05 · Aufbau</span>
+          <h3>Elektronen verteilen</h3>
+          <p>Das Aufbauprinzip interaktiv ausprobieren und die Blockstruktur des PSE lesen.</p>
+          <span class="path-arrow" aria-hidden="true"><svg class="icon"><use href="#icon-arrow"></use></svg></span>
+          <span class="path-check" aria-hidden="true"><svg class="icon"><use href="#icon-check"></use></svg></span>
+        </a>
+        <a class="path-card reveal" href="#zeeman" data-target="zeeman">
+          <span class="path-number">06 · Magnetfeld</span>
+          <h3>Zeeman-Effekt</h3>
+          <p>Warum Spektrallinien im Magnetfeld aufspalten und was m<sub>l</sub> damit zu tun hat.</p>
+          <span class="path-arrow" aria-hidden="true"><svg class="icon"><use href="#icon-arrow"></use></svg></span>
+          <span class="path-check" aria-hidden="true"><svg class="icon"><use href="#icon-check"></use></svg></span>
+        </a>
+        <a class="path-card reveal" href="#spin" data-target="spin">
+          <span class="path-number">07 · Spin</span>
+          <h3>Stern-Gerlach & Natrium-Doppellinie</h3>
+          <p>Der letzte Freiheitsgrad: zwei diskrete Einstellungen und die Spin-Bahn-Kopplung.</p>
+          <span class="path-arrow" aria-hidden="true"><svg class="icon"><use href="#icon-arrow"></use></svg></span>
+          <span class="path-check" aria-hidden="true"><svg class="icon"><use href="#icon-check"></use></svg></span>
+        </a>
+        <a class="path-card reveal" href="#quiz" data-target="quiz">
+          <span class="path-number">08 · Wissenscheck</span>
+          <h3>14 Fragen zum Testen</h3>
+          <p>Mit ausführlichen Erklärungen zu jeder Antwort und Bestleistung.</p>
+          <span class="path-arrow" aria-hidden="true"><svg class="icon"><use href="#icon-arrow"></use></svg></span>
+          <span class="path-check" aria-hidden="true"><svg class="icon"><use href="#icon-check"></use></svg></span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="modelle" data-track aria-labelledby="modelle-title">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="kicker">01 · Atommodelle</span>
+        <h2 id="modelle-title">Vom Rosinenkuchen zur Wellenfunktion</h2>
+        <p>Jedes Atommodell war ein Fortschritt – und stieß an eine Grenze. Klicke dich durch die Zeit und achte darauf, welche neue Frage jedes Modell aufwirft.</p>
+      </div>
+      <div class="timeline-wrap reveal">
+        <div class="timeline" id="modelTimeline" role="tablist" aria-label="Atommodelle im Zeitverlauf"></div>
+      </div>
+      <div class="model-panel card reveal" id="modelPanel" aria-live="polite"></div>
+      <div class="myth-grid">
+        <article class="myth reveal">
+          <span class="myth-tag">Fehlvorstellung</span>
+          <h4>„Alle Elektronen einer Schale haben exakt dieselbe Energie.“</h4>
+          <p>Falsch. Die Hauptschale n ist in Unterschalen s, p, d und f gegliedert. Deren Energien unterscheiden sich – deshalb gibt es Feinstruktur und charakteristische Ionisierungsenergien.</p>
+        </article>
+        <article class="myth reveal">
+          <span class="myth-tag">Fehlvorstellung</span>
+          <h4>„Orbitale sind feste Röhrenbahnen im Raum.“</h4>
+          <p>Falsch. Ein Orbital ist eine Wahrscheinlichkeitsverteilung. Das Quadrat der Wellenfunktion ψ² sagt, wo sich das Elektron mit hoher Wahrscheinlichkeit aufhält.</p>
+        </article>
+        <article class="myth reveal">
+          <span class="myth-tag">Fehlvorstellung</span>
+          <h4>„Das Magnetfeld erzeugt die räumliche Orientierung der Orbitale.“</h4>
+          <p>Falsch. Die Orientierungen existieren bereits und sind ohne Feld energiegleich (entartet). Das Magnetfeld macht sie nur energetisch unterscheidbar – sichtbar als Zeeman-Aufspaltung.</p>
+        </article>
+      </div>
+      <div class="callout reveal">
+        <svg class="icon callout-icon" aria-hidden="true"><use href="#icon-bulb"></use></svg>
+        <div>
+          <strong>Merke</strong>
+          <p>Die Quantenzahlen sind keine willkürlichen Etiketten. Sie ergeben sich aus der Quantenmechanik und werden durch Experimente bestätigt – vom Wasserstoffspektrum bis zum Stern-Gerlach-Versuch.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="spektren" data-track aria-labelledby="spektren-title">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="kicker">02 · Energiestufen und Spektren</span>
+        <h2 id="spektren-title">Warum Atome nur in bestimmten Farben leuchten</h2>
+        <p>Energie wird in Paketen aufgenommen und abgegeben. Weil die Energiestufen diskret sind, entstehen scharfe Linien statt eines durchgehenden Regenbogens.</p>
+      </div>
+      <div class="spektren-grid">
+        <article class="mini-process card reveal">
+          <div class="process-head">
+            <svg class="icon" aria-hidden="true"><use href="#icon-arrow"></use></svg>
+            <h3>Absorption: Energie aufnehmen</h3>
+          </div>
+          <p>Ein Photon mit genau der passenden Energie hebt ein Elektron auf eine höhere Energiestufe. Der angeregte Zustand ist instabil.</p>
+          <span class="process-arrow">Grundzustand → angeregter Zustand</span>
+        </article>
+        <article class="mini-process card reveal">
+          <div class="process-head">
+            <svg class="icon" aria-hidden="true"><use href="#icon-bulb"></use></svg>
+            <h3>Emission: Licht abgeben</h3>
+          </div>
+          <p>Beim Zurückfallen auf eine niedrigere Stufe wird die Energiedifferenz als Lichtquant frei. Die Wellenlänge ist für das Element charakteristisch.</p>
+          <span class="process-arrow">angeregter Zustand → Grundzustand + Licht</span>
+        </article>
+      </div>
+      <div class="hydrogen-demo card reveal">
+        <div>
+          <h3 class="subsection-title">Interaktives Wasserstoffspektrum</h3>
+          <p class="muted small">Wähle einen Übergang der Balmer-Serie. Das Elektron wird zunächst angeregt und fällt dann auf n = 2 zurück. Die entstehende Linie erscheint im sichtbaren Spektrum.</p>
+          <svg class="h-ladder" id="hLadder" viewBox="0 0 430 360" role="img" aria-label="Energiestufen des Wasserstoffatoms von n gleich 1 bis n gleich 6"></svg>
+          <div class="h-caption">Schematische Darstellung · nicht maßstäblich</div>
+        </div>
+        <div>
+          <div class="transition-grid" id="transitionButtons"></div>
+          <div class="spectrum-box">
+            <div class="spectrum-bar" id="spectrumBar">
+              <div class="spectrum-lines" id="spectrumLines"></div>
+            </div>
+            <div class="spectrum-scale"><span>380 nm</span><span>500 nm</span><span>600 nm</span><span>700 nm</span></div>
+          </div>
+          <div class="h-reading" id="hReading" aria-live="polite">
+            <div class="reading-top"><span class="reading-dot" style="background: var(--accent)"></span>Starte mit einem Übergang</div>
+            <p>Klicke auf eine der Übergangs-Tasten. Die Energie des emittierten Lichts ist die Differenz der beiden Energiestufen.</p>
+          </div>
+          <div class="formula-strip">
+            <span class="formula">E<sub>n</sub> = −13,6 eV · 1/n²</span>
+            <span class="formula">ΔE = h · f = h · c / λ</span>
+            <span class="formula">λ = 1240 eV·nm / ΔE</span>
+          </div>
+        </div>
+      </div>
+      <div class="flame-card card reveal">
+        <div class="flame-stage" aria-hidden="true">
+          <div class="flame-shape" id="flameShape"></div>
+          <div class="flame-base"></div>
+        </div>
+        <div class="flame-copy">
+          <span class="tag">Flammenfärbung</span>
+          <h3 id="flameTitle">Natrium färbt die Flamme gelb</h3>
+          <p id="flameText">Die Wärme der Flamme regt Elektronen an. Beim Zurückfallen sendet Natrium Licht der Wellenlänge 589 nm aus – zwei eng benachbarte gelbe Linien.</p>
+          <div class="flame-buttons" id="flameButtons"></div>
+        </div>
+      </div>
+      <div class="callout reveal">
+        <svg class="icon callout-icon" aria-hidden="true"><use href="#icon-bulb"></use></svg>
+        <div>
+          <strong>Merke</strong>
+          <p>Jede Spektrallinie entspricht einer ganz bestimmten Energiedifferenz. Das Linienspektrum ist deshalb der „Fingerabdruck“ eines Elements – und der experimentelle Zugang zu den Quantenzahlen.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="quantenzahlen" data-track aria-labelledby="quantenzahlen-title">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="kicker">03 · Die vier Quantenzahlen</span>
+        <h2 id="quantenzahlen-title">Vier Zahlen, ein kompletter Elektronenzustand</h2>
+        <p>n, l, m<sub>l</sub> und s legen den Zustand eines Elektrons eindeutig fest. Das Pauli-Prinzip sorgt dafür, dass kein Zustand doppelt besetzt wird.</p>
+      </div>
+      <div class="qz-grid">
+        <article class="qz-card qz-n reveal">
+          <div class="qz-symbol">n</div>
+          <div class="qz-name">Hauptquantenzahl</div>
+          <div class="qz-fact"><span class="fact-label">Werte</span><p class="qz-values">1, 2, 3, …</p></div>
+          <div class="qz-fact"><span class="fact-label">Bedeutung</span><p>Hauptenergieniveau und mittlere Ausdehnung der Schale (K, L, M, N, …).</p></div>
+          <div class="qz-fact"><span class="fact-label">Experiment</span><p class="muted">Wasserstoffspektrum, Balmer-Serie</p></div>
+        </article>
+        <article class="qz-card qz-l reveal">
+          <div class="qz-symbol">l</div>
+          <div class="qz-name">Nebenquantenzahl</div>
+          <div class="qz-fact"><span class="fact-label">Werte</span><p class="qz-values">0, 1, …, n − 1</p></div>
+          <div class="qz-fact"><span class="fact-label">Bedeutung</span><p>Unterenergiestufe und Form des Orbitals: s, p, d, f.</p></div>
+          <div class="qz-fact"><span class="fact-label">Experiment</span><p class="muted">Ionisierungsenergien, Natrium-Resonanzabsorption</p></div>
+        </article>
+        <article class="qz-card qz-ml reveal">
+          <div class="qz-symbol">m<sub>l</sub></div>
+          <div class="qz-name">Magnetquantenzahl</div>
+          <div class="qz-fact"><span class="fact-label">Werte</span><p class="qz-values">−l, …, 0, …, +l</p></div>
+          <div class="qz-fact"><span class="fact-label">Bedeutung</span><p>Räumliche Orientierung des Orbitals; insgesamt 2l + 1 Möglichkeiten.</p></div>
+          <div class="qz-fact"><span class="fact-label">Experiment</span><p class="muted">Zeeman-Effekt</p></div>
+        </article>
+        <article class="qz-card qz-s reveal">
+          <div class="qz-symbol">s</div>
+          <div class="qz-name">Spinquantenzahl</div>
+          <div class="qz-fact"><span class="fact-label">Werte</span><p class="qz-values">+½, −½</p></div>
+          <div class="qz-fact"><span class="fact-label">Bedeutung</span><p>Eigendrehimpuls des Elektrons; zwei mögliche Einstellungen.</p></div>
+          <div class="qz-fact"><span class="fact-label">Experiment</span><p class="muted">Stern-Gerlach-Versuch, Natrium-Doppellinie</p></div>
+        </article>
+      </div>
+      <div class="spektren-grid">
+        <article class="mini-process card reveal">
+          <div class="process-head">
+            <svg class="icon" aria-hidden="true"><use href="#icon-atom"></use></svg>
+            <h3>Woher kommen n, l und m<sub>l</sub>?</h3>
+          </div>
+          <p>Die erlaubten Zustände eines Elektrons sind die Lösungen der Schrödinger-Gleichung. Das Quadrat der Wellenfunktion ψ² beschreibt die Aufenthaltswahrscheinlichkeit – daraus ergeben sich die Orbitale und die Quantenzahlen n, l und m<sub>l</sub>.</p>
+          <span class="process-arrow">Quantelung als Lösung der Wellengleichung</span>
+        </article>
+        <article class="mini-process card reveal">
+          <div class="process-head">
+            <svg class="icon" aria-hidden="true"><use href="#icon-bulb"></use></svg>
+            <h3>Die Hotel-Analogie</h3>
+          </div>
+          <p>Stockwerk = Hauptschale n · Zimmerkategorie = Unterschale l · Zimmer = Orbital (m<sub>l</sub>) · höchstens zwei Gäste pro Zimmer mit entgegengesetztem Spin. Elektronen einer Schale sind also nicht automatisch energiegleich.</p>
+          <span class="process-arrow">n · l · m<sub>l</sub> · s</span>
+        </article>
+      </div>
+      <div class="explorer card reveal">
+        <h3 class="subsection-title">Quantenzahl-Explorer</h3>
+        <p class="muted small">Stelle die Quantenzahlen ein und beobachte, wie sich Orbitalbezeichnung, Anzahl der Orientierungen und maximale Elektronenzahl verändern.</p>
+        <div class="explorer-grid" style="margin-top: 18px">
+          <div>
+            <div class="control-row">
+              <span class="control-label">Hauptquantenzahl n</span>
+              <div class="chips" id="nChips"></div>
+            </div>
+            <div class="control-row">
+              <span class="control-label">Nebenquantenzahl l</span>
+              <div class="chips" id="lChips"></div>
+            </div>
+            <div class="control-row">
+              <span class="control-label">Magnetquantenzahl m<sub>l</sub></span>
+              <div class="chips" id="mlChips"></div>
+            </div>
+            <div class="control-row">
+              <span class="control-label">Spinquantenzahl s</span>
+              <div class="chips" id="spinChips"></div>
+            </div>
+          </div>
+          <div class="explorer-result" aria-live="polite">
+            <div class="explorer-preview" id="orbPreview"></div>
+            <div class="explorer-text">
+              <div class="orbital-name" id="orbitalName">3d</div>
+              <p id="orbitalSummary"></p>
+              <div class="mini-facts">
+                <span id="orbitalCount"></span>
+                <span id="spinFact"></span>
+              </div>
+              <p id="orbitalMeaning"></p>
+            </div>
+          </div>
+        </div>
+        <div class="orbital-strip" id="orbitalStrip"></div>
+        <div class="rule-check">
+          <span class="control-label">Regel-Check: Ist diese Kombination erlaubt?</span>
+          <div class="rule-controls">
+            <label>n<select id="ruleN" aria-label="Hauptquantenzahl für Regel-Check"></select></label>
+            <label>l<select id="ruleL" aria-label="Nebenquantenzahl für Regel-Check"></select></label>
+            <button class="btn btn-ghost btn-sm" id="ruleBtn" type="button">Kombination prüfen</button>
+          </div>
+          <div class="rule-result" id="ruleResult" aria-live="polite">Wähle n und l und prüfe, ob es ein solches Orbital gibt.</div>
+        </div>
+      </div>
+      <div class="table-card card reveal">
+        <div class="table-wrap">
+          <table>
+            <caption>Maximale Elektronenzahl pro Unterschale</caption>
+            <thead>
+              <tr><th scope="col">Unterschale</th><th scope="col">l</th><th scope="col">Anzahl Orbitale</th><th scope="col">max. Elektronen</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>s</strong></td><td>0</td><td>1</td><td>2</td></tr>
+              <tr><td><strong>p</strong></td><td>1</td><td>3</td><td>6</td></tr>
+              <tr><td><strong>d</strong></td><td>2</td><td>5</td><td>10</td></tr>
+              <tr><td><strong>f</strong></td><td>3</td><td>7</td><td>14</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="callout reveal">
+        <svg class="icon callout-icon" aria-hidden="true"><use href="#icon-info"></use></svg>
+        <div>
+          <strong>Pauli-Prinzip</strong>
+          <p>Keine zwei Elektronen eines Atoms stimmen in allen vier Quantenzahlen überein. Ein Orbital (bestimmt durch n, l und m<sub>l</sub>) kann deshalb höchstens zwei Elektronen aufnehmen – eines mit s = +½ und eines mit s = −½.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="ionisierung" data-track aria-labelledby="ionisierung-title">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="kicker">04 · Ionisierungsenergie</span>
+        <h2 id="ionisierung-title">Kleine Sprünge, große Sprünge</h2>
+        <p>Die erste Ionisierungsenergie zeigt, wie fest ein Elektron an den Kern gebunden ist. Ihr Verlauf liefert den experimentellen Beweis für die Unterschalen.</p>
+      </div>
+      <div class="chart-card card reveal">
+        <div class="chart-wrap">
+          <svg class="chart-svg" id="ionChart" viewBox="0 0 920 380" role="img" aria-label="Verlauf der ersten Ionisierungsenergie der Elemente Wasserstoff bis Calcium"></svg>
+          <div class="chart-tip" id="ionTip"></div>
+        </div>
+        <div class="ion-readout" id="ionReadout" aria-live="polite">
+          <h4><svg class="icon" aria-hidden="true"><use href="#icon-chart"></use></svg>Klicke auf einen Punkt</h4>
+          <p>Jeder Punkt steht für ein Element. Achte auf die hohen Ausschläge bei Helium, Neon und Argon sowie auf die Einbrüche bei Lithium, Natrium und Kalium.</p>
+        </div>
+      </div>
+      <div class="insight-grid">
+        <article class="insight card reveal">
+          <span class="tag">Be → B</span>
+          <h4>Knick nach unten</h4>
+          <p>Beryllium hat eine volle 2s-Unterschale (2s²). Bei Bor kommt das erste Elektron in die höhere 2p-Unterschale (2p¹). Es ist leichter abzutrennen – die Ionisierungsenergie sinkt.</p>
+        </article>
+        <article class="insight card reveal">
+          <span class="tag">N → O</span>
+          <h4>Halbvoll ist stabiler</h4>
+          <p>Stickstoff besitzt 2p³ mit je einem Elektron in den drei p-Orbitalen. Bei Sauerstoff (2p⁴) muss erstmals ein Orbital doppelt besetzt werden. Das zusätzliche Elektron ist leichter abzutrennen.</p>
+        </article>
+        <article class="insight card reveal">
+          <span class="tag">Ne → Na</span>
+          <h4>Neue Schale, neuer Einbruch</h4>
+          <p>Neon hat eine volle L-Schale (2s² 2p⁶) und damit eine sehr hohe Ionisierungsenergie. Natrium beginnt mit der M-Schale: Das einzelne 3s-Elektron sitzt weit außen und ist leicht abzugeben.</p>
+        </article>
+        <article class="insight card reveal">
+          <span class="tag">Mg → Al</span>
+          <h4>s voll, p beginnt</h4>
+          <p>Magnesium (3s²) hat eine volle s-Unterschale. Aluminium (3s² 3p¹) beginnt die p-Unterschale. Der Wechsel zu einem höheren Unterniveau erklärt den kleinen Knick.</p>
+        </article>
+      </div>
+      <div class="callout reveal">
+        <svg class="icon callout-icon" aria-hidden="true"><use href="#icon-bulb"></use></svg>
+        <div>
+          <strong>Merke</strong>
+          <p>Große Sprünge markieren den Wechsel der Hauptschale, kleine Knicke den Wechsel der Unterschale. Aus beidem zusammen folgt: Die Hauptenergiestufen sind in s-, p-, d- und f-Unterschalen gegliedert.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="aufbau" data-track aria-labelledby="aufbau-title">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="kicker">05 · Aufbauprinzip und Periodensystem</span>
+        <h2 id="aufbau-title">Elektronen beziehen das Hotel der Atomhülle</h2>
+        <p>Erst die energetisch tiefste Unterkunft, dann die nächste: Das Aufbauprinzip füllt die Unterschalen in einer festen Reihenfolge. Probiere es selbst aus.</p>
+      </div>
+      <div class="aufbau-grid">
+        <div class="element-panel card reveal">
+          <div class="element-tile">
+            <span class="element-z" id="elementZ">Z = 20</span>
+            <span class="element-sym" id="elementSym">Ca</span>
+            <span class="element-name" id="elementName">Calcium</span>
+          </div>
+          <div class="element-config" id="elementConfig">1s² 2s² 2p⁶ 3s² 3p⁶ 4s²</div>
+          <div class="element-meta" id="elementMeta">Periode 4 · Gruppe 2 · s-Block</div>
+          <div class="aufbau-controls">
+            <button class="btn btn-ghost btn-sm" id="aufbauMinus" type="button" aria-label="Ein Elektron entfernen"><svg class="icon" aria-hidden="true"><use href="#icon-minus"></use></svg></button>
+            <button class="btn btn-primary btn-sm" id="aufbauPlus" type="button">Elektron hinzufügen<svg class="icon" aria-hidden="true"><use href="#icon-plus"></use></svg></button>
+            <button class="btn btn-ghost btn-sm" id="aufbauAuto" type="button"><svg class="icon" aria-hidden="true"><use href="#icon-play"></use></svg>Auto-Füllen</button>
+            <button class="btn btn-ghost btn-sm" id="aufbauReset" type="button"><svg class="icon" aria-hidden="true"><use href="#icon-reset"></use></svg></button>
+          </div>
+          <div class="aufbau-note">
+            <svg class="icon" aria-hidden="true"><use href="#icon-info"></use></svg>
+            <span>4s wird vor 3d besetzt, weil 4s energetisch tiefer liegt. Faustregel: kleinere Summe n + l zuerst; bei Gleichheit entscheidet das kleinere n.</span>
+          </div>
+          <div class="aufbau-note exception-note" id="exceptionNote" hidden>
+            <svg class="icon" aria-hidden="true"><use href="#icon-info"></use></svg>
+            <span id="exceptionText"></span>
+          </div>
+        </div>
+        <div class="card card-pad reveal">
+          <h3 class="subsection-title">Energieordnung und Besetzung</h3>
+          <p class="muted small" style="margin-bottom: 10px">Jedes Kästchen steht für ein Orbital. Elektronen füllen erst alle Orbitale einer Unterschale einfach, bevor sie paaren (Hund-Regel).</p>
+          <div class="sublevel-scale"><span>↑ energetisch höher</span><span>Füllung beginnt unten ↓</span></div>
+          <div class="sublevel-list" id="sublevelList" aria-live="polite"></div>
+          <div class="aufbau-note" style="margin-top: 14px">
+            <svg class="icon" aria-hidden="true"><use href="#icon-bulb"></use></svg>
+            <span>Die Liste zeigt die energetische Anordnung: oben liegen die höheren Niveaus, unten die tieferen. Gefüllt wird von unten nach oben – deshalb 4s vor 3d. In der Kurzschreibweise wird 3d trotzdem vor 4s notiert.</span>
+          </div>
+        </div>
+      </div>
+      <div class="pse-card card reveal">
+        <div style="display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 14px">
+          <h3 class="subsection-title" style="margin: 0">Periodensystem: die Blockstruktur</h3>
+          <span class="muted small">Elemente 1–36 · anklickbar</span>
+        </div>
+        <div class="pse-scroll">
+          <div class="pse-grid" id="pseGrid"></div>
+          <div class="f-block-wrap">
+            <div class="f-block-label">f-Block<br>Lanthanoide</div>
+            <div class="f-block-strip" aria-hidden="true">
+              <span class="f-cell">Ce</span><span class="f-cell">Pr</span><span class="f-cell">Nd</span><span class="f-cell">Pm</span><span class="f-cell">Sm</span><span class="f-cell">Eu</span><span class="f-cell">Gd</span><span class="f-cell">Tb</span><span class="f-cell">Dy</span><span class="f-cell">Ho</span><span class="f-cell">Er</span><span class="f-cell">Tm</span><span class="f-cell">Yb</span><span class="f-cell">Lu</span>
+            </div>
+          </div>
+        </div>
+        <div class="pse-legend">
+          <span><i class="legend-dot s"></i>s-Block · max. 2 e⁻</span>
+          <span><i class="legend-dot p"></i>p-Block · max. 6 e⁻</span>
+          <span><i class="legend-dot d"></i>d-Block · max. 10 e⁻</span>
+          <span><i class="legend-dot f"></i>f-Block · max. 14 e⁻</span>
+        </div>
+        <div class="pse-info" id="pseInfo" aria-live="polite"></div>
+      </div>
+      <div class="callout reveal">
+        <svg class="icon callout-icon" aria-hidden="true"><use href="#icon-bulb"></use></svg>
+        <div>
+          <strong>Merke</strong>
+          <p>Die Periodennummer entspricht der höchsten besetzten Hauptquantenzahl n. Der Block zeigt, welche Unterschale gerade gefüllt wird: s-, p-, d- oder f-Block. Die Gruppenbreite entspricht der maximalen Elektronenzahl dieser Unterschale.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="zeeman" data-track aria-labelledby="zeeman-title">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="kicker">06 · Magnetquantenzahl</span>
+        <h2 id="zeeman-title">Im Magnetfeld wird Unsichtbares sichtbar</h2>
+        <p>Ohne Feld sind die p-Orbitale einer Unterschale energiegleich. Ein äußeres Magnetfeld hebt diese Entartung auf – die Spektrallinien spalten auf.</p>
+      </div>
+      <div class="zeeman-layout">
+        <div class="zeeman-demo card reveal" id="zeemanDemo">
+          <div class="demo-top">
+            <h3>Natrium-Experiment</h3>
+            <button class="field-toggle" id="fieldToggle" type="button" aria-pressed="false">
+              <span class="switch"><span class="knob"></span></span>
+              <span class="toggle-label">Magnetfeld: aus</span>
+            </button>
+          </div>
+          <div class="zeeman-field">
+            <div class="zeeman-band">
+              <span class="z-line z-line-left"></span>
+              <span class="z-line z-line-center"></span>
+              <span class="z-line z-line-right"></span>
+            </div>
+            <div class="field-labels">
+              <span class="side-label">m<sub>l</sub> = −1</span>
+              <span>m<sub>l</sub> = 0</span>
+              <span class="side-label">m<sub>l</sub> = +1</span>
+            </div>
+            <div class="field-status">
+              <span class="status-pill"><span class="status-dot"></span><span id="fieldStatus">Eine Linie</span></span>
+              <span class="status-pill" id="absorptionStatus">Resonanzabsorption: ja</span>
+            </div>
+            <div class="shadow-demo">
+              <span class="shadow-orb"></span>
+              <span id="shadowText">Schatten der Natriumflamme sichtbar</span>
+            </div>
+          </div>
+          <p class="muted small" style="margin-top: 14px">Der Schattenwurf verschwindet, sobald das Magnetfeld die Absorptionsenergie der Flamme verändert. Die Lampe sendet weiterhin exakt 589 nm aus – aber die Flamme absorbiert diese Energie nicht mehr passgenau.</p>
+        </div>
+        <div class="zeeman-copy card reveal">
+          <span class="tag tag-math">m<sub>l</sub> = −l … +l</span>
+          <h3>Orientierung im Raum</h3>
+          <p>Für l = 1 gibt es drei p-Orbitale. Ohne Magnetfeld besitzen sie dieselbe Energie – sie sind entartet. Im Feld werden daraus drei leicht unterschiedliche Energieniveaus.</p>
+          <div class="orientation-row">
+            <div class="orientation">
+              <svg viewBox="0 0 100 100" aria-hidden="true"><ellipse cx="50" cy="27" rx="13" ry="19" fill="url(#orbTeal)"></ellipse><ellipse cx="50" cy="73" rx="13" ry="19" fill="url(#orbTeal)"></ellipse></svg>
+              <span>m<sub>l</sub> = −1</span>
+            </div>
+            <div class="orientation">
+              <svg viewBox="0 0 100 100" aria-hidden="true"><ellipse cx="27" cy="50" rx="19" ry="13" fill="url(#orbViolet)"></ellipse><ellipse cx="73" cy="50" rx="19" ry="13" fill="url(#orbViolet)"></ellipse></svg>
+              <span>m<sub>l</sub> = 0</span>
+            </div>
+            <div class="orientation">
+              <svg viewBox="0 0 100 100" aria-hidden="true"><ellipse cx="50" cy="27" rx="13" ry="19" fill="url(#orbAmber)" transform="rotate(45 50 50)"></ellipse><ellipse cx="50" cy="73" rx="13" ry="19" fill="url(#orbAmber)" transform="rotate(45 50 50)"></ellipse></svg>
+              <span>m<sub>l</sub> = +1</span>
+            </div>
+          </div>
+          <p style="margin-top: 14px"><strong>Wichtig:</strong> Das Magnetfeld erzeugt die Orientierungen nicht. Es macht die bereits vorhandenen Orientierungen nur energetisch unterscheidbar.</p>
+          <p>Für l = 2 (d-Orbitale) erwartet man 2l + 1 = 5 Orientierungen, für l = 3 (f-Orbitale) sind es 7.</p>
+        </div>
+      </div>
+      <div class="callout reveal">
+        <svg class="icon callout-icon" aria-hidden="true"><use href="#icon-magnet"></use></svg>
+        <div>
+          <strong>Merke</strong>
+          <p>Die Magnetquantenzahl m<sub>l</sub> beschreibt die räumliche Orientierung eines Orbitals. Sie kann die Werte −l bis +l annehmen – insgesamt 2l + 1 Werte. Der Zeeman-Effekt macht diese Orientierungen sichtbar.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="spin" data-track aria-labelledby="spin-title">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="kicker">07 · Spinquantenzahl</span>
+        <h2 id="spin-title">Der letzte Freiheitsgrad</h2>
+        <p>Die Natrium-Doppellinie und der Stern-Gerlach-Versuch zeigen: Elektronen besitzen einen Eigendrehimpuls. Er kann nur zwei Einstellungen annehmen.</p>
+      </div>
+      <div class="spin-layout">
+        <div class="sg-card card reveal">
+          <div class="sg-tabs" role="group" aria-label="Darstellung des Stern-Gerlach-Versuchs">
+            <button class="sg-tab" data-mode="classical" type="button" aria-pressed="false">Klassisch erwartet</button>
+            <button class="sg-tab active" data-mode="quantum" type="button" aria-pressed="true">Beobachtet (1922)</button>
+          </div>
+          <div class="sg-stage" id="sgStage" data-mode="quantum">
+            <svg class="sg-svg" viewBox="0 0 900 320" role="img" aria-label="Stern-Gerlach-Versuch: Ein Silberatomstrahl wird im inhomogenen Magnetfeld abgelenkt und trifft auf einem Schirm auf.">
+              <defs>
+                <linearGradient id="sgBeamGrad" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0" stop-color="#14b8a6" stop-opacity="0.25"></stop>
+                  <stop offset="1" stop-color="#14b8a6" stop-opacity="1"></stop>
+                </linearGradient>
+                <linearGradient id="sgBandGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0" stop-color="#94a3b8" stop-opacity="0"></stop>
+                  <stop offset="0.5" stop-color="#94a3b8" stop-opacity="0.65"></stop>
+                  <stop offset="1" stop-color="#94a3b8" stop-opacity="0"></stop>
+                </linearGradient>
+                <radialGradient id="sgSpotGrad">
+                  <stop offset="0" stop-color="#fde047"></stop>
+                  <stop offset="0.35" stop-color="#fbbf24" stop-opacity="0.85"></stop>
+                  <stop offset="1" stop-color="#f59e0b" stop-opacity="0"></stop>
+                </radialGradient>
+                <filter id="sgGlow">
+                  <feGaussianBlur stdDeviation="4" result="blur"></feGaussianBlur>
+                  <feMerge><feMergeNode in="blur"></feMergeNode><feMergeNode in="SourceGraphic"></feMergeNode></feMerge>
+                </filter>
+              </defs>
+              <rect x="38" y="126" width="94" height="68" rx="14" fill="var(--surface-2)" stroke="var(--line-strong)" stroke-width="1.5"></rect>
+              <circle cx="72" cy="160" r="9" fill="none" stroke="var(--accent-3)" stroke-width="2"></circle>
+              <path d="M72 145v6M72 169v6M57 160h6M81 160h6" stroke="var(--accent-3)" stroke-width="1.6" stroke-linecap="round"></path>
+              <text x="85" y="215" class="sg-label" text-anchor="middle">Ag-Ofen</text>
+              <text x="85" y="231" class="sg-label" text-anchor="middle">&gt; 1000 °C</text>
+              <path d="M132 160 H300" class="sg-beam"></path>
+              <rect x="300" y="72" width="190" height="34" rx="7" fill="#ef4444" opacity="0.85"></rect>
+              <rect x="300" y="214" width="190" height="34" rx="7" fill="#3b82f6" opacity="0.85"></rect>
+              <text x="395" y="94" text-anchor="middle" fill="#fff" font-size="15" font-weight="800">N</text>
+              <text x="395" y="237" text-anchor="middle" fill="#fff" font-size="15" font-weight="800">S</text>
+              <path d="M446 140v40M466 140v40M486 140v40" stroke="var(--line-strong)" stroke-width="1.4" stroke-dasharray="2 4"></path>
+              <text x="466" y="128" class="sg-label" text-anchor="middle">inhomogenes Magnetfeld</text>
+              <line x1="760" y1="28" x2="760" y2="292" stroke="var(--line-strong)" stroke-width="2"></line>
+              <text x="760" y="312" class="sg-label" text-anchor="middle">Schirm</text>
+              <g class="sg-classical">
+                <path d="M490 160 C580 160 650 92 754 72" class="sg-beam"></path>
+                <path d="M490 160 C580 150 660 105 754 104" class="sg-beam"></path>
+                <path d="M490 160 C580 165 670 150 754 145" class="sg-beam"></path>
+                <path d="M490 160 C580 170 680 195 754 190" class="sg-beam"></path>
+                <path d="M490 160 C580 165 680 230 754 238" class="sg-beam"></path>
+                <rect x="754" y="58" width="12" height="204" fill="url(#sgBandGrad)"></rect>
+                <text x="700" y="46" class="sg-label" text-anchor="end">kontinuierliche Verteilung</text>
+              </g>
+              <g class="sg-quantum">
+                <path d="M490 160 C570 160 650 108 752 104" fill="none" stroke="url(#sgBeamGrad)" stroke-width="2.6" stroke-dasharray="7 8" style="animation: beamDash 1.6s linear infinite"></path>
+                <path d="M490 160 C570 160 650 212 752 216" fill="none" stroke="url(#sgBeamGrad)" stroke-width="2.6" stroke-dasharray="7 8" style="animation: beamDash 1.6s linear infinite"></path>
+                <circle cx="760" cy="104" r="26" fill="url(#sgSpotGrad)" filter="url(#sgGlow)"></circle>
+                <circle cx="760" cy="216" r="26" fill="url(#sgSpotGrad)" filter="url(#sgGlow)"></circle>
+                <circle cx="760" cy="104" r="6" fill="#fde047"></circle>
+                <circle cx="760" cy="216" r="6" fill="#fde047"></circle>
+                <text x="700" y="60" class="sg-label" text-anchor="end">s = +½</text>
+                <text x="700" y="260" class="sg-label" text-anchor="end">s = −½</text>
+              </g>
+            </svg>
+          </div>
+          <div class="sg-notes">
+            <div class="sg-note"><strong>Silberatom</strong><p>[Kr] 4d¹⁰ 5s¹. Die abgeschlossenen Schalen tragen keinen Gesamtdrehimpuls. Übrig bleibt das 5s-Elektron.</p></div>
+            <div class="sg-note"><strong>Kein Bahndrehimpuls</strong><p>Das 5s-Elektron hat l = 0. Sein Drehimpuls stammt ausschließlich aus dem Spin.</p></div>
+            <div class="sg-note"><strong>Zwei diskrete Spuren</strong><p>Der Spin kann nur s = +½ oder s = −½ annehmen. Klassisch wäre eine breite Verteilung zu erwarten.</p></div>
+          </div>
+        </div>
+        <div class="spin-grid">
+          <div class="doublet-card card reveal">
+            <div class="doublet-head">
+              <div>
+                <span class="tag">Natrium</span>
+                <h3>Die D-Doppellinie</h3>
+              </div>
+              <button class="btn btn-ghost btn-sm" id="doubletZoom" type="button" aria-pressed="false">Linien vergrößern</button>
+            </div>
+            <div class="doublet-spectrum" id="doubletSpectrum">
+              <span class="d-line one"></span>
+              <span class="d-line two"></span>
+            </div>
+            <div class="doublet-labels"><span>589,0 nm</span><span>589,6 nm</span></div>
+            <p class="doublet-caption" id="doubletCaption">Die beiden gelben Linien liegen im echten Spektrum extrem nah beieinander.</p>
+            <p class="muted small" style="margin-top: 10px">Ursache ist die Spin-Bahn-Kopplung: Der Spin des Elektrons koppelt an seinen Bahndrehimpuls. Dadurch spaltet das 3p-Niveau in zwei leicht verschiedene Zustände auf – es entstehen zwei Übergänge zur 3s-Stufe.</p>
+          </div>
+          <div class="spin-summary card reveal">
+            <span class="tag tag-math">s = ±½</span>
+            <h3>Zwei Einstellungen</h3>
+            <p>Der Spin ist ein Eigendrehimpuls des Elektrons. In einem äußeren Magnetfeld kann er nur zwei Orientierungen annehmen.</p>
+            <div class="spin-visual">
+              <div class="spin-arrow"><span class="arrow-big">↑</span><strong>s = +½</strong><span>Spin nach oben</span></div>
+              <div class="spin-arrow"><span class="arrow-big">↓</span><strong>s = −½</strong><span>Spin nach unten</span></div>
+            </div>
+            <div class="timeline-mini">
+              <div class="timeline-mini-item"><strong>1922</strong><span>Stern und Gerlach beobachten die Richtungsquantelung des Spins.</span></div>
+              <div class="timeline-mini-item"><strong>1925</strong><span>Uhlenbeck und Goudsmit postulieren den Elektronenspin.</span></div>
+              <div class="timeline-mini-item"><strong>1925</strong><span>Pauli formuliert das Ausschlussprinzip – zwei Elektronen pro Orbital mit entgegengesetztem Spin.</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="callout reveal">
+        <svg class="icon callout-icon" aria-hidden="true"><use href="#icon-bulb"></use></svg>
+        <div>
+          <strong>Merke</strong>
+          <p>Die Spinquantenzahl s kann nur +½ oder −½ sein. Zwei Elektronen im selben Orbital müssen sich im Spin unterscheiden. Der Spin folgt nicht aus der Schrödinger-Gleichung – er wurde experimentell entdeckt.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="quiz" data-track aria-labelledby="quiz-title">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="kicker">08 · Wissenscheck</span>
+        <h2 id="quiz-title">Bist du bereit für die Quantenzahlen?</h2>
+        <p>14 Fragen aus allen Stationen. Nach jeder Antwort bekommst du eine Erklärung – so lernst du auch aus Fehlern.</p>
+      </div>
+      <div class="quiz-shell card reveal" id="quizShell">
+        <div class="quiz-start" id="quizStart">
+          <div class="quiz-start-icon"><svg class="icon" aria-hidden="true"><use href="#icon-target"></use></svg></div>
+          <h3>14 Fragen · etwa 6 Minuten</h3>
+          <p>Von den Atommodellen über das Aufbauprinzip bis zum Spin: Teste, ob du die Zusammenhänge erklären kannst.</p>
+          <div class="quiz-best" id="quizBest">Bestleistung: noch keine</div>
+          <div><button class="btn btn-primary" id="quizStartBtn" type="button">Quiz starten<svg class="icon" aria-hidden="true"><use href="#icon-arrow"></use></svg></button></div>
+        </div>
+        <div id="quizPlay" hidden>
+          <div class="quiz-top">
+            <div class="quiz-meta"><span id="quizCounter">Frage 1 von 14</span><span class="score" id="quizScore">0 Punkte</span></div>
+          </div>
+          <div class="quiz-progress"><span id="quizBar"></span></div>
+          <h3 class="quiz-question" id="quizQuestion"></h3>
+          <div class="quiz-options" id="quizOptions"></div>
+          <div class="quiz-feedback" id="quizFeedback" hidden aria-live="polite"></div>
+          <div class="quiz-actions"><button class="btn btn-primary" id="quizNext" type="button" hidden>Weiter<svg class="icon" aria-hidden="true"><use href="#icon-arrow"></use></svg></button></div>
+        </div>
+        <div id="quizResult" hidden></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="glossar" data-track aria-labelledby="glossar-title">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="kicker">Nachschlagen</span>
+        <h2 id="glossar-title">Glossar und Spickzettel</h2>
+        <p>Die wichtigsten Begriffe auf einen Blick – durchsuchbar und zum Aufklappen.</p>
+      </div>
+      <div class="spickzettel card reveal">
+        <div class="table-wrap">
+          <table>
+            <caption>Alle vier Quantenzahlen auf einen Blick</caption>
+            <thead>
+              <tr><th scope="col">Quantenzahl</th><th scope="col">Symbol</th><th scope="col">Erlaubte Werte</th><th scope="col">Beschreibt</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>Hauptquantenzahl</strong></td><td>n</td><td>1, 2, 3, …</td><td>Hauptenergieniveau, Schale, mittlere Ausdehnung</td></tr>
+              <tr><td><strong>Nebenquantenzahl</strong></td><td>l</td><td>0, 1, …, n − 1</td><td>Unterschale und Orbitalform (s, p, d, f)</td></tr>
+              <tr><td><strong>Magnetquantenzahl</strong></td><td>m<sub>l</sub></td><td>−l, …, 0, …, +l</td><td>Räumliche Orientierung des Orbitals</td></tr>
+              <tr><td><strong>Spinquantenzahl</strong></td><td>s</td><td>+½, −½</td><td>Eigendrehimpuls des Elektrons</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="summary-rules">
+          <span class="summary-rule">l = 0 … n − 1</span>
+          <span class="summary-rule">m<sub>l</sub> = −l … +l</span>
+          <span class="summary-rule">Anzahl Orientierungen = 2l + 1</span>
+          <span class="summary-rule">max. e⁻ pro Unterschale = 2(2l + 1)</span>
+          <span class="summary-rule">max. e⁻ pro Schale = 2n²</span>
+        </div>
+      </div>
+      <div class="glossary-tools reveal">
+        <div class="search-box">
+          <svg class="icon" aria-hidden="true"><use href="#icon-search"></use></svg>
+          <input id="glossarySearch" type="search" placeholder="Begriff suchen, z. B. Zeeman, Spin, Orbital …" aria-label="Glossar durchsuchen">
+        </div>
+      </div>
+      <div class="glossary-grid" id="glossaryGrid">
+        <details class="glossary-item reveal">
+          <summary>Hauptquantenzahl n</summary>
+          <p>Bestimmt das Hauptenergieniveau (Schale) und die mittlere Ausdehnung des Orbitals. Erlaubte Werte: n = 1, 2, 3, … Die Schalen werden traditionell mit K, L, M, N, … bezeichnet.</p>
+        </details>
+        <details class="glossary-item reveal">
+          <summary>Nebenquantenzahl l</summary>
+          <p>Legt die Unterenergiestufe und die Form des Orbitals fest. Erlaubte Werte: l = 0, 1, …, n − 1. Dabei steht l = 0 für s, l = 1 für p, l = 2 für d und l = 3 für f.</p>
+        </details>
+        <details class="glossary-item reveal">
+          <summary>Magnetquantenzahl m<sub>l</sub></summary>
+          <p>Beschreibt die räumliche Orientierung eines Orbitals. Erlaubte Werte: m<sub>l</sub> = −l, −l + 1, …, 0, …, +l. Es gibt insgesamt 2l + 1 Orientierungen.</p>
+        </details>
+        <details class="glossary-item reveal">
+          <summary>Spinquantenzahl s</summary>
+          <p>Beschreibt den Eigendrehimpuls des Elektrons. Sie kann nur die Werte +½ oder −½ annehmen. Zwei Elektronen in einem Orbital müssen entgegengesetzten Spin besitzen.</p>
+        </details>
+        <details class="glossary-item reveal">
+          <summary>Orbital</summary>
+          <p>Ein Orbital ist ein durch n, l und m<sub>l</sub> charakterisierter Zustand eines Elektrons. Anschaulich beschreibt es den Raum, in dem sich das Elektron mit hoher Wahrscheinlichkeit aufhält. Es ist keine feste Bahn.</p>
+        </details>
+        <details class="glossary-item reveal">
+          <summary>Entartung</summary>
+          <p>Mehrere Zustände sind entartet, wenn sie ohne äußere Störung dieselbe Energie besitzen – zum Beispiel die drei p-Orbitale einer Unterschale. Ein Magnetfeld kann die Entartung aufheben.</p>
+        </details>
+        <details class="glossary-item reveal">
+          <summary>Aufbauprinzip</summary>
+          <p>Elektronen besetzen die energetisch tiefste verfügbare Unterschale zuerst. Die Füllreihenfolge lautet unter anderem 1s → 2s → 2p → 3s → 3p → 4s → 3d → 4p.</p>
+        </details>
+        <details class="glossary-item reveal">
+          <summary>Pauli-Prinzip</summary>
+          <p>Keine zwei Elektronen eines Atoms dürfen in allen vier Quantenzahlen übereinstimmen. Daraus folgt: Ein Orbital fasst höchstens zwei Elektronen mit entgegengesetztem Spin.</p>
+        </details>
+        <details class="glossary-item reveal">
+          <summary>Absorptions- und Emissionsspektrum</summary>
+          <p>Bei der Absorption nimmt ein Atom Licht bestimmter Wellenlängen auf und regt Elektronen an. Bei der Emission fällt ein angeregtes Elektron zurück und sendet Licht aus. Die diskreten Linien sind für das Element charakteristisch.</p>
+        </details>
+        <details class="glossary-item reveal">
+          <summary>Balmer-Serie</summary>
+          <p>Die Gesamtheit der Wasserstoff-Übergänge, die im sichtbaren Bereich auf das Niveau n = 2 zurückfallen. Bekannte Linien: 656 nm (rot), 486 nm (blaugrün), 434 nm (blau), 410 nm (violett).</p>
+        </details>
+        <details class="glossary-item reveal">
+          <summary>Ionisierungsenergie</summary>
+          <p>Die Energie, die benötigt wird, um ein Elektron aus einem Atom zu entfernen. Der Verlauf über die Elemente zeigt große Sprünge beim Wechsel der Hauptschale und kleinere Knicke beim Wechsel der Unterschale.</p>
+        </details>
+        <details class="glossary-item reveal">
+          <summary>Zeeman-Effekt</summary>
+          <p>Aufspaltung von Spektrallinien in einem äußeren Magnetfeld. Ursache ist die Aufhebung der Entartung der magnetischen Unterniveaus; die Magnetquantenzahl m<sub>l</sub> beschreibt sie.</p>
+        </details>
+        <details class="glossary-item reveal">
+          <summary>Stern-Gerlach-Versuch</summary>
+          <p>1922 beobachteten Stern und Gerlach, dass ein Silberatomstrahl in einem inhomogenen Magnetfeld in genau zwei diskrete Teilstrahlen aufgespalten wird. Das belegt die Richtungsquantelung des Spins.</p>
+        </details>
+        <details class="glossary-item reveal">
+          <summary>Feinstruktur und Spin-Bahn-Kopplung</summary>
+          <p>Die Wechselwirkung zwischen dem Spin und dem Bahndrehimpuls eines Elektrons führt zu kleinen Energieunterschieden innerhalb einer Unterschale. Bei Natrium entsteht dadurch die D-Doppellinie bei 589,0 nm und 589,6 nm.</p>
+        </details>
+        <details class="glossary-item reveal">
+          <summary>Flammenfärbung</summary>
+          <p>Metall-Ionen färben eine Flamme, weil Elektronen thermisch angeregt werden und beim Zurückfallen Licht charakteristischer Wellenlängen aussenden. Natrium leuchtet gelb, Kalium violett, Lithium rot, Kupfer grünblau.</p>
+        </details>
+        <details class="glossary-item reveal">
+          <summary>Wellenfunktion ψ</summary>
+          <p>Die Wellenfunktion ordnet jedem Punkt im Raum einen Wert zu. Ihr Quadrat ψ² liefert die Aufenthaltswahrscheinlichkeit des Elektrons. Die erlaubten Lösungen der Schrödinger-Gleichung werden durch n, l und m<sub>l</sub> beschrieben.</p>
+        </details>
+      </div>
+      <div class="glossary-empty" id="glossaryEmpty" hidden>Kein Begriff gefunden. Versuche es mit einem anderen Suchwort.</div>
+      <div class="sources reveal">
+        <strong>Materialbasis:</strong> Diese Lernwebsite wurde auf Grundlage der Präsentationen „CHEM12.2.2 – Haupt- und Nebenquantenzahl“ und „CHEM12.2.3 – Erweiterung der Quantenzahlen“ erstellt. Die Darstellungen sind didaktisch vereinfacht; Orbitalformen sind schematisch.
+      </div>
+    </div>
+  </section>
+</main>
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <div class="footer-brand"><svg class="icon" aria-hidden="true"><use href="#icon-atom"></use></svg>Quantenzahlen · Interaktive Lernwebsite für die Oberstufe</div>
+    <div class="footer-note">Fortschritt und Bestleistung werden nur lokal in deinem Browser gespeichert.</div>
+    <div class="footer-actions">
+      <a class="btn btn-ghost btn-sm" href="index.html"><svg class="icon" aria-hidden="true"><use href="#icon-home"></use></svg>Zur Hauptseite</a>
+      <button class="btn btn-ghost btn-sm" id="resetProgress" type="button"><svg class="icon" aria-hidden="true"><use href="#icon-reset"></use></svg>Fortschritt zurücksetzen</button>
+      <a class="btn btn-ghost btn-sm" href="#top">Nach oben<svg class="icon" aria-hidden="true" style="transform: rotate(-90deg)"><use href="#icon-arrow"></use></svg></a>
+    </div>
+  </div>
+</footer>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>
+(function () {
+  'use strict';
+
+  const $ = (selector, scope) => (scope || document).querySelector(selector);
+  const $$ = (selector, scope) => Array.from((scope || document).querySelectorAll(selector));
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const supMap = { '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴', '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹' };
+  const toSup = (value) => String(value).split('').map((digit) => supMap[digit] || digit).join('');
+  const signed = (value) => (value > 0 ? '+' + value : value < 0 ? '−' + Math.abs(value) : '0');
+  const fmt = (value, digits) => value.toLocaleString('de-DE', { minimumFractionDigits: digits === undefined ? 1 : digits, maximumFractionDigits: digits === undefined ? 1 : digits });
+  const escapeHtml = (value) => String(value).replace(/[&<>"']/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character]));
+
+  const themeToggle = $('#themeToggle');
+  const sunIcon = '<svg class="icon" aria-hidden="true"><use href="#icon-sun"></use></svg>';
+  const moonIcon = '<svg class="icon" aria-hidden="true"><use href="#icon-moon"></use></svg>';
+
+  function applyTheme(theme) {
+    document.documentElement.dataset.theme = theme;
+    themeToggle.innerHTML = theme === 'dark' ? sunIcon : moonIcon;
+    themeToggle.setAttribute('aria-label', theme === 'dark' ? 'Zum hellen Design wechseln' : 'Zum dunklen Design wechseln');
+    try { localStorage.setItem('qz-theme', theme); } catch (error) {}
+  }
+
+  const initialTheme = document.documentElement.dataset.theme || 'light';
+  applyTheme(initialTheme);
+
+  themeToggle.addEventListener('click', () => {
+    applyTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
+  });
+
+  const trackedSections = $$('[data-track]');
+  const pathCards = $$('.path-card[data-target]');
+  const progressFill = $('#progressFill');
+  const progressLabel = $('#progressLabel');
+  const progressTrack = $('#progressTrack');
+  const visited = new Set();
+
+  try {
+    const storedVisited = JSON.parse(localStorage.getItem('qz-visited') || '[]');
+    if (Array.isArray(storedVisited)) storedVisited.forEach((id) => visited.add(id));
+  } catch (error) {}
+
+  function saveVisited() {
+    try { localStorage.setItem('qz-visited', JSON.stringify(Array.from(visited))); } catch (error) {}
+  }
+
+  function renderProgress() {
+    const percent = Math.round((visited.size / trackedSections.length) * 100);
+    progressFill.style.width = percent + '%';
+    progressLabel.textContent = percent + '%';
+    progressTrack.setAttribute('aria-valuenow', String(percent));
+    pathCards.forEach((card) => card.classList.toggle('done', visited.has(card.dataset.target)));
+  }
+
+  const progressObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting && !visited.has(entry.target.id)) {
+        visited.add(entry.target.id);
+        saveVisited();
+        renderProgress();
+      }
+    });
+  }, { threshold: 0.14 });
+
+  trackedSections.forEach((section) => progressObserver.observe(section));
+  renderProgress();
+
+  const navLinks = $$('.main-nav a');
+  const navObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        navLinks.forEach((link) => link.classList.toggle('active', link.getAttribute('href') === '#' + entry.target.id));
+      }
+    });
+  }, { rootMargin: '-38% 0px -55% 0px' });
+
+  trackedSections.forEach((section) => navObserver.observe(section));
+
+  const revealItems = $$('.reveal');
+  if (reduceMotion) {
+    revealItems.forEach((item) => item.classList.add('in'));
+  } else {
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in');
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.07 });
+    revealItems.forEach((item) => revealObserver.observe(item));
+  }
+
+  function showToast(message) {
+    const toast = $('#toast');
+    toast.textContent = message;
+    toast.classList.add('show');
+    clearTimeout(showToast.timer);
+    showToast.timer = setTimeout(() => toast.classList.remove('show'), 2600);
+  }
+
+  const modelData = [
+    {
+      id: 'dalton',
+      year: '1808',
+      name: 'Dalton',
+      caption: 'Die unteilbare Kugel',
+      title: 'Atome als kleinste, unteilbare Kugeln',
+      quote: 'Stoffe bestehen aus kleinsten, unteilbaren, massiven und kugelförmigen Teilchen – den Atomen. Alle Atome eines Elements sind gleich.',
+      points: [
+        'Atome sind unteilbar und besitzen eine feste Masse und ein festes Volumen.',
+        'Alle Atome eines Elements sind untereinander gleich.',
+        'Verbindungen entstehen aus Atomen verschiedener Elemente in festen Verhältnissen.'
+      ],
+      limit: 'Erklärt weder elektrische Ladungen noch Elektronen, Spektren oder den Aufbau der Atomhülle.',
+      art: '<svg viewBox="0 0 320 220" role="img" aria-label="Dalton-Modell: massive Kugel"><defs><radialGradient id="daltonGrad" cx="34%" cy="30%" r="72%"><stop offset="0" stop-color="#8ff0e4"></stop><stop offset="55%" stop-color="#2dd4bf"></stop><stop offset="100%" stop-color="#0f766e"></stop></radialGradient></defs><circle cx="160" cy="108" r="66" fill="url(#daltonGrad)"></circle><circle cx="138" cy="84" r="16" fill="rgba(255,255,255,.36)"></circle><circle cx="185" cy="130" r="7" fill="rgba(255,255,255,.22)"></circle><ellipse cx="160" cy="195" rx="74" ry="8" fill="var(--line)"></ellipse></svg>'
+    },
+    {
+      id: 'thomson',
+      year: '1904',
+      name: 'Thomson',
+      caption: 'Rosinenkuchen',
+      title: 'Elektronen in einer positiven Ladungswolke',
+      quote: 'Elektronen sind negativ geladen und beweglich. Damit das Atom nach außen neutral ist, muss es auch positive Ladungen geben.',
+      points: [
+        'Das Atom ist nicht unteilbar: Es enthält kleinere, negativ geladene Elektronen.',
+        'Die Elektronen sind wie Rosinen in einem Kuchen in eine positiv geladene Masse eingebettet.',
+        'Nach außen ist das Atom elektrisch neutral.'
+      ],
+      limit: 'Erklärt nicht, warum Alpha-Teilchen an dünnen Goldfolien teilweise stark abgelenkt werden.',
+      art: '<svg viewBox="0 0 320 220" role="img" aria-label="Thomson-Modell: Rosinenkuchen"><defs><radialGradient id="thomsonGrad" cx="38%" cy="34%" r="72%"><stop offset="0" stop-color="#fca5a5"></stop><stop offset="55%" stop-color="#f87171"></stop><stop offset="100%" stop-color="#b91c1c"></stop></radialGradient></defs><circle cx="160" cy="108" r="68" fill="url(#thomsonGrad)" opacity=".9"></circle><g fill="#fde047"><circle cx="132" cy="82" r="6"></circle><circle cx="178" cy="74" r="5"></circle><circle cx="196" cy="118" r="6"></circle><circle cx="146" cy="136" r="5"></circle><circle cx="113" cy="112" r="4"></circle><circle cx="166" cy="142" r="4"></circle></g><g fill="rgba(255,255,255,.4)"><text x="119" y="95" font-size="14">+</text><text x="190" y="98" font-size="14">+</text><text x="150" y="112" font-size="14">+</text></g><ellipse cx="160" cy="195" rx="74" ry="8" fill="var(--line)"></ellipse></svg>'
+    },
+    {
+      id: 'rutherford',
+      year: '1911',
+      name: 'Rutherford',
+      caption: 'Kern und Hülle',
+      title: 'Ein winziger Kern in einer fast leeren Hülle',
+      quote: 'Der größte Teil des Atoms muss leer sein. Irgendwo im Atom sitzt eine konzentrierte positive Ladung, die fast die gesamte Masse trägt.',
+      points: [
+        'Der Atomkern ist winzig, positiv geladen und trägt fast die gesamte Masse.',
+        'Die Elektronen befinden sich in der Hülle und sind sehr leicht.',
+        'Zwischen Kern und Hülle ist der Raum nahezu leer.'
+      ],
+      limit: 'Nach der klassischen Physik müssten kreisende Elektronen Energie abstrahlen und in den Kern stürzen.',
+      art: '<svg viewBox="0 0 320 220" role="img" aria-label="Rutherford-Modell: Kern mit Elektronenbahnen"><defs><radialGradient id="ruthNucleus" cx="35%" cy="30%" r="75%"><stop offset="0" stop-color="#fef3c7"></stop><stop offset="55%" stop-color="#f59e0b"></stop><stop offset="100%" stop-color="#b45309"></stop></radialGradient><linearGradient id="ruthOrbit" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2dd4bf" stop-opacity=".8"></stop><stop offset="1" stop-color="#a78bfa" stop-opacity=".35"></stop></linearGradient></defs><ellipse cx="160" cy="108" rx="120" ry="48" fill="none" stroke="url(#ruthOrbit)" stroke-width="1.6" transform="rotate(-18 160 108)"></ellipse><ellipse cx="160" cy="108" rx="120" ry="48" fill="none" stroke="url(#ruthOrbit)" stroke-width="1.6" transform="rotate(42 160 108)"></ellipse><ellipse cx="160" cy="108" rx="120" ry="48" fill="none" stroke="url(#ruthOrbit)" stroke-width="1.6" transform="rotate(102 160 108)"></ellipse><circle cx="160" cy="108" r="20" fill="url(#ruthNucleus)"></circle><circle cx="160" cy="108" r="5" fill="rgba(255,255,255,.45)"></circle><g fill="#2dd4bf"><circle cx="272" cy="78" r="4.5"></circle><circle cx="57" cy="146" r="4.5"></circle><circle cx="208" cy="40" r="4"></circle><circle cx="83" cy="172" r="4"></circle></g><ellipse cx="160" cy="195" rx="74" ry="8" fill="var(--line)"></ellipse></svg>'
+    },
+    {
+      id: 'bohr',
+      year: '1913',
+      name: 'Bohr',
+      caption: 'Feste Schalen',
+      title: 'Elektronen auf erlaubten Bahnen',
+      quote: 'Elektronen bewegen sich nur auf bestimmten Bahnen mit festen Energiewerten. Dort strahlen sie keine Energie ab – nur beim Bahnwechsel wird Licht aufgenommen oder abgegeben.',
+      points: [
+        'Elektronen bewegen sich auf diskreten Schalen K, L, M, … mit festen Energien.',
+        'Auf einer erlaubten Bahn strahlt das Elektron keine Energie ab.',
+        'Beim Wechsel zwischen Schalen wird ein Lichtquant aufgenommen oder emittiert.'
+      ],
+      limit: 'Erklärt Wasserstoff gut, aber nicht die Feinstruktur schwererer Atome – zum Beispiel die Natrium-Doppellinie.',
+      art: '<svg viewBox="0 0 320 220" role="img" aria-label="Bohr-Modell: Atomkern mit konzentrischen Schalen"><defs><radialGradient id="bohrNucleus" cx="35%" cy="30%" r="75%"><stop offset="0" stop-color="#fff7d6"></stop><stop offset="55%" stop-color="#fbbf24"></stop><stop offset="100%" stop-color="#f97316"></stop></radialGradient></defs><circle cx="160" cy="108" r="20" fill="url(#bohrNucleus)"></circle><circle cx="160" cy="108" r="50" fill="none" stroke="var(--accent)" stroke-width="1.8" opacity=".8"></circle><circle cx="160" cy="108" r="80" fill="none" stroke="var(--accent-2)" stroke-width="1.8" opacity=".7"></circle><circle cx="160" cy="108" r="110" fill="none" stroke="var(--accent-3)" stroke-width="1.8" opacity=".55"></circle><circle cx="160" cy="58" r="5" fill="var(--accent)"></circle><circle cx="240" cy="108" r="5" fill="var(--accent-2)"></circle><circle cx="80" cy="108" r="5" fill="var(--accent-2)"></circle><circle cx="160" cy="218" r="5" fill="var(--accent-3)"></circle><circle cx="270" cy="108" r="5" fill="var(--accent-3)"></circle><ellipse cx="160" cy="195" rx="74" ry="8" fill="var(--line)"></ellipse></svg>'
+    },
+    {
+      id: 'schroedinger',
+      year: '1926',
+      name: 'Schrödinger',
+      caption: 'Wellenfunktion',
+      title: 'Orbitale als Wahrscheinlichkeitsverteilungen',
+      quote: 'Das Elektron ist keine kleine Kugel auf einer Bahn. Die Wellenfunktion ψ beschreibt, wo es sich mit welcher Wahrscheinlichkeit aufhält.',
+      points: [
+        'Die Wellenfunktion ψ ordnet jedem Raumpunkt einen Wert zu.',
+        'ψ² gibt die Aufenthaltswahrscheinlichkeit des Elektrons an – das ist das Orbital.',
+        'Die erlaubten Lösungen liefern die Quantenzahlen n, l und m<sub>l</sub>.'
+      ],
+      limit: 'Die Spinquantenzahl s steckt nicht in der Schrödinger-Gleichung. Sie kommt erst über das Experiment hinzu.',
+      art: '<svg viewBox="0 0 320 220" role="img" aria-label="Schrödinger-Modell: Wahrscheinlichkeitswolke"><defs><radialGradient id="cloudGrad" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#a78bfa" stop-opacity=".9"></stop><stop offset="45" stop-color="#2dd4bf" stop-opacity=".45"></stop><stop offset="100" stop-color="#2dd4bf" stop-opacity="0"></stop></radialGradient><filter id="cloudBlur"><feGaussianBlur stdDeviation="7"></feGaussianBlur></filter></defs><circle cx="160" cy="108" r="86" fill="url(#cloudGrad)" filter="url(#cloudBlur)"></circle><ellipse cx="126" cy="88" rx="44" ry="30" fill="#a78bfa" opacity=".22" filter="url(#cloudBlur)" transform="rotate(-24 126 88)"></ellipse><ellipse cx="196" cy="126" rx="50" ry="32" fill="#2dd4bf" opacity=".24" filter="url(#cloudBlur)" transform="rotate(22 196 126)"></ellipse><circle cx="160" cy="108" r="14" fill="#fbbf24" opacity=".9"></circle><circle cx="160" cy="108" r="4" fill="#fff7d6"></circle><g fill="#a78bfa"><circle cx="70" cy="56" r="2.4" opacity=".6"></circle><circle cx="252" cy="80" r="2" opacity=".5"></circle><circle cx="236" cy="164" r="2.6" opacity=".55"></circle><circle cx="84" cy="162" r="2" opacity=".5"></circle></g><ellipse cx="160" cy="195" rx="74" ry="8" fill="var(--line)"></ellipse></svg>'
+    }
+  ];
+
+  const timeline = $('#modelTimeline');
+  const modelPanel = $('#modelPanel');
+
+  timeline.innerHTML = modelData.map((model) => (
+    '<button class="tl-node" type="button" role="tab" data-model="' + model.id + '" aria-selected="false">' +
+      '<span class="tl-year">' + model.year + '</span>' +
+      '<span class="tl-name">' + model.name + '</span>' +
+      '<span class="tl-caption">' + model.caption + '</span>' +
+      '<span class="tl-dot" aria-hidden="true"></span>' +
+    '</button>'
+  )).join('');
+
+  function renderModel(id) {
+    const model = modelData.find((item) => item.id === id);
+    if (!model) return;
+    $$('.tl-node', timeline).forEach((button) => {
+      const isActive = button.dataset.model === id;
+      button.classList.toggle('active', isActive);
+      button.setAttribute('aria-selected', String(isActive));
+    });
+    modelPanel.innerHTML =
+      '<div class="model-art">' + model.art + '</div>' +
+      '<div class="model-copy">' +
+        '<span class="model-year">' + model.year + ' · ' + model.name + '</span>' +
+        '<h3>' + model.title + '</h3>' +
+        '<p class="model-quote">' + model.quote + '</p>' +
+        '<ul class="model-points">' + model.points.map((point) => '<li>' + point + '</li>').join('') + '</ul>' +
+        '<div class="model-limit"><svg class="icon" aria-hidden="true"><use href="#icon-info"></use></svg><span><strong>Grenze:</strong> ' + model.limit + '</span></div>' +
+      '</div>';
+    modelPanel.classList.remove('in');
+    requestAnimationFrame(() => modelPanel.classList.add('in'));
+  }
+
+  timeline.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-model]');
+    if (button) renderModel(button.dataset.model);
+  });
+
+  renderModel('dalton');
+
+  const hLevels = [1, 2, 3, 4, 5, 6];
+  const hY = { 1: 320, 2: 220, 3: 160, 4: 120, 5: 92, 6: 70 };
+  const transitions = [
+    { from: 3, to: 2, lambda: 656, color: '#ef4444', name: 'Rot', detail: 'Hα' },
+    { from: 4, to: 2, lambda: 486, color: '#22d3ee', name: 'Blaugrün', detail: 'Hβ' },
+    { from: 5, to: 2, lambda: 434, color: '#6366f1', name: 'Blauviolett', detail: 'Hγ' },
+    { from: 6, to: 2, lambda: 410, color: '#a855f7', name: 'Violett', detail: 'Hδ' }
+  ];
+
+  function buildLadder() {
+    let markup = '<defs><marker id="hArrow" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0 0L8 4L0 8Z" fill="currentColor"></path></marker></defs>';
+    markup += '<line class="h-axis" x1="68" y1="342" x2="392" y2="342"></line>';
+    hLevels.forEach((n) => {
+      const y = hY[n];
+      const isTarget = n === 2;
+      markup += '<line class="h-level' + (isTarget ? ' target' : '') + '" x1="112" y1="' + y + '" x2="356" y2="' + y + '"></line>';
+      markup += '<text class="h-level-label" x="368" y="' + (y + 4) + '">n = ' + n + '</text>';
+      if (n <= 3) {
+        markup += '<text class="h-energy" x="104" y="' + (y + 4) + '" text-anchor="end">' + (-13.6 / (n * n)).toFixed(1).replace('.', ',') + ' eV</text>';
+      }
+    });
+    markup += '<line id="hTransition" x1="302" y1="160" x2="302" y2="220" stroke="var(--accent)" marker-end="url(#hArrow)"></line>';
+    markup += '<g id="hElectron" style="transform: translateY(220px)"><circle cx="332" cy="0" r="9" fill="#fbbf24"></circle><circle cx="332" cy="0" r="15" fill="none" stroke="#fbbf24" stroke-width="1.5" opacity=".35"></circle></g>';
+    markup += '<text class="h-energy" x="20" y="30">Energie</text>';
+    $('#hLadder').innerHTML = markup;
+  }
+
+  function addSpectrumLine(lambda, color, label) {
+    const container = $('#spectrumLines');
+    const existing = $$('.spectrum-line', container).find((line) => line.dataset.lambda === String(lambda));
+    if (existing) {
+      existing.style.animation = 'none';
+      void existing.offsetWidth;
+      existing.style.animation = 'lineIn .45s ease-out';
+      return;
+    }
+    const line = document.createElement('span');
+    line.className = 'spectrum-line';
+    line.dataset.lambda = String(lambda);
+    line.style.left = (((lambda - 380) / (700 - 380)) * 100) + '%';
+    line.style.background = color;
+    line.style.boxShadow = '0 0 12px ' + color + ', 0 0 26px ' + color;
+    line.title = label + ': ' + lambda + ' nm';
+    container.appendChild(line);
+  }
+
+  let hTimerOne = null;
+  let hTimerTwo = null;
+
+  function playTransition(transition) {
+    clearTimeout(hTimerOne);
+    clearTimeout(hTimerTwo);
+    const electron = $('#hElectron');
+    const arrow = $('#hTransition');
+    const reading = $('#hReading');
+    const startY = hY[transition.from];
+    const endY = hY[transition.to];
+    arrow.style.opacity = '0';
+    electron.style.transition = 'transform .3s ease';
+    electron.style.transform = 'translateY(' + startY + 'px)';
+    reading.innerHTML = '<div class="reading-top"><span class="reading-dot" style="background: ' + transition.color + '"></span>Anregung auf n = ' + transition.from + '</div><p>Das Elektron nimmt Energie auf und wechselt auf die höhere Stufe. Dieser angeregte Zustand ist instabil.</p>';
+    hTimerOne = setTimeout(() => {
+      electron.style.transition = 'transform .7s cubic-bezier(.22, 1, .36, 1)';
+      electron.style.transform = 'translateY(' + endY + 'px)';
+      arrow.setAttribute('y1', String(startY));
+      arrow.setAttribute('y2', String(endY));
+      arrow.style.stroke = transition.color;
+      arrow.style.color = transition.color;
+      arrow.style.opacity = '1';
+      const deltaE = (-13.6 / (transition.from * transition.from)) - (-13.6 / (transition.to * transition.to));
+      reading.innerHTML = '<div class="reading-top"><span class="reading-dot" style="background: ' + transition.color + '"></span>' + transition.lambda + ' nm · ' + transition.name + '</div><p>Übergang n = ' + transition.from + ' → n = ' + transition.to + ' (' + transition.detail + '). ΔE = ' + fmt(deltaE, 2) + ' eV. Die Linie erscheint im sichtbaren Spektrum.</p>';
+      hTimerTwo = setTimeout(() => {
+        addSpectrumLine(transition.lambda, transition.color, transition.name);
+      }, 420);
+    }, 460);
+  }
+
+  buildLadder();
+  $('#transitionButtons').innerHTML = transitions.map((transition) => (
+    '<button class="transition-btn" type="button" data-from="' + transition.from + '">' +
+      '<span>n = ' + transition.from + ' → ' + transition.to + '</span>' +
+      '<span class="swatch" style="background: ' + transition.color + '"></span>' +
+    '</button>'
+  )).join('');
+
+  $('#transitionButtons').addEventListener('click', (event) => {
+    const button = event.target.closest('[data-from]');
+    if (!button) return;
+    $$('.transition-btn').forEach((item) => item.classList.toggle('active', item === button));
+    const transition = transitions.find((item) => item.from === Number(button.dataset.from));
+    if (transition) playTransition(transition);
+  });
+
+  $$('.transition-btn')[0].classList.add('active');
+  playTransition(transitions[0]);
+
+  const flameData = [
+    { id: 'na', label: 'Natrium', color: '#facc15', inner: '#fff7cc', title: 'Natrium färbt die Flamme gelb', text: 'Die Wärme der Flamme regt Elektronen an. Beim Zurückfallen sendet Natrium Licht der Wellenlänge 589 nm aus – zwei eng benachbarte gelbe Linien.' },
+    { id: 'k', label: 'Kalium', color: '#a855f7', inner: '#f3e8ff', title: 'Kalium färbt die Flamme violett', text: 'Kalium zeigt ein charakteristisches violettes Leuchten. Die Linien entstehen durch Übergänge zwischen diskreten Energiestufen der Kaliumatome.' },
+    { id: 'li', label: 'Lithium', color: '#ef4444', inner: '#fee2e2', title: 'Lithium färbt die Flamme rot', text: 'Lithium sendet beim Zurückfallen seiner angeregten Elektronen vor allem rotes Licht aus. Die Flammenfarbe ist ein sichtbarer Beweis für diskrete Energiestufen.' },
+    { id: 'cu', label: 'Kupfer', color: '#22d3ee', inner: '#cffafe', title: 'Kupfer färbt die Flamme grünblau', text: 'Kupfer-Ionen leuchten grünblau. Auch hier liefert die Wellenlänge des emittierten Lichts eine charakteristische Energiedifferenz im Atom.' }
+  ];
+
+  function renderFlame(id) {
+    const entry = flameData.find((item) => item.id === id) || flameData[0];
+    const shape = $('#flameShape');
+    shape.style.setProperty('--flame-outer', entry.color);
+    shape.style.setProperty('--flame-inner', entry.inner);
+    $('#flameTitle').textContent = entry.title;
+    $('#flameText').textContent = entry.text;
+    $$('.flame-btn').forEach((button) => button.classList.toggle('active', button.dataset.flame === entry.id));
+  }
+
+  $('#flameButtons').innerHTML = flameData.map((entry) => (
+    '<button class="flame-btn" type="button" data-flame="' + entry.id + '"><span class="swatch" style="background: ' + entry.color + '"></span>' + entry.label + '</button>'
+  )).join('');
+
+  $('#flameButtons').addEventListener('click', (event) => {
+    const button = event.target.closest('[data-flame]');
+    if (button) renderFlame(button.dataset.flame);
+  });
+
+  renderFlame('na');
+
+  const orbitalLetters = ['s', 'p', 'd', 'f'];
+  const orbitalMeanings = [
+    's-Orbitale sind kugelförmig. Zu jeder Schale gehört genau ein s-Orbital.',
+    'p-Orbitale sind hantelförmig und zeigen entlang der drei Raumachsen x, y und z. Sie besitzen drei Orientierungen.',
+    'd-Orbitale sind vierblättrige Kleeblätter; das d_z²-Orbital besitzt zusätzlich einen Ring. Es gibt fünf Orientierungen.',
+    'f-Orbitale haben eine komplexere räumliche Struktur. Es gibt sieben Orientierungen.'
+  ];
+  const orbitalTypeNames = [
+    ['s'],
+    ['p<sub>x</sub>', 'p<sub>z</sub>', 'p<sub>y</sub>'],
+    ['d<sub>xy</sub>', 'd<sub>yz</sub>', 'd<sub>z²</sub>', 'd<sub>xz</sub>', 'd<sub>x²−y²</sub>'],
+    ['f<sub>1</sub>', 'f<sub>2</sub>', 'f<sub>3</sub>', 'f<sub>4</sub>', 'f<sub>5</sub>', 'f<sub>6</sub>', 'f<sub>7</sub>']
+  ];
+  const fOrbitalVariants = [
+    { count: 6, offset: 0, ring: false },
+    { count: 8, offset: 22.5, ring: false },
+    { count: 6, offset: 30, ring: false },
+    { count: 8, offset: 0, ring: true },
+    { count: 6, offset: 0, ring: true },
+    { count: 8, offset: 22.5, ring: true },
+    { count: 6, offset: 15, ring: false }
+  ];
+  const orbitAxes = '<line x1="50" y1="7" x2="50" y2="93" stroke="var(--line-strong)" stroke-width="1" stroke-dasharray="2 4" opacity=".6"></line><line x1="7" y1="50" x2="93" y2="50" stroke="var(--line-strong)" stroke-width="1" stroke-dasharray="2 4" opacity=".6"></line>';
+
+  function lobeRing(count, offset, rx, ry, radius, fill) {
+    let markup = '';
+    for (let index = 0; index < count; index += 1) {
+      const angle = offset + (360 / count) * index;
+      markup += '<ellipse cx="50" cy="' + (50 - radius) + '" rx="' + rx + '" ry="' + ry + '" fill="' + fill + '" transform="rotate(' + angle + ' 50 50)"></ellipse>';
+    }
+    return markup;
+  }
+
+  function orbitalType(l, variant) {
+    const names = orbitalTypeNames[l];
+    return names && names[variant] ? names[variant] : (orbitalLetters[l] || 'g');
+  }
+
+  function orbitalSvg(l, variant) {
+    const v = variant || 0;
+    const fill = ['url(#orbTeal)', 'url(#orbViolet)', 'url(#orbAmber)', 'url(#orbRose)'][Math.min(l, 3)];
+    if (l === 0) {
+      return '<svg viewBox="0 0 100 100" class="orb-svg" aria-hidden="true"><circle cx="50" cy="50" r="25" fill="' + fill + '"></circle><circle cx="41" cy="41" r="7" fill="rgba(255,255,255,.45)"></circle></svg>';
+    }
+    if (l === 1) {
+      if (v === 0) {
+        return '<svg viewBox="0 0 100 100" class="orb-svg" aria-hidden="true">' + orbitAxes +
+          '<ellipse cx="27" cy="50" rx="20" ry="12.5" fill="' + fill + '"></ellipse>' +
+          '<ellipse cx="73" cy="50" rx="20" ry="12.5" fill="' + fill + '"></ellipse>' +
+        '</svg>';
+      }
+      if (v === 1) {
+        return '<svg viewBox="0 0 100 100" class="orb-svg" aria-hidden="true">' + orbitAxes +
+          '<ellipse cx="50" cy="27" rx="12.5" ry="20" fill="' + fill + '"></ellipse>' +
+          '<ellipse cx="50" cy="73" rx="12.5" ry="20" fill="' + fill + '"></ellipse>' +
+        '</svg>';
+      }
+      return '<svg viewBox="0 0 100 100" class="orb-svg" aria-hidden="true">' + orbitAxes +
+        '<g transform="rotate(45 50 50)">' +
+          '<ellipse cx="50" cy="26" rx="12" ry="19" fill="' + fill + '"></ellipse>' +
+          '<ellipse cx="50" cy="74" rx="12" ry="19" fill="' + fill + '" opacity=".72"></ellipse>' +
+        '</g>' +
+      '</svg>';
+    }
+    if (l === 2) {
+      if (v === 0) {
+        return '<svg viewBox="0 0 100 100" class="orb-svg" aria-hidden="true">' + orbitAxes + lobeRing(4, 45, 11, 18, 24, fill) + '</svg>';
+      }
+      if (v === 1) {
+        return '<svg viewBox="0 0 100 100" class="orb-svg" aria-hidden="true">' + orbitAxes +
+          '<ellipse cx="50" cy="25" rx="11" ry="19" fill="' + fill + '"></ellipse>' +
+          '<ellipse cx="50" cy="75" rx="11" ry="19" fill="' + fill + '"></ellipse>' +
+          '<ellipse cx="24" cy="50" rx="18" ry="8" fill="' + fill + '" opacity=".82"></ellipse>' +
+          '<ellipse cx="76" cy="50" rx="18" ry="8" fill="' + fill + '" opacity=".82"></ellipse>' +
+        '</svg>';
+      }
+      if (v === 2) {
+        return '<svg viewBox="0 0 100 100" class="orb-svg" aria-hidden="true">' + orbitAxes +
+          '<ellipse cx="50" cy="50" rx="23" ry="9" fill="none" stroke="var(--accent-3)" stroke-width="4" opacity=".62"></ellipse>' +
+          '<ellipse cx="50" cy="24" rx="11" ry="19" fill="' + fill + '"></ellipse>' +
+          '<ellipse cx="50" cy="76" rx="11" ry="19" fill="' + fill + '"></ellipse>' +
+        '</svg>';
+      }
+      if (v === 3) {
+        return '<svg viewBox="0 0 100 100" class="orb-svg" aria-hidden="true">' + orbitAxes + lobeRing(4, 30, 10, 18, 24, fill) + '</svg>';
+      }
+      return '<svg viewBox="0 0 100 100" class="orb-svg" aria-hidden="true">' + orbitAxes + lobeRing(4, 0, 12, 19, 24, fill) + '</svg>';
+    }
+    const config = fOrbitalVariants[v] || fOrbitalVariants[0];
+    const ring = config.ring
+      ? '<ellipse cx="50" cy="50" rx="17" ry="7" fill="none" stroke="var(--red)" stroke-width="2" opacity=".58"></ellipse>'
+      : '';
+    return '<svg viewBox="0 0 100 100" class="orb-svg" aria-hidden="true">' + orbitAxes + ring + lobeRing(config.count, config.offset, 7.5, 15, 24, fill) + '</svg>';
+  }
+
+  const explorer = { n: 3, l: 2, ml: 0, spin: 1 };
+  const nChips = $('#nChips');
+  const lChips = $('#lChips');
+  const mlChips = $('#mlChips');
+  const spinChips = $('#spinChips');
+
+  function renderExplorer() {
+    if (explorer.l >= explorer.n) explorer.l = explorer.n - 1;
+    if (Math.abs(explorer.ml) > explorer.l) explorer.ml = 0;
+
+    nChips.innerHTML = [1, 2, 3, 4].map((n) => '<button class="chip' + (explorer.n === n ? ' active' : '') + '" type="button" data-n="' + n + '" aria-pressed="' + (explorer.n === n) + '">' + n + '</button>').join('');
+    lChips.innerHTML = Array.from({ length: explorer.n }, (_, index) => index).map((l) => '<button class="chip' + (explorer.l === l ? ' active' : '') + '" type="button" data-l="' + l + '" aria-pressed="' + (explorer.l === l) + '">' + l + ' · ' + orbitalLetters[l] + '</button>').join('');
+    mlChips.innerHTML = Array.from({ length: 2 * explorer.l + 1 }, (_, index) => index - explorer.l).map((value) => '<button class="chip' + (explorer.ml === value ? ' active' : '') + '" type="button" data-ml="' + value + '" aria-pressed="' + (explorer.ml === value) + '">' + signed(value) + '</button>').join('');
+    spinChips.innerHTML = '<button class="chip' + (explorer.spin === 1 ? ' active' : '') + '" type="button" data-spin="1" aria-pressed="' + (explorer.spin === 1) + '">+½ ↑</button><button class="chip' + (explorer.spin === -1 ? ' active' : '') + '" type="button" data-spin="-1" aria-pressed="' + (explorer.spin === -1) + '">−½ ↓</button>';
+
+    const letter = orbitalLetters[explorer.l];
+    const count = 2 * explorer.l + 1;
+    const variant = explorer.ml + explorer.l;
+    $('#orbitalName').textContent = explorer.n + letter;
+    $('#orbitalSummary').innerHTML = orbitalType(explorer.l, variant) + ' · m<sub>l</sub> = ' + signed(explorer.ml) + ' · Spin ' + (explorer.spin === 1 ? '+½' : '−½');
+    $('#orbitalCount').textContent = count + ' Orbital' + (count === 1 ? '' : 'e') + ' · max. ' + (count * 2) + ' e⁻';
+    $('#spinFact').textContent = explorer.spin === 1 ? 'Spin ↑' : 'Spin ↓';
+    $('#orbitalMeaning').textContent = orbitalMeanings[explorer.l];
+    $('#orbPreview').innerHTML = orbitalSvg(explorer.l, variant);
+
+    const items = [];
+    for (let index = 0; index < count; index += 1) {
+      const value = index - explorer.l;
+      items.push(
+        '<div class="orbital-item' + (value === explorer.ml ? ' active' : '') + '">' +
+          orbitalSvg(explorer.l, index) +
+          '<span>m<sub>l</sub> = ' + signed(value) + '</span>' +
+          '<span class="orbital-sub">' + orbitalType(explorer.l, index) + '</span>' +
+        '</div>'
+      );
+    }
+    $('#orbitalStrip').innerHTML = items.join('');
+  }
+
+  nChips.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-n]');
+    if (!button) return;
+    explorer.n = Number(button.dataset.n);
+    renderExplorer();
+  });
+
+  lChips.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-l]');
+    if (!button) return;
+    explorer.l = Number(button.dataset.l);
+    renderExplorer();
+  });
+
+  mlChips.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-ml]');
+    if (!button) return;
+    explorer.ml = Number(button.dataset.ml);
+    renderExplorer();
+  });
+
+  spinChips.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-spin]');
+    if (!button) return;
+    explorer.spin = Number(button.dataset.spin);
+    renderExplorer();
+  });
+
+  renderExplorer();
+
+  const ruleN = $('#ruleN');
+  const ruleL = $('#ruleL');
+  ruleN.innerHTML = [1, 2, 3, 4, 5].map((n) => '<option value="' + n + '">' + n + '</option>').join('');
+  ruleL.innerHTML = [0, 1, 2, 3, 4].map((l) => '<option value="' + l + '">' + l + ' · ' + (orbitalLetters[l] || 'g') + '</option>').join('');
+  ruleN.value = '3';
+  ruleL.value = '2';
+
+  $('#ruleBtn').addEventListener('click', () => {
+    const n = Number(ruleN.value);
+    const l = Number(ruleL.value);
+    const result = $('#ruleResult');
+    if (l < n) {
+      const letter = orbitalLetters[l] || 'g';
+      const count = 2 * l + 1;
+      result.className = 'rule-result ok';
+      result.textContent = 'Zulässig: n = ' + n + ', l = ' + l + ' ergibt ein ' + n + letter + '-Orbital mit ' + count + ' Orientierungen und maximal ' + (count * 2) + ' Elektronen.';
+    } else {
+      result.className = 'rule-result bad';
+      result.textContent = 'Nicht zulässig: Für n = ' + n + ' sind nur l = 0 bis ' + (n - 1) + ' erlaubt. Ein ' + n + (orbitalLetters[l] || 'g') + '-Orbital existiert nicht.';
+    }
+  });
+
+  const elements = [
+    { z: 1, sym: 'H', name: 'Wasserstoff', group: 1, period: 1, block: 's' },
+    { z: 2, sym: 'He', name: 'Helium', group: 18, period: 1, block: 's' },
+    { z: 3, sym: 'Li', name: 'Lithium', group: 1, period: 2, block: 's' },
+    { z: 4, sym: 'Be', name: 'Beryllium', group: 2, period: 2, block: 's' },
+    { z: 5, sym: 'B', name: 'Bor', group: 13, period: 2, block: 'p' },
+    { z: 6, sym: 'C', name: 'Kohlenstoff', group: 14, period: 2, block: 'p' },
+    { z: 7, sym: 'N', name: 'Stickstoff', group: 15, period: 2, block: 'p' },
+    { z: 8, sym: 'O', name: 'Sauerstoff', group: 16, period: 2, block: 'p' },
+    { z: 9, sym: 'F', name: 'Fluor', group: 17, period: 2, block: 'p' },
+    { z: 10, sym: 'Ne', name: 'Neon', group: 18, period: 2, block: 'p' },
+    { z: 11, sym: 'Na', name: 'Natrium', group: 1, period: 3, block: 's' },
+    { z: 12, sym: 'Mg', name: 'Magnesium', group: 2, period: 3, block: 's' },
+    { z: 13, sym: 'Al', name: 'Aluminium', group: 13, period: 3, block: 'p' },
+    { z: 14, sym: 'Si', name: 'Silicium', group: 14, period: 3, block: 'p' },
+    { z: 15, sym: 'P', name: 'Phosphor', group: 15, period: 3, block: 'p' },
+    { z: 16, sym: 'S', name: 'Schwefel', group: 16, period: 3, block: 'p' },
+    { z: 17, sym: 'Cl', name: 'Chlor', group: 17, period: 3, block: 'p' },
+    { z: 18, sym: 'Ar', name: 'Argon', group: 18, period: 3, block: 'p' },
+    { z: 19, sym: 'K', name: 'Kalium', group: 1, period: 4, block: 's' },
+    { z: 20, sym: 'Ca', name: 'Calcium', group: 2, period: 4, block: 's' },
+    { z: 21, sym: 'Sc', name: 'Scandium', group: 3, period: 4, block: 'd' },
+    { z: 22, sym: 'Ti', name: 'Titan', group: 4, period: 4, block: 'd' },
+    { z: 23, sym: 'V', name: 'Vanadium', group: 5, period: 4, block: 'd' },
+    { z: 24, sym: 'Cr', name: 'Chrom', group: 6, period: 4, block: 'd' },
+    { z: 25, sym: 'Mn', name: 'Mangan', group: 7, period: 4, block: 'd' },
+    { z: 26, sym: 'Fe', name: 'Eisen', group: 8, period: 4, block: 'd' },
+    { z: 27, sym: 'Co', name: 'Cobalt', group: 9, period: 4, block: 'd' },
+    { z: 28, sym: 'Ni', name: 'Nickel', group: 10, period: 4, block: 'd' },
+    { z: 29, sym: 'Cu', name: 'Kupfer', group: 11, period: 4, block: 'd' },
+    { z: 30, sym: 'Zn', name: 'Zink', group: 12, period: 4, block: 'd' },
+    { z: 31, sym: 'Ga', name: 'Gallium', group: 13, period: 4, block: 'p' },
+    { z: 32, sym: 'Ge', name: 'Germanium', group: 14, period: 4, block: 'p' },
+    { z: 33, sym: 'As', name: 'Arsen', group: 15, period: 4, block: 'p' },
+    { z: 34, sym: 'Se', name: 'Selen', group: 16, period: 4, block: 'p' },
+    { z: 35, sym: 'Br', name: 'Brom', group: 17, period: 4, block: 'p' },
+    { z: 36, sym: 'Kr', name: 'Krypton', group: 18, period: 4, block: 'p' }
+  ];
+
+  const aufbauOrder = [
+    { id: '1s', capacity: 2, orbitals: 1 },
+    { id: '2s', capacity: 2, orbitals: 1 },
+    { id: '2p', capacity: 6, orbitals: 3 },
+    { id: '3s', capacity: 2, orbitals: 1 },
+    { id: '3p', capacity: 6, orbitals: 3 },
+    { id: '4s', capacity: 2, orbitals: 1 },
+    { id: '3d', capacity: 10, orbitals: 5 },
+    { id: '4p', capacity: 6, orbitals: 3 }
+  ];
+
+  const configOrder = ['1s', '2s', '2p', '3s', '3p', '3d', '4s', '4p'];
+
+  function configFor(z) {
+    const config = {};
+    let remaining = z;
+    aufbauOrder.forEach((sublevel) => {
+      if (remaining <= 0) return;
+      const take = Math.min(sublevel.capacity, remaining);
+      if (take > 0) config[sublevel.id] = take;
+      remaining -= take;
+    });
+    if (z === 24) {
+      config['4s'] = 1;
+      config['3d'] = 5;
+    }
+    if (z === 29) {
+      config['4s'] = 1;
+      config['3d'] = 10;
+    }
+    return config;
+  }
+
+  function formatConfig(z) {
+    const config = configFor(z);
+    return configOrder.filter((id) => config[id]).map((id) => id + toSup(config[id])).join(' ');
+  }
+
+  function shortConfig(z) {
+    if (z <= 18) return formatConfig(z);
+    const config = configFor(z);
+    const rest = configOrder.filter((id) => config[id] && ['3d', '4s', '4p'].includes(id)).map((id) => id + toSup(config[id])).join(' ');
+    return '[Ar]' + (rest ? ' ' + rest : '');
+  }
+
+  function blockLabel(block) {
+    return block === 's' ? 's' : block === 'p' ? 'p' : block === 'd' ? 'd' : 'f';
+  }
+
+  function blockDescription(block) {
+    if (block === 's') return 's-Block: Hier wird die s-Unterschale gefüllt (maximal 2 Elektronen). Dazu gehören die Hauptgruppen 1 und 2 sowie Helium.';
+    if (block === 'p') return 'p-Block: Die drei p-Orbitale werden gefüllt (maximal 6 Elektronen). Das sind die Hauptgruppen 13 bis 18.';
+    if (block === 'd') return 'd-Block: Die fünf d-Orbitale der vorhergehenden Schale werden gefüllt (maximal 10 Elektronen). Das sind die Nebengruppen.';
+    return 'f-Block: Die sieben f-Orbitale werden gefüllt (maximal 14 Elektronen). Dazu gehören die Lanthanoide und Actinoide.';
+  }
+
+  function distribute(count, orbitals) {
+    const result = new Array(orbitals).fill(0);
+    let left = count;
+    let index = 0;
+    while (left > 0 && index < orbitals) {
+      result[index] = 1;
+      left -= 1;
+      index += 1;
+    }
+    index = 0;
+    while (left > 0 && index < orbitals) {
+      result[index] = 2;
+      left -= 1;
+      index += 1;
+    }
+    return result;
+  }
+
+  let aufbauZ = 20;
+  let autoTimer = null;
+
+  function renderAufbau() {
+    const element = elements[aufbauZ - 1];
+    const config = configFor(aufbauZ);
+    $('#elementZ').textContent = 'Z = ' + aufbauZ;
+    $('#elementSym').textContent = element.sym;
+    $('#elementName').textContent = element.name;
+    $('#elementConfig').textContent = formatConfig(aufbauZ);
+    $('#elementMeta').textContent = 'Periode ' + element.period + ' · Gruppe ' + element.group + ' · ' + blockLabel(element.block) + '-Block';
+    $('#aufbauMinus').disabled = aufbauZ <= 1;
+    $('#aufbauPlus').disabled = aufbauZ >= 36;
+
+    const nextConfig = aufbauZ < 36 ? configFor(aufbauZ + 1) : null;
+    const nextSublevel = nextConfig ? aufbauOrder.find((sublevel) => (nextConfig[sublevel.id] || 0) > (config[sublevel.id] || 0)) : null;
+
+    $('#sublevelList').innerHTML = aufbauOrder.slice().reverse().map((sublevel) => {
+      const count = config[sublevel.id] || 0;
+      const boxes = distribute(count, sublevel.orbitals).map((occupancy) => (
+        '<span class="orbital-box' + (occupancy > 0 ? ' filled' : '') + '">' + (occupancy === 1 ? '↑' : occupancy === 2 ? '↑↓' : '') + '</span>'
+      )).join('');
+      const isNext = nextSublevel && nextSublevel.id === sublevel.id;
+      return '<div class="sublevel-row' + (count > 0 ? ' occupied' : '') + (isNext ? ' next' : '') + '">' +
+        '<span class="sublevel-name">' + sublevel.id + '</span>' +
+        '<span class="orbital-boxes">' + boxes + '</span>' +
+        '<span class="sublevel-count">' + count + '/' + sublevel.capacity + ' e⁻</span>' +
+      '</div>';
+    }).join('');
+
+    const exceptionNote = $('#exceptionNote');
+    if (aufbauZ === 24) {
+      exceptionNote.hidden = false;
+      $('#exceptionText').textContent = 'Ausnahme: Chrom besitzt die stabilere Konfiguration [Ar] 3d⁵ 4s¹. Ein Elektron wechselt von 4s nach 3d.';
+    } else if (aufbauZ === 29) {
+      exceptionNote.hidden = false;
+      $('#exceptionText').textContent = 'Ausnahme: Kupfer besitzt die stabilere Konfiguration [Ar] 3d¹⁰ 4s¹. Ein Elektron wechselt von 4s nach 3d.';
+    } else {
+      exceptionNote.hidden = true;
+    }
+  }
+
+  function stopAutoFill() {
+    if (autoTimer) {
+      clearInterval(autoTimer);
+      autoTimer = null;
+      const button = $('#aufbauAuto');
+      button.innerHTML = '<svg class="icon" aria-hidden="true"><use href="#icon-play"></use></svg>Auto-Füllen';
+    }
+  }
+
+  $('#aufbauPlus').addEventListener('click', () => {
+    stopAutoFill();
+    if (aufbauZ < 36) {
+      aufbauZ += 1;
+      renderAufbau();
+    }
+  });
+
+  $('#aufbauMinus').addEventListener('click', () => {
+    stopAutoFill();
+    if (aufbauZ > 1) {
+      aufbauZ -= 1;
+      renderAufbau();
+    }
+  });
+
+  $('#aufbauReset').addEventListener('click', () => {
+    stopAutoFill();
+    aufbauZ = 1;
+    renderAufbau();
+  });
+
+  $('#aufbauAuto').addEventListener('click', () => {
+    if (autoTimer) {
+      stopAutoFill();
+      return;
+    }
+    if (aufbauZ >= 36) {
+      aufbauZ = 1;
+      renderAufbau();
+    }
+    const button = $('#aufbauAuto');
+    button.innerHTML = '<svg class="icon" aria-hidden="true"><use href="#icon-x"></use></svg>Stopp';
+    autoTimer = setInterval(() => {
+      if (aufbauZ >= 36) {
+        stopAutoFill();
+        return;
+      }
+      aufbauZ += 1;
+      renderAufbau();
+    }, 520);
+  });
+
+  renderAufbau();
+
+  const pseGrid = $('#pseGrid');
+  let pseMarkup = '';
+  for (let group = 1; group <= 18; group += 1) {
+    pseMarkup += '<div class="pse-label" style="grid-column:' + (group + 1) + ';grid-row:1">' + group + '</div>';
+  }
+  for (let period = 1; period <= 4; period += 1) {
+    pseMarkup += '<div class="pse-label" style="grid-column:1;grid-row:' + (period + 1) + '">' + period + '</div>';
+  }
+  elements.forEach((element) => {
+    pseMarkup += '<button class="pse-cell block-' + element.block + '" type="button" style="grid-column:' + (element.group + 1) + ';grid-row:' + (element.period + 1) + '" data-z="' + element.z + '" title="' + element.name + ' (' + element.sym + ')" aria-label="' + element.name + ', Ordnungszahl ' + element.z + '"><span class="z">' + element.z + '</span><span class="sym">' + element.sym + '</span></button>';
+  });
+  pseGrid.innerHTML = pseMarkup;
+
+  function selectPse(z) {
+    const element = elements.find((item) => item.z === z);
+    if (!element) return;
+    $$('.pse-cell', pseGrid).forEach((cell) => cell.classList.toggle('selected', Number(cell.dataset.z) === z));
+    $('#pseInfo').innerHTML =
+      '<div class="pse-info-head">' +
+        '<span class="pse-big-sym block-' + element.block + '">' + element.sym + '</span>' +
+        '<div><strong>' + element.name + '</strong><span>Z = ' + element.z + ' · Periode ' + element.period + ' · Gruppe ' + element.group + ' · ' + blockLabel(element.block) + '-Block</span></div>' +
+      '</div>' +
+      '<p>' + blockDescription(element.block) + '</p>' +
+      '<div class="config-line">' + formatConfig(element.z) + '</div>' +
+      '<button class="btn btn-ghost btn-sm" type="button" id="pseToBuilder" data-z="' + element.z + '">Im Aufbau-Explorer öffnen<svg class="icon" aria-hidden="true"><use href="#icon-arrow"></use></svg></button>';
+  }
+
+  pseGrid.addEventListener('click', (event) => {
+    const cell = event.target.closest('.pse-cell');
+    if (cell) selectPse(Number(cell.dataset.z));
+  });
+
+  $('#pseInfo').addEventListener('click', (event) => {
+    const button = event.target.closest('#pseToBuilder');
+    if (!button) return;
+    stopAutoFill();
+    aufbauZ = Number(button.dataset.z);
+    renderAufbau();
+    document.getElementById('aufbau').scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+  });
+
+  selectPse(20);
+
+  const ionData = [
+    { z: 1, sym: 'H', name: 'Wasserstoff', e: 13.60 },
+    { z: 2, sym: 'He', name: 'Helium', e: 24.59 },
+    { z: 3, sym: 'Li', name: 'Lithium', e: 5.39 },
+    { z: 4, sym: 'Be', name: 'Beryllium', e: 9.32 },
+    { z: 5, sym: 'B', name: 'Bor', e: 8.30 },
+    { z: 6, sym: 'C', name: 'Kohlenstoff', e: 11.26 },
+    { z: 7, sym: 'N', name: 'Stickstoff', e: 14.53 },
+    { z: 8, sym: 'O', name: 'Sauerstoff', e: 13.62 },
+    { z: 9, sym: 'F', name: 'Fluor', e: 17.42 },
+    { z: 10, sym: 'Ne', name: 'Neon', e: 21.56 },
+    { z: 11, sym: 'Na', name: 'Natrium', e: 5.14 },
+    { z: 12, sym: 'Mg', name: 'Magnesium', e: 7.65 },
+    { z: 13, sym: 'Al', name: 'Aluminium', e: 5.99 },
+    { z: 14, sym: 'Si', name: 'Silicium', e: 8.15 },
+    { z: 15, sym: 'P', name: 'Phosphor', e: 10.49 },
+    { z: 16, sym: 'S', name: 'Schwefel', e: 10.36 },
+    { z: 17, sym: 'Cl', name: 'Chlor', e: 12.97 },
+    { z: 18, sym: 'Ar', name: 'Argon', e: 15.76 },
+    { z: 19, sym: 'K', name: 'Kalium', e: 4.34 },
+    { z: 20, sym: 'Ca', name: 'Calcium', e: 6.11 }
+  ];
+
+  function ionExplanation(element) {
+    const sym = element.sym;
+    if (sym === 'H') return 'Wasserstoff besitzt nur ein Elektron in der K-Schale (1s¹). Nach der Abtrennung bleibt ein nackter Kern zurück.';
+    if (sym === 'He') return 'Helium hat eine volle K-Schale (1s²). Die beiden Elektronen sind sehr fest gebunden – daher die höchste Ionisierungsenergie in dieser Reihe.';
+    if (sym === 'Li') return 'Lithium beginnt die L-Schale. Das einzelne 2s-Elektron sitzt weiter außen als die Elektronen der vollen K-Schale und ist leicht abzutrennen – die Ionisierungsenergie fällt stark ab.';
+    if (sym === 'Be') return 'Beryllium hat eine volle 2s-Unterschale (2s²). Diese Stabilität erklärt die vergleichsweise hohe Ionisierungsenergie.';
+    if (sym === 'B') return 'Bor beginnt die 2p-Unterschale (2p¹). Das p-Elektron liegt energetisch höher als die volle 2s-Unterschale – deshalb sinkt die Ionisierungsenergie gegenüber Beryllium.';
+    if (sym === 'C') return 'Kohlenstoff füllt die 2p-Unterschale weiter (2p²). Die Ionisierungsenergie steigt wieder an.';
+    if (sym === 'N') return 'Stickstoff besitzt eine halbvolle 2p-Unterschale (2p³) mit je einem Elektron pro Orbital. Diese halbvolle Besetzung ist besonders stabil.';
+    if (sym === 'O') return 'Sauerstoff (2p⁴) muss erstmals ein p-Orbital doppelt besetzen. Das zusätzliche Elektron ist leichter abzutrennen – die Ionisierungsenergie sinkt.';
+    if (sym === 'F') return 'Fluor (2p⁵) ist fast an der vollen p-Unterschale. Die Ionisierungsenergie steigt wieder deutlich an.';
+    if (sym === 'Ne') return 'Neon hat eine volle L-Schale (2s² 2p⁶). Die acht Elektronen sind sehr fest gebunden – hoher Peak.';
+    if (sym === 'Na') return 'Natrium beginnt die M-Schale. Das einzelne 3s-Elektron ist weit vom Kern entfernt und wird leicht abgegeben – starker Einbruch.';
+    if (sym === 'Mg') return 'Magnesium hat eine volle 3s-Unterschale (3s²). Die Ionisierungsenergie steigt gegenüber Natrium an.';
+    if (sym === 'Al') return 'Aluminium beginnt die 3p-Unterschale (3p¹). Der kleine Knick gegenüber Magnesium zeigt den Wechsel der Unterschale.';
+    if (['Si', 'P', 'S', 'Cl'].includes(sym)) return 'Die 3p-Unterschale wird schrittweise gefüllt. Besonders stabil ist die halbvolle 3p³-Konfiguration bei Phosphor; bei Schwefel setzt die Paarung ein.';
+    if (sym === 'Ar') return 'Argon hat eine volle M-Schale (3s² 3p⁶) und damit eine hohe Ionisierungsenergie.';
+    if (sym === 'K') return 'Kalium beginnt die N-Schale. Das einzelne 4s-Elektron ist leicht abzutrennen – der nächste große Einbruch.';
+    if (sym === 'Ca') return 'Calcium hat eine volle 4s-Unterschale (4s²). Die Ionisierungsenergie steigt wieder an.';
+    return 'Die erste Ionisierungsenergie beträgt ' + fmt(element.e, 2) + ' eV. Vergleiche den Wert mit den Nachbarn: Sprünge markieren volle Unterschalen, Einbrüche den Beginn einer neuen Unterschale.';
+  }
+
+  const chartWidth = 920;
+  const chartHeight = 380;
+  const chartMargin = { top: 28, right: 20, bottom: 56, left: 58 };
+  const chartInnerWidth = chartWidth - chartMargin.left - chartMargin.right;
+  const chartInnerHeight = chartHeight - chartMargin.top - chartMargin.bottom;
+  const chartX = (index) => chartMargin.left + (index * chartInnerWidth) / (ionData.length - 1);
+  const chartY = (value) => chartHeight - chartMargin.bottom - (value / 26) * chartInnerHeight;
+
+  function buildIonChart() {
+    let markup = '<defs>' +
+      '<linearGradient id="ionAreaGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2dd4bf" stop-opacity=".3"></stop><stop offset="1" stop-color="#2dd4bf" stop-opacity="0"></stop></linearGradient>' +
+      '<linearGradient id="ionLineGrad" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#0f9d8f"></stop><stop offset=".55" stop-color="#6d5bd0"></stop><stop offset="1" stop-color="#d98a00"></stop></linearGradient>' +
+      '</defs>';
+    [0, 5, 10, 15, 20, 25].forEach((value) => {
+      const y = chartY(value);
+      markup += '<line class="chart-grid" x1="' + chartMargin.left + '" y1="' + y + '" x2="' + (chartWidth - chartMargin.right) + '" y2="' + y + '"></line>';
+      markup += '<text class="chart-label" x="' + (chartMargin.left - 10) + '" y="' + (y + 4) + '" text-anchor="end">' + value + '</text>';
+    });
+    markup += '<line class="chart-axis" x1="' + chartMargin.left + '" y1="' + (chartHeight - chartMargin.bottom) + '" x2="' + (chartWidth - chartMargin.right) + '" y2="' + (chartHeight - chartMargin.bottom) + '"></line>';
+    markup += '<line class="chart-axis" x1="' + chartMargin.left + '" y1="' + chartMargin.top + '" x2="' + chartMargin.left + '" y2="' + (chartHeight - chartMargin.bottom) + '"></line>';
+    let areaPath = 'M' + chartX(0) + ' ' + chartY(0);
+    let linePath = '';
+    ionData.forEach((element, index) => {
+      const x = chartX(index);
+      const y = chartY(element.e);
+      areaPath += ' L' + x + ' ' + y;
+      linePath += (index === 0 ? 'M' : 'L') + x + ' ' + y + ' ';
+    });
+    areaPath += ' L' + chartX(ionData.length - 1) + ' ' + chartY(0) + ' Z';
+    markup += '<path d="' + areaPath + '" fill="url(#ionAreaGrad)" class="chart-area"></path>';
+    markup += '<path d="' + linePath + '" class="chart-line" stroke="url(#ionLineGrad)"></path>';
+    ionData.forEach((element, index) => {
+      const x = chartX(index);
+      const y = chartY(element.e);
+      markup += '<g class="ion-point" data-index="' + index + '" tabindex="0" role="button" aria-label="' + element.name + ': ' + fmt(element.e, 2) + ' Elektronenvolt">' +
+        '<circle class="hit" cx="' + x + '" cy="' + y + '" r="13"></circle>' +
+        '<circle class="dot" cx="' + x + '" cy="' + y + '" r="4.5"></circle>' +
+      '</g>';
+      markup += '<text class="chart-symbol" x="' + x + '" y="' + (chartHeight - chartMargin.bottom + 20) + '" text-anchor="middle">' + element.sym + '</text>';
+    });
+    markup += '<text class="chart-label" x="' + (chartMargin.left - 42) + '" y="' + (chartMargin.top - 8) + '">eV</text>';
+    markup += '<text class="chart-label" x="' + (chartWidth / 2) + '" y="' + (chartHeight - 8) + '" text-anchor="middle">Atomart (Ordnungszahl 1–20)</text>';
+    $('#ionChart').innerHTML = markup;
+  }
+
+  buildIonChart();
+
+  const chartTip = $('#ionTip');
+  const ionReadout = $('#ionReadout');
+
+  function positionTip(event) {
+    const wrap = $('.chart-wrap');
+    const rect = wrap.getBoundingClientRect();
+    chartTip.style.left = ((event.clientX - rect.left) / rect.width) * 100 + '%';
+    chartTip.style.top = ((event.clientY - rect.top) / rect.height) * 100 + '%';
+  }
+
+  function showPointTip(index, event) {
+    const element = ionData[index];
+    chartTip.innerHTML = '<strong>' + element.sym + '</strong> · ' + element.name + '<span>' + fmt(element.e, 2) + ' eV</span>';
+    positionTip(event);
+    chartTip.classList.add('show');
+  }
+
+  function selectIon(index) {
+    const element = ionData[index];
+    $$('.ion-point').forEach((point) => point.classList.toggle('selected', Number(point.dataset.index) === index));
+    ionReadout.innerHTML = '<h4><span class="reading-dot" style="background: var(--accent)"></span>' + element.name + ' (' + element.sym + ') <span class="big-value">' + fmt(element.e, 2) + ' eV</span></h4><p>' + ionExplanation(element) + '</p>';
+  }
+
+  $$('.ion-point').forEach((point) => {
+    const index = Number(point.dataset.index);
+    point.addEventListener('mouseenter', (event) => showPointTip(index, event));
+    point.addEventListener('mousemove', positionTip);
+    point.addEventListener('mouseleave', () => chartTip.classList.remove('show'));
+    point.addEventListener('focus', () => {
+      const rect = point.getBoundingClientRect();
+      const wrapRect = $('.chart-wrap').getBoundingClientRect();
+      chartTip.innerHTML = '<strong>' + ionData[index].sym + '</strong> · ' + ionData[index].name + '<span>' + fmt(ionData[index].e, 2) + ' eV</span>';
+      chartTip.style.left = ((rect.left + rect.width / 2 - wrapRect.left) / wrapRect.width) * 100 + '%';
+      chartTip.style.top = ((rect.top - wrapRect.top) / wrapRect.height) * 100 + '%';
+      chartTip.classList.add('show');
+    });
+    point.addEventListener('blur', () => chartTip.classList.remove('show'));
+    point.addEventListener('click', () => selectIon(index));
+    point.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        selectIon(index);
+      }
+    });
+  });
+
+  selectIon(1);
+
+  const zeemanDemo = $('#zeemanDemo');
+  const fieldToggle = $('#fieldToggle');
+  let fieldOn = false;
+
+  function renderField() {
+    zeemanDemo.classList.toggle('field-on', fieldOn);
+    fieldToggle.setAttribute('aria-pressed', String(fieldOn));
+    $('.toggle-label', fieldToggle).textContent = fieldOn ? 'Magnetfeld: an' : 'Magnetfeld: aus';
+    $('#fieldStatus').textContent = fieldOn ? 'Drei Linien' : 'Eine Linie';
+    $('#absorptionStatus').textContent = fieldOn ? 'Resonanzabsorption: nein' : 'Resonanzabsorption: ja';
+    $('#shadowText').textContent = fieldOn ? 'Schatten verschwindet – die Energie passt nicht mehr' : 'Schatten der Natriumflamme sichtbar';
+  }
+
+  fieldToggle.addEventListener('click', () => {
+    fieldOn = !fieldOn;
+    renderField();
+  });
+
+  renderField();
+
+  const sgStage = $('#sgStage');
+  $$('.sg-tab').forEach((button) => {
+    button.addEventListener('click', () => {
+      sgStage.dataset.mode = button.dataset.mode;
+      $$('.sg-tab').forEach((tab) => {
+        const isActive = tab === button;
+        tab.classList.toggle('active', isActive);
+        tab.setAttribute('aria-pressed', String(isActive));
+      });
+    });
+  });
+
+  const doubletSpectrum = $('#doubletSpectrum');
+  const doubletZoom = $('#doubletZoom');
+  doubletZoom.addEventListener('click', () => {
+    const zoomed = doubletSpectrum.classList.toggle('zoomed');
+    doubletZoom.setAttribute('aria-pressed', String(zoomed));
+    doubletZoom.textContent = zoomed ? 'Originalabstand' : 'Linien vergrößern';
+    $('#doubletCaption').textContent = zoomed
+      ? 'Schematisch vergrößert: Die beiden Linien liegen im Original nur 0,6 nm auseinander.'
+      : 'Die beiden gelben Linien liegen im echten Spektrum extrem nah beieinander.';
+  });
+
+  const quizQuestions = [
+    {
+      question: 'Welche Quantenzahl bestimmt die Form des Orbitals?',
+      options: ['Hauptquantenzahl n', 'Nebenquantenzahl l', 'Magnetquantenzahl mₗ', 'Spinquantenzahl s'],
+      correct: 1,
+      explanation: 'Die Nebenquantenzahl l legt die Unterschale und damit die Orbitalform fest: l = 0 ist s (kugelförmig), l = 1 ist p (hantelförmig), l = 2 ist d, l = 3 ist f.',
+      topic: 'Nebenquantenzahl'
+    },
+    {
+      question: 'Welche Werte sind für l bei n = 3 erlaubt?',
+      options: ['1, 2, 3', '0, 1, 2', '0, 1, 2, 3', 'nur 0'],
+      correct: 1,
+      explanation: 'Es gilt l = 0, 1, …, n − 1. Für n = 3 sind also l = 0, 1 und 2 möglich – das ergibt 3s, 3p und 3d.',
+      topic: 'Nebenquantenzahl'
+    },
+    {
+      question: 'Wie viele Orbitale umfasst eine p-Unterschale?',
+      options: ['1', '3', '5', '6'],
+      correct: 1,
+      explanation: 'Für l = 1 gibt es 2l + 1 = 3 Orientierungen. Die drei p-Orbitale können maximal 6 Elektronen aufnehmen.',
+      topic: 'Magnetquantenzahl'
+    },
+    {
+      question: 'Wie viele Elektronen passen maximal in eine d-Unterschale?',
+      options: ['2', '6', '10', '14'],
+      correct: 2,
+      explanation: 'Eine d-Unterschale hat l = 2, also 5 Orbitale. Jedes Orbital fasst 2 Elektronen – zusammen maximal 10.',
+      topic: 'Quantenzahlen'
+    },
+    {
+      question: 'Welche Kombination ist nicht erlaubt?',
+      options: ['n = 1, l = 0', 'n = 2, l = 1', 'n = 2, l = 2', 'n = 3, l = 2'],
+      correct: 2,
+      explanation: 'Für n = 2 sind nur l = 0 und l = 1 möglich. Ein „2d“-Orbital gibt es nicht, weil l höchstens n − 1 sein darf.',
+      topic: 'Nebenquantenzahl'
+    },
+    {
+      question: 'Was beschreibt die Magnetquantenzahl mₗ?',
+      options: ['Die Energie des Kerns', 'Die räumliche Orientierung des Orbitals', 'Den Spin des Elektrons', 'Die Größe des Atoms'],
+      correct: 1,
+      explanation: 'mₗ beschreibt die Orientierung eines Orbitals im Raum. Erlaubte Werte sind −l bis +l, insgesamt 2l + 1 Orientierungen.',
+      topic: 'Magnetquantenzahl'
+    },
+    {
+      question: 'Was beobachtet man beim Zeeman-Effekt?',
+      options: ['Alle Spektrallinien verschwinden', 'Spektrallinien spalten im Magnetfeld auf', 'Licht wird schneller', 'Es entstehen neue Elemente'],
+      correct: 1,
+      explanation: 'Ein äußeres Magnetfeld hebt die Entartung der magnetischen Unterniveaus auf. Dadurch spaltet eine Spektrallinie in mehrere Linien auf.',
+      topic: 'Zeeman-Effekt'
+    },
+    {
+      question: 'Was beobachteten Stern und Gerlach 1922?',
+      options: ['Ein kontinuierliches Band', 'Genau zwei diskrete Auftreffpunkte', 'Drei gleich helle Linien', 'Überhaupt keine Ablenkung'],
+      correct: 1,
+      explanation: 'Der Silberatomstrahl wurde in zwei diskrete Teilstrahlen aufgespalten. Das belegt die Richtungsquantelung des Spins mit s = ±½.',
+      topic: 'Spin'
+    },
+    {
+      question: 'Welche Elektronenkonfiguration hat Calcium (Z = 20)?',
+      options: ['1s² 2s² 2p⁶ 3s² 3p⁶ 4s²', '1s² 2s² 2p⁶ 3s² 3p⁶ 3d²', '1s² 2s² 2p⁶ 3s² 3p⁸', '1s² 2s² 2p⁶ 3s² 3p⁶ 4p²'],
+      correct: 0,
+      explanation: 'Calcium besitzt 20 Elektronen. Nach 3p⁶ wird zuerst die energetisch tiefere 4s-Unterschale mit 2 Elektronen gefüllt: 1s² 2s² 2p⁶ 3s² 3p⁶ 4s².',
+      topic: 'Aufbauprinzip'
+    },
+    {
+      question: 'Warum wird 4s vor 3d besetzt?',
+      options: ['4s ist größer', '4s liegt energetisch tiefer', '3d existiert nicht', 'Das ist reiner Zufall'],
+      correct: 1,
+      explanation: 'Nach der Faustregel wird die Unterschale mit der kleineren Summe n + l zuerst besetzt. Für 4s ist 4 + 0 = 4, für 3d ist 3 + 2 = 5. Deshalb kommt 4s zuerst.',
+      topic: 'Aufbauprinzip'
+    },
+    {
+      question: 'Die Natrium-Doppellinie bei 589 nm entsteht durch …',
+      options: ['zwei verschiedene Elemente', 'Spin-Bahn-Kopplung und zwei leicht verschiedene 3p-Niveaus', 'ein Elektron, das zweimal springt', 'den Zeeman-Effekt ohne Magnetfeld'],
+      correct: 1,
+      explanation: 'Der Spin koppelt an den Bahndrehimpuls. Dadurch spaltet das 3p-Niveau in zwei energetisch leicht verschiedene Zustände auf. Die Übergänge zur 3s-Stufe ergeben zwei eng benachbarte Linien.',
+      topic: 'Spin'
+    },
+    {
+      question: 'Wie viele mₗ-Werte gibt es für l = 2?',
+      options: ['3', '5', '7', '10'],
+      correct: 1,
+      explanation: 'Für l = 2 lauten die erlaubten Werte −2, −1, 0, +1, +2. Das sind 2l + 1 = 5 Orientierungen.',
+      topic: 'Magnetquantenzahl'
+    },
+    {
+      question: 'Alle Elektronen einer Hauptschale haben exakt dieselbe Energie. Stimmt das?',
+      options: ['Ja', 'Nein'],
+      correct: 1,
+      explanation: 'Nein. Eine Hauptschale ist in Unterschalen s, p, d, f gegliedert, die sich energetisch unterscheiden. Nur die Orbitale innerhalb einer Unterschale sind ohne äußeres Feld energiegleich.',
+      topic: 'Energiestufen'
+    },
+    {
+      question: 'Welche Wasserstoff-Serie liegt im sichtbaren Bereich?',
+      options: ['Lyman-Serie', 'Balmer-Serie', 'Paschen-Serie', 'Brackett-Serie'],
+      correct: 1,
+      explanation: 'Die Balmer-Serie umfasst Übergänge auf das Niveau n = 2. Ihre bekanntesten Linien liegen bei 656 nm (rot), 486 nm (blaugrün), 434 nm (blau) und 410 nm (violett).',
+      topic: 'Spektren'
+    }
+  ];
+
+  const quizState = { index: 0, score: 0, answered: false, wrongTopics: [] };
+  const quizStart = $('#quizStart');
+  const quizPlay = $('#quizPlay');
+  const quizResult = $('#quizResult');
+
+  function getBestScore() {
+    try {
+      const raw = localStorage.getItem('qz-quiz-best');
+      if (raw === null) return null;
+      const value = Number(raw);
+      return Number.isFinite(value) ? value : null;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  function updateBestDisplay() {
+    const best = getBestScore();
+    $('#quizBest').textContent = best === null ? 'Bestleistung: noch keine' : 'Bestleistung: ' + best + ' %';
+  }
+
+  function startQuiz() {
+    quizState.index = 0;
+    quizState.score = 0;
+    quizState.answered = false;
+    quizState.wrongTopics = [];
+    quizStart.hidden = true;
+    quizResult.hidden = true;
+    quizPlay.hidden = false;
+    renderQuestion();
+  }
+
+  function renderQuestion() {
+    const question = quizQuestions[quizState.index];
+    quizState.answered = false;
+    $('#quizCounter').textContent = 'Frage ' + (quizState.index + 1) + ' von ' + quizQuestions.length;
+    $('#quizScore').textContent = quizState.score + (quizState.score === 1 ? ' Punkt' : ' Punkte');
+    $('#quizBar').style.width = (quizState.index / quizQuestions.length) * 100 + '%';
+    $('#quizQuestion').textContent = question.question;
+    $('#quizOptions').innerHTML = question.options.map((option, index) => (
+      '<button class="quiz-option" type="button" data-index="' + index + '"><span class="option-letter">' + 'ABCD'[index] + '</span><span>' + option + '</span></button>'
+    )).join('');
+    const feedback = $('#quizFeedback');
+    feedback.hidden = true;
+    feedback.innerHTML = '';
+    $('#quizNext').hidden = true;
+    $('#quizNext').textContent = quizState.index === quizQuestions.length - 1 ? 'Ergebnis ansehen' : 'Weiter';
+  }
+
+  $('#quizOptions').addEventListener('click', (event) => {
+    const button = event.target.closest('.quiz-option');
+    if (!button || quizState.answered) return;
+    quizState.answered = true;
+    const question = quizQuestions[quizState.index];
+    const chosen = Number(button.dataset.index);
+    const correct = question.correct;
+    $$('.quiz-option').forEach((optionButton) => {
+      optionButton.disabled = true;
+      const index = Number(optionButton.dataset.index);
+      if (index === correct) optionButton.classList.add('correct');
+      if (index === chosen && index !== correct) optionButton.classList.add('wrong');
+    });
+    if (chosen === correct) {
+      quizState.score += 1;
+    } else {
+      quizState.wrongTopics.push(question.topic);
+    }
+    $('#quizScore').textContent = quizState.score + (quizState.score === 1 ? ' Punkt' : ' Punkte');
+    $('#quizBar').style.width = ((quizState.index + 1) / quizQuestions.length) * 100 + '%';
+    const feedback = $('#quizFeedback');
+    feedback.hidden = false;
+    feedback.innerHTML = '<div class="feedback-head">' + (chosen === correct ? 'Richtig!' : 'Nicht ganz.') + '</div><p>' + question.explanation + '</p>';
+    $('#quizNext').hidden = false;
+  });
+
+  $('#quizNext').addEventListener('click', () => {
+    if (quizState.index < quizQuestions.length - 1) {
+      quizState.index += 1;
+      renderQuestion();
+    } else {
+      showResult();
+    }
+  });
+
+  function showResult() {
+    const total = quizQuestions.length;
+    const percent = Math.round((quizState.score / total) * 100);
+    const previousBest = getBestScore();
+    const best = previousBest === null ? percent : Math.max(previousBest, percent);
+    try { localStorage.setItem('qz-quiz-best', String(best)); } catch (error) {}
+    visited.add('quiz');
+    saveVisited();
+    renderProgress();
+    quizPlay.hidden = true;
+    quizResult.hidden = false;
+    let headline = 'Nochmal die Kapitel ansehen';
+    let message = 'Die Grundlagen sitzen noch nicht überall. Nutze die Erklärungen und starte einen zweiten Versuch – das Quiz zeigt dir, wo du ansetzen kannst.';
+    if (percent >= 90) {
+      headline = 'Quantenzahl-Profi!';
+      message = 'Du kannst die vier Quantenzahlen sicher erklären und auf Experimente anwenden. Starke Leistung.';
+    } else if (percent >= 70) {
+      headline = 'Sehr gut!';
+      message = 'Du hast die Zusammenhänge gut verstanden. Ein Blick in die wenigen unsicheren Themen lohnt sich noch.';
+    } else if (percent >= 50) {
+      headline = 'Gute Basis!';
+      message = 'Vieles sitzt bereits. Wiederhole vor allem die Energiestufen und das Aufbauprinzip, dann klappt es beim nächsten Versuch.';
+    }
+    const topicList = Array.from(new Set(quizState.wrongTopics));
+    quizResult.innerHTML =
+      '<div class="quiz-result">' +
+        '<div class="score-ring" style="--score: ' + percent + '"><div class="score-value">' + percent + ' %<small>' + quizState.score + ' von ' + total + '</small></div></div>' +
+        '<h3>' + headline + '</h3>' +
+        '<p>' + message + '</p>' +
+        (topicList.length ? '<div class="result-topics"><strong>Zum Wiederholen:</strong> ' + topicList.join(', ') + '</div>' : '') +
+        '<div class="result-actions">' +
+          '<button class="btn btn-primary" id="quizRetry" type="button"><svg class="icon" aria-hidden="true"><use href="#icon-reset"></use></svg>Nochmal versuchen</button>' +
+          '<a class="btn btn-ghost" href="#lernpfad">Zu den Lernstationen</a>' +
+        '</div>' +
+      '</div>';
+    updateBestDisplay();
+  }
+
+  $('#quizStartBtn').addEventListener('click', startQuiz);
+
+  quizResult.addEventListener('click', (event) => {
+    if (event.target.closest('#quizRetry')) startQuiz();
+  });
+
+  updateBestDisplay();
+
+  const glossarySearch = $('#glossarySearch');
+  const glossaryItems = $$('.glossary-item');
+  glossarySearch.addEventListener('input', () => {
+    const query = glossarySearch.value.trim().toLowerCase();
+    let visibleCount = 0;
+    glossaryItems.forEach((item) => {
+      const matches = !query || item.textContent.toLowerCase().includes(query);
+      item.hidden = !matches;
+      if (matches) visibleCount += 1;
+    });
+    $('#glossaryEmpty').hidden = visibleCount > 0;
+  });
+
+  $('#resetProgress').addEventListener('click', () => {
+    visited.clear();
+    try {
+      localStorage.removeItem('qz-visited');
+      localStorage.removeItem('qz-quiz-best');
+    } catch (error) {}
+    renderProgress();
+    updateBestDisplay();
+    showToast('Fortschritt und Bestleistung wurden zurückgesetzt.');
+  });
+})();
+</script>
+</body>
+</html>
